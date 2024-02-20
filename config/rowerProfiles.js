@@ -21,21 +21,20 @@ export default {
     // as well as the drive length. If all goes well, you end up with average forces around 300 to 800 N and drive lengths around 1.20 to 1.45 m
     sprocketRadius: 7.0,
 
-    // NOISE FILTER SETTINGS
-    // Filter Settings to reduce noise in the measured data
     // Minimum and maximum duration between impulses in seconds during active rowing. Measurements above the maximum are filtered, so setting these liberaly
     // might help here
     minimumTimeBetweenImpulses: 0.014,
     maximumTimeBetweenImpulses: 0.5,
 
+    // NOISE FILTER SETTINGS
+    // Filter Settings to reduce noise in the measured data
     // Smoothing determines the length of the running average for filtering the currentDt, 1 effectively turns it off
     smoothing: 1,
 
-    // STROKE DETECTION SETTINGS
-    // Flank length determines the minimum number of consecutive increasing/decreasing measuments that are needed before the stroke detection
-    // considers a drive phase change
+    // Flank length determines the number of measuments that are used for determining the angular velocity and angular acceleration
     flankLength: 3,
 
+    // STROKE DETECTION SETTINGS
     // This is the minimum force that has to be on the handle before ORM considers it a stroke, in Newtons. So this is about 2 Kg or 4.4 Lbs.
     minumumForceBeforeStroke: 20,
 
