@@ -18,7 +18,7 @@ export default {
     numOfImpulsesPerRevolution: 1,
 
     // How big the sprocket is that attaches your belt/chain to your flywheel. This determines both the force on the handle
-    // as well as the drive length. If all goes well, you end up with average forces around 400 to 800 N and drive lengths around 1.20 to 1.35 m
+    // as well as the drive length. If all goes well, you end up with average forces around 300 to 800 N and drive lengths around 1.20 to 1.45 m
     sprocketRadius: 7.0,
 
     // NOISE FILTER SETTINGS
@@ -56,15 +56,13 @@ export default {
     minimumDriveTime: 0.300, // minimum time of the drive phase
     minimumRecoveryTime: 0.900, // minimum time of the recovery phase
 
-    // Needed to determine the drag factor of the rowing machine. This value can be measured in the recovery phase
-    // of the stroke.
-    // To display it for your rowing machine, set the logging level of the RowingEngine to 'info'. Then start rowing and
-    // you will see the measured values in the log.
-    // Just as a frame of reference: the Concept2 can display this factor from the menu, where it is multiplied with 1.000.000
-    // For a new Concept2 the Drag Factor ranges between 80 (Damper setting 1) and 220 (Damper setting 10). Other rowers are
-    // in the range of 150 to 450 (NordicTrack).
+    // Needed to determine the drag factor of the rowing machine. This value can be measured in the recovery phasse of the stroke.
+    // To display it for your rowing machine, set the logging level of the RowingEngine to 'info'. Then start rowing and you will see the measured
+    // values in the log.
+    // Just as a frame of reference: the Concept2 can display this factor from the menu, where it ranges between 80 (Damper setting 1) to 220 (Damper setting 10).
+    // Other rowers are in the range of 150 to 450 (NordicTrack), but more extreme values are found in waterrowers (for example 32000)
     // Open Rowing Monitor can also automatically adjust this value based on the measured damping. To do so, set the setting
-    // autoAdjustDragFactor to true (see below).
+    // autoAdjustDragFactor to true (see below) and set the flywheel inertia.
     dragFactor: 1500,
 
     // Set this to true, if you want to automatically update the drag factor based on the measured
