@@ -228,9 +228,9 @@ function createFlywheel (rowerSettings) {
   function isDwelling () {
     // Check if the flywheel is spinning down beyond a recovery phase indicating that the rower has stopped rowing
     // We conclude this based on
-    // * A decelerating flywheel as the slope of the CurrentDt's goes up
-    // * All CurrentDt's in the flank are above the maximum
-    if (_deltaTime.slope() > 0 && deltaTimesAbove(rowerSettings.maximumTimeBetweenImpulses)) {
+    // * The angular velocity at the begin of the flank is above the minimum angular velocity (dependent on maximumTimeBetweenImpulses)
+    // * The entire flank has a positive trend, i.e. the flywheel is decelerating as the slope of the CurrentDt's goes up
+    if (_angularVelocityAtBeginFlank < minimumAngularVelocity && _deltaTime.length() >= flankLength && _deltaTime.slope() > 0) {
       return true
     } else {
       return false
@@ -238,9 +238,9 @@ function createFlywheel (rowerSettings) {
   }
 
   function isAboveMinimumSpeed () {
-    // Check if the flywheel has reached its minimum speed. We conclude this based on all CurrentDt's in the flank are below
-    // the maximum, indicating a sufficiently fast flywheel
-    if (deltaTimesEqualorBelow(rowerSettings.maximumTimeBetweenImpulses)) {
+    // Check if the flywheel has reached its minimum speed. We conclude this based on the first element in the flank
+    // as this angular velocity is created by all curves that are in that flank
+    if (_angularVelocityAtBeginFlank >= minimumAngularVelocity) {
       return true
     } else {
       return false
@@ -258,22 +258,6 @@ function createFlywheel (rowerSettings) {
 
   function isPowered () {
     if ((deltaTimeSlopeBelow(minumumRecoverySlope.weighedAverage()) && torquePresent()) || _deltaTime.length() < flankLength) {
-      return true
-    } else {
-      return false
-    }
-  }
-
-  function deltaTimesAbove (threshold) {
-    if (_deltaTime.minimumY() >= threshold && _deltaTime.length() >= flankLength) {
-      return true
-    } else {
-      return false
-    }
-  }
-
-  function deltaTimesEqualorBelow (threshold) {
-    if (_deltaTime.maximumY() <= threshold && _deltaTime.length() >= flankLength) {
       return true
     } else {
       return false
