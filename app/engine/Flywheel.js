@@ -34,6 +34,7 @@ function createFlywheel (rowerSettings) {
   const flankLength = rowerSettings.flankLength
   const minimumDragFactorSamples = Math.floor(rowerSettings.minimumRecoveryTime / rowerSettings.maximumTimeBetweenImpulses)
   const minumumTorqueBeforeStroke = rowerSettings.minumumForceBeforeStroke * (rowerSettings.sprocketRadius / 100)
+  const minimumAngularVelocity = angularDisplacementPerImpulse / rowerSettings.maximumTimeBetweenImpulses
   const currentDt = createStreamFilter(rowerSettings.smoothing, rowerSettings.maximumTimeBetweenImpulses)
   const _deltaTime = createOLSLinearSeries(flankLength)
   const _angularDistance = createTSQuadraticSeries(flankLength)
