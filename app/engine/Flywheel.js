@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   This models the flywheel with all of its attributes, which we can also test for being powered
 
@@ -290,7 +290,10 @@ function createFlywheel (rowerSettings) {
 
   function torquePresent () {
     // This is a typical indication that the flywheel is decelerating which might work on some machines: successive currentDt's are increasing
-    if (_torqueAtBeginFlank > minumumTorqueBeforeStroke) {
+    // We need to consider the situation rowerSettings.autoAdjustDragFactor && !drag.reliable() as a high default dragfactor (as set via config) blocks the
+    // detection of the first stroke based on Torque, and thus the calculation of the true dragfactor in that setting.
+    // This let the stroke detection fall back onto slope-based stroke detection only for the first stroke (until drag is calculated reliably)
+    if (_torqueAtBeginFlank > minumumTorqueBeforeStroke || (rowerSettings.autoAdjustDragFactor && !drag.reliable())) {
       return true
     } else {
       return false
@@ -299,7 +302,10 @@ function createFlywheel (rowerSettings) {
 
   function torqueAbsent () {
     // This is a typical indication that the flywheel is Accelerating which might work on some machines: successive currentDt's are decreasing
-    if (_torqueAtBeginFlank < minumumTorqueBeforeStroke) {
+    // We need to consider the situation rowerSettings.autoAdjustDragFactor && !drag.reliable() as a high default dragfactor (as set via config) blocks the
+    // detection of the first stroke based on Torque, and thus the calculation of the true dragfactor in that setting.
+    // This let the stroke detection fall back onto slope-based stroke detection only for the first stroke (until drag is calculated reliably)
+    if (_torqueAtBeginFlank < minumumTorqueBeforeStroke || (rowerSettings.autoAdjustDragFactor && !drag.reliable())) {
       return true
     } else {
       return false
