@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
+  Open Rowing Monitor, https://github.com/jaapvanekris/openrowingmonitor
 
   This creates an ordered series with labels
   It allows for efficient determining the Median, Number of Above and Below
@@ -111,7 +111,11 @@ function createLabelledBinarySearchTree () {
 
     // Next, handle the situation when we need to remove the node itself
     if (currentTree.label === label) {
-      // We need to remove the current node, the underlying sub-trees determin how it is resolved
+      // First we need to remove the current node, then we need to investigate the underlying sub-trees to determine how it is resolved
+      // First, release the memory of the current node before we start to rearrange the tree, as this might cause a memory leak
+      currentTree.label = null
+      currentTree.value = null
+      currentTree.numberOfLeafsAndNodes = null
       switch (true) {
         case (currentTree.leftNode === null && currentTree.rightNode === null):
           // As the underlying sub-trees are empty as well, we return an empty tree
@@ -188,6 +192,10 @@ function createLabelledBinarySearchTree () {
       return currentTree
     } else {
       // We reached the largest value in the tree
+      // First, release the memory of the current node before we start to rearrange the tree, as this might cause a memory leak
+      currentTree.label = null
+      currentTree.value = null
+      currentTree.numberOfLeafsAndNodes = null
       return currentTree.leftNode
     }
   }
@@ -215,6 +223,10 @@ function createLabelledBinarySearchTree () {
       return currentTree
     } else {
       // We reached the smallest value in the tree
+      // First, release the memory of the current node before we start to rearrange the tree, as this might cause a memory leak
+      currentTree.label = null
+      currentTree.value = null
+      currentTree.numberOfLeafsAndNodes = null
       return currentTree.rightNode
     }
   }
