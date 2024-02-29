@@ -38,12 +38,12 @@ function createFlywheel (rowerSettings) {
   const currentDt = createStreamFilter(rowerSettings.smoothing, rowerSettings.maximumTimeBetweenImpulses)
   const _deltaTime = createOLSLinearSeries(flankLength)
   const _angularDistance = createTSQuadraticSeries(flankLength)
-  const _angularVelocityMatrix = []
-  const _angularAccelerationMatrix = []
   const drag = createWeighedSeries(rowerSettings.dragFactorSmoothing, (rowerSettings.dragFactor / 1000000))
   const recoveryDeltaTime = createTSLinearSeries()
   const strokedetectionMinimalGoodnessOfFit = rowerSettings.minimumStrokeQuality
   const minumumRecoverySlope = createWeighedSeries(rowerSettings.dragFactorSmoothing, rowerSettings.minumumRecoverySlope)
+  let _angularVelocityMatrix = []
+  let _angularAccelerationMatrix = []
   let _deltaTimeBeforeFlank
   let _angularVelocityAtBeginFlank
   let _angularVelocityBeforeFlank
