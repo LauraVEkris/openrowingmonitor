@@ -328,6 +328,10 @@ function createFlywheel (rowerSettings) {
     currentCleanTime = 0
     currentRawTime = 0
     currentAngularDistance = 0
+    _angularVelocityMatrix = null
+    _angularVelocityMatrix = []
+    _angularAccelerationMatrix = null
+    _angularAccelerationMatrix = []
     _deltaTime.push(0, 0)
     _angularDistance.push(0, 0)
     _deltaTimeBeforeFlank = 0
