@@ -296,18 +296,24 @@ function createLabelledBinarySearchTree () {
   }
 
   function reset () {
-    tree = resetTree(tree)
+    resetTree(tree)
+    tree = null
   }
 
   function resetTree (currentTree) {
     if (currentTree !== null) {
       currentTree.label = null
       currentTree.value = null
+      if (currentTree.leftNode !== null) {
+        resetTree(currentTree.leftNode)
+        currentTree.leftNode = null
+      }
+      if (currentTree.rightNode !== null) {
+        resetTree(currentTree.rightNode)
+        currentTree.rightNode = null
+      }
       currentTree.numberOfLeafsAndNodes = null
-      currentTree.leftNode = resetTree(currentTree.leftNode)
-      currentTree.rightNode = resetTree(currentTree.rightNode)
     }
-    return null
   }
 
   return {
