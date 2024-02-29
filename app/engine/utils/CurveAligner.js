@@ -30,7 +30,8 @@ function createCurveAligner (minimumValue) {
   }
 
   function reset () {
-    _lastCompleteCurve.splice(0, _lastCompleteCurve.length)
+    _lastCompleteCurve = null
+    _lastCompleteCurve = []
   }
 
   return {
