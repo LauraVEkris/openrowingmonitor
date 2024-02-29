@@ -140,7 +140,8 @@ function createSeries (maxSeriesLength) {
   }
 
   function reset () {
-    seriesArray.splice(0, seriesArray.length)
+    seriesArray = null
+    seriesArray = []
     seriesSum = 0
     numPos = 0
     numNeg = 0
