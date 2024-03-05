@@ -54,7 +54,7 @@ function createRowingStatistics (config) {
   let dragFactor = config.rowerSettings.dragFactor
   let heartrate = 0
   let heartRateBatteryLevel = 0
-  const postExerciseHR = []
+  let postExerciseHR = []
   let instantPower = 0.0
   let lastStrokeState = 'WaitingForDrive'
 
