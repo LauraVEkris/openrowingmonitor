@@ -217,12 +217,21 @@ function createRowingStatistics (config) {
     driveLastStartTime = 0
     distanceOverTime.reset()
     driveDuration.reset()
+    recoveryDuration.reset()
+    driveLength.reset()
+    driveDistance.reset()
+    driveAverageHandleForce.reset()
+    drivePeakHandleForce.reset()
+    driveHandleForceCurve.reset()
+    driveHandleVelocityCurve.reset()
+    driveHandlePowerCurve.reset()
     cycleDuration.reset()
     cycleDistance.reset()
     cyclePower.reset()
     strokeCalories = 0
     strokeWork = 0
-    postExerciseHR.splice(0, postExerciseHR.length)
+    postExerciseHR = null
+    postExerciseHR = []
     cycleLinearVelocity.reset()
     lastStrokeState = 'WaitingForDrive'
     emitMetrics('rowingPaused')
