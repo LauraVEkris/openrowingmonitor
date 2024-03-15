@@ -241,7 +241,7 @@ function createFlywheel (rowerSettings) {
   function isAboveMinimumSpeed () {
     // Check if the flywheel has reached its minimum speed. We conclude this based on the first element in the flank
     // as this angular velocity is created by all curves that are in that flank
-    if (_angularVelocityAtBeginFlank >= minimumAngularVelocity) {
+    if (_angularVelocityAtBeginFlank >= minimumAngularVelocity && _deltaTime.slope() <= 0) {
       return true
     } else {
       return false
