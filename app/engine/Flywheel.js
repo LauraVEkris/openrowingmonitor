@@ -230,8 +230,8 @@ function createFlywheel (rowerSettings) {
     // Check if the flywheel is spinning down beyond a recovery phase indicating that the rower has stopped rowing
     // We conclude this based on
     // * The angular velocity at the begin of the flank is above the minimum angular velocity (dependent on maximumTimeBetweenImpulses)
-    // * The entire flank has a positive trend, i.e. the flywheel is decelerating as the slope of the CurrentDt's goes up
-    if (_angularVelocityAtBeginFlank < minimumAngularVelocity && _deltaTime.length() >= flankLength && _deltaTime.slope() > 0) {
+    // * The entire flank has a positive trend, i.e. the flywheel is decelerating consistent with the dragforce being present
+    if (_angularVelocityAtBeginFlank < minimumAngularVelocity && deltaTimeSlopeAbove(minumumRecoverySlope.weighedAverage())) {
       return true
     } else {
       return false
@@ -240,8 +240,8 @@ function createFlywheel (rowerSettings) {
 
   function isAboveMinimumSpeed () {
     // Check if the flywheel has reached its minimum speed. We conclude this based on the first element in the flank
-    // as this angular velocity is created by all curves that are in that flank
-    if (_angularVelocityAtBeginFlank >= minimumAngularVelocity && _deltaTime.slope() <= 0) {
+    // as this angular velocity is created by all curves that are in that flank and having an acceleration in the rest of the flank
+    if (_angularVelocityAtBeginFlank >= minimumAngularVelocity && deltaTimeSlopeBelow(minumumRecoverySlope.weighedAverage())) {
       return true
     } else {
       return false
