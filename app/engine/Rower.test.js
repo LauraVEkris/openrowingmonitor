@@ -51,7 +51,7 @@ test('Correct Flywheel behaviour at initialisation', () => {
   testDragFactor(flywheel, 0.00011)
   testIsDwelling(flywheel, false)
   testIsUnpowered(flywheel, false)
-  testIsPowered(flywheel, true)
+  testIsPowered(flywheel, false)
 })
 
 // Test behaviour for one datapoint
@@ -73,7 +73,7 @@ test('Correct Flywheel behaviour for a noisefree stroke', () => {
   testDragFactor(flywheel, 0.00011)
   testIsDwelling(flywheel, false)
   testIsUnpowered(flywheel, false)
-  testIsPowered(flywheel, true)
+  testIsPowered(flywheel, false)
   flywheel.pushValue(0.011221636)
   flywheel.pushValue(0.011175504)
   flywheel.pushValue(0.01116456)
@@ -178,7 +178,7 @@ test('Correct Flywheel behaviour at maintainStateOnly', () => {
   testDragFactor(flywheel, 0.00011)
   testIsDwelling(flywheel, false)
   testIsUnpowered(flywheel, false)
-  testIsPowered(flywheel, true)
+  testIsPowered(flywheel, false)
   flywheel.maintainStateOnly()
   flywheel.pushValue(0.011221636)
   flywheel.pushValue(0.011175504)
