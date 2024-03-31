@@ -14,6 +14,7 @@ import { deepMerge } from '../tools/Helper.js'
 import { replayRowingSession } from '../tools/RowingRecorder.js'
 import rowerProfiles from '../../config/rowerProfiles.js'
 
+// ToDo: Tranform this into a test of Rower.js, not Flywheel.js
 import { createFlywheel } from './Flywheel.js'
 
 const baseConfig = { // Based on Concept 2 settings, as this is the validation system
