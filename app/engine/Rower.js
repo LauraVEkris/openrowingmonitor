@@ -53,7 +53,7 @@ function createRower (rowerSettings) {
       case (_strokeState === 'Stopped'):
         // We are in a stopped state, so don't do anything
         break
-      case (_strokeState === 'WaitingForDrive' && flywheel.isPowered() && flywheel.isAboveMinimumSpeed()):
+      case (_strokeState === 'WaitingForDrive' && flywheel.isAboveMinimumSpeed()):
         // We change into the "Drive" phase since were waiting for a drive phase, and we see a clear force exerted on the flywheel
         log.debug(`*** Rowing (re)started with a DRIVE phase at time: ${flywheel.spinningTime().toFixed(4)} sec`)
         // As we are not certain what caused the "WaitingForDrive" (a fresh start or a restart after pause),, we explicitly start the flywheel maintaining metrics again
