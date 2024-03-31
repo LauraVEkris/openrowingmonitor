@@ -249,7 +249,7 @@ function createFlywheel (rowerSettings) {
   }
 
   function isUnpowered () {
-    if (deltaTimeSlopeAbove(minumumRecoverySlope.weighedAverage()) && torqueAbsent() && _deltaTime.length() >= flankLength) {
+    if (deltaTimeSlopeAbove(minumumRecoverySlope.weighedAverage()) && torqueAbsent()) {
       // We reached the minimum number of increasing currentDt values
       return true
     } else {
@@ -258,7 +258,7 @@ function createFlywheel (rowerSettings) {
   }
 
   function isPowered () {
-    if ((deltaTimeSlopeBelow(minumumRecoverySlope.weighedAverage()) && torquePresent()) || _deltaTime.length() < flankLength) {
+    if (deltaTimeSlopeBelow(minumumRecoverySlope.weighedAverage()) && torquePresent()) {
       return true
     } else {
       return false
@@ -269,7 +269,7 @@ function createFlywheel (rowerSettings) {
     // This is a typical indication that the flywheel is accelerating. We use the slope of successive currentDt's
     // A (more) negative slope indicates a powered flywheel. When set to 0, it determines whether the DeltaT's are decreasing
     // When set to a value below 0, it will become more stringent. In automatic, a percentage of the current slope (i.e. dragfactor) is used
-    if (_deltaTime.slope() < threshold && _deltaTime.length() >= flankLength) {
+    if (_deltaTime.slope() < threshold && _deltaTime.goodnessOfFit() >= strokedetectionMinimalGoodnessOfFit && _deltaTime.length() >= flankLength) {
       return true
     } else {
       return false
@@ -290,7 +290,7 @@ function createFlywheel (rowerSettings) {
 
   function torquePresent () {
     // This is a typical indication that the flywheel is accelerating: the torque is above a certain threshold (so a force is present on the handle)
-    if (_torqueAtBeginFlank > minumumTorqueBeforeStroke) {
+    if (_torqueAtBeginFlank >= minumumTorqueBeforeStroke) {
       return true
     } else {
       return false
@@ -302,7 +302,7 @@ function createFlywheel (rowerSettings) {
     // We need to consider the situation rowerSettings.autoAdjustDragFactor && !drag.reliable() as a high default dragfactor (as set via config) blocks the
     // detection of the first recovery based on Torque, and thus the calculation of the true dragfactor in that setting.
     // This let the recovery detection fall back onto slope-based stroke detection only for the first stroke (until drag is calculated reliably)
-    if (_torqueAtBeginFlank < minumumTorqueBeforeStroke || (rowerSettings.autoAdjustDragFactor && !drag.reliable())) {
+    if (_torqueAtBeginFlank < minumumTorqueBeforeStroke) {
       return true
     } else {
       return false
