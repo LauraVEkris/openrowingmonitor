@@ -175,7 +175,7 @@ export default {
   NordicTrack_RX800: {
     numOfImpulsesPerRevolution: 4,
     minimumTimeBetweenImpulses: 0.005,
-    maximumTimeBetweenImpulses: 0.022,
+    maximumTimeBetweenImpulses: 0.030,
     sprocketRadius: 3.0,
     autoAdjustDragFactor: true,
     minimumDragQuality: 0.83,
