@@ -258,15 +258,6 @@ function createFlywheel (rowerSettings) {
     }
   }
 
-  function isUnpowered () {
-    if (deltaTimeSlopeAbove(minumumRecoverySlope.weighedAverage()) && torqueAbsent()) {
-      // We reached the minimum number of increasing currentDt values
-      return true
-    } else {
-      return false
-    }
-  }
-
   function isPowered () {
     if (deltaTimeSlopeBelow(minumumRecoverySlope.weighedAverage()) && torquePresent()) {
       return true
