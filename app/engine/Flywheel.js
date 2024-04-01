@@ -249,6 +249,16 @@ function createFlywheel (rowerSettings) {
   }
 
   function isUnpowered () {
+    // We consider the flywheel unpowered when there is an acceleration consistent with the drag being the only forces AND no torque being seen
+    // As in the first stroke drag is unreliable for automatic drag updating machines, torque can't be used when drag indicates it is unreliable for these machines
+    if (deltaTimeSlopeAbove(minumumRecoverySlope.weighedAverage()) && (torqueAbsent() || (rowerSettings.autoAdjustDragFactor && !drag.reliable()))) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  function isUnpowered () {
     if (deltaTimeSlopeAbove(minumumRecoverySlope.weighedAverage()) && torqueAbsent()) {
       // We reached the minimum number of increasing currentDt values
       return true
