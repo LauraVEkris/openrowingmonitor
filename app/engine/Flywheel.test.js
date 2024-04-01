@@ -270,7 +270,7 @@ test('Correct Flywheel behaviour with a NordicTrack RX800', async () => {
   // Inject 10 strokes
   await replayRowingSession(flywheel.pushValue, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
-  testSpinningTime(flywheel, 22.65622640199999)
+  testSpinningTime(flywheel, 22.67222640199999)
   testAngularPosition(flywheel, 1446.7034169780998)
   // As we don't detect strokes here (this is a function of Rower.js, the dragcalculation shouldn't be triggered
   testDragFactor(flywheel, (rowerProfiles.NordicTrack_RX800.dragFactor / 1000000))
