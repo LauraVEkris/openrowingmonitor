@@ -7,10 +7,14 @@
   a Theil-Sen estimator Linear Regressor to determine the slope of this timeseries.
 
   At creation its length is determined. After it is filled, the oldest will be pushed
-  out of the queue) automatically.
+  out of the queue) automatically. This is a property of the Series object
 
   A key constraint is to prevent heavy calculations at the end (due to large
   array based curve fitting), which might happen on a Pi zero
+
+  In order to prevent unneccessary calculations, this implementation uses lazy evaluation,
+  so it will calculate the intercept and goodnessOfFit only when needed, as many uses only
+  (first) need the slope.
 
   This implementation uses concepts that are described here:
   https://en.wikipedia.org/wiki/Theil%E2%80%93Sen_estimator
@@ -31,13 +35,14 @@ function createTSLinearSeries (maxSeriesLength = 0) {
 
   let _A = 0
   let _B = 0
+  let _goodnessOfFit = 0
 
   function push (x, y) {
     // Invariant: A contains all a's (as in the general formula y = a * x + b)
     // Where the a's are labeled in the Binary Search Tree with their xi when they BEGIN in the point (xi, yi)
     if (maxSeriesLength > 0 && X.length() >= maxSeriesLength) {
-      // The maximum of the array has been reached, so when pushing the x,y into the arrays, they get shifted automatically,
-      // So, we have to remove the a's belonging to the current position X0 as well before this value is trashed
+      // The maximum of the array has been reached, so when pushing the x,y the array gets shifted,
+      // thus we have to remove the a's belonging to the current position X0 as well before this value is trashed
       A.remove(X.get(0))
     }
 
@@ -49,8 +54,7 @@ function createTSLinearSeries (maxSeriesLength = 0) {
       // There are at least two points in the X and Y arrays, so let's add the new datapoint
       let i = 0
       while (i < X.length() - 1) {
-        // Calculate the slope with all preceeding datapoints with the X.length() - 1'th datapoint (as the array starts at zero)
-        // And store it at its beginpoint (i.e. X.get(i)) to allow remove when that point gets removed from the flank
+        // Calculate the slope with all preceeding datapoints and X.length() - 1'th datapoint (as the array starts at zero)
         A.push(X.get(i), calculateSlope(i, X.length() - 1))
         i++
       }
@@ -63,19 +67,9 @@ function createTSLinearSeries (maxSeriesLength = 0) {
       _A = 0
     }
 
-    // Calculate all the intercepts for the newly added point and the newly calculated A
-    const B = createLabelledBinarySearchTree()
-    if (X.length() > 1) {
-      // There are at least two points in the X and Y arrays, so let's calculate the intercept
-      let i = 0
-      while (i < X.length()) {
-        // Please note , as we need to recreate the B-tree for each newly added datapoint anyway, the label i isn't relevant
-        B.push(i, (Y.get(i) - (_A * X.get(i))))
-        i++
-      }
-    }
-
-    _B = B.median()
+    // Invalidate the previously calculated intercept and goodnessOfFit. We'll only calculate them if we need them
+    _B = null
+    _goodnessOfFit = null
   }
 
   function slope () {
@@ -83,6 +77,7 @@ function createTSLinearSeries (maxSeriesLength = 0) {
   }
 
   function intercept () {
+    calculateIntercept()
     return _B
   }
 
@@ -93,6 +88,7 @@ function createTSLinearSeries (maxSeriesLength = 0) {
 
   function coefficientB () {
     // For testing purposses only!
+    calculateIntercept()
     return _B
   }
 
@@ -102,39 +98,43 @@ function createTSLinearSeries (maxSeriesLength = 0) {
 
   function goodnessOfFit () {
     // This function returns the R^2 as a goodness of fit indicator
+    // It will automatically recalculate the _goodnessOfFit when it isn't defined
+    // This lazy approach is intended to prevent unneccesary calculations
     let i = 0
     let sse = 0
     let sst = 0
-    let _goodnessOfFit = 0
-    if (X.length() >= 2) {
-      while (i < X.length()) {
-        sse += Math.pow((Y.get(i) - projectX(X.get(i))), 2)
-        sst += Math.pow((Y.get(i) - Y.average()), 2)
-        i++
+    if (_goodnessOfFit === null) {
+      if (X.length() >= 2) {
+        while (i < X.length()) {
+          sse += Math.pow((Y.get(i) - projectX(X.get(i))), 2)
+          sst += Math.pow((Y.get(i) - Y.average()), 2)
+          i++
+        }
+        switch (true) {
+          case (sse === 0):
+            _goodnessOfFit = 1
+            break
+          case (sse > sst):
+            // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
+            _goodnessOfFit = 0
+            break
+          case (sst !== 0):
+            _goodnessOfFit = 1 - (sse / sst)
+            break
+          default:
+            // When SST = 0, R2 isn't defined
+            _goodnessOfFit = 0
+        }
+      } else {
+        _goodnessOfFit = 0
       }
-      switch (true) {
-        case (sse === 0):
-          _goodnessOfFit = 1
-          break
-        case (sse > sst):
-          // This is a pretty bad fit as the error is bigger than just using the line for the average y as intercept
-          _goodnessOfFit = 0
-          break
-        case (sst !== 0):
-          _goodnessOfFit = 1 - (sse / sst)
-          break
-        default:
-          // When SST = 0, R2 isn't defined
-          _goodnessOfFit = 0
-      }
-    } else {
-      _goodnessOfFit = 0
     }
     return _goodnessOfFit
   }
 
   function projectX (x) {
     if (X.length() >= 2) {
+      calculateIntercept()
       return (_A * x) + _B
     } else {
       return 0
@@ -143,6 +143,7 @@ function createTSLinearSeries (maxSeriesLength = 0) {
 
   function projectY (y) {
     if (X.length() >= 2 && _A !== 0) {
+      calculateIntercept()
       return ((y - _B) / _A)
     } else {
       return 0
@@ -214,12 +215,34 @@ function createTSLinearSeries (maxSeriesLength = 0) {
     }
   }
 
+  function calculateIntercept () {
+    // Calculate all the intercepts for the newly added point and the newly calculated A, when needed
+    // This function is only called when an intercept is really needed, as this saves a lot of CPU cycles when only a slope suffices
+    const B = createLabelledBinarySearchTree()
+    if (_B === null) {
+      if (X.length() > 1) {
+        // There are at least two points in the X and Y arrays, so let's calculate the intercept
+        let i = 0
+        while (i < X.length()) {
+          // Please note , as we need to recreate the B-tree for each newly added datapoint anyway, the label i isn't relevant
+          B.push(i, (Y.get(i) - (_A * X.get(i))))
+          i++
+        }
+        _B = B.median()
+      } else {
+        _B = 0
+      }
+    }
+    B.reset()
+  }
+
   function reset () {
     X.reset()
     Y.reset()
     A.reset()
     _A = 0
     _B = 0
+    _goodnessOfFit = 0
   }
 
   return {
