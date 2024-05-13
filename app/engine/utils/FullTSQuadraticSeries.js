@@ -132,11 +132,13 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
 
   function coefficientC () {
     // For testing purposses only!
+    calculateB()
     calculateC()
     return _C
   }
 
   function intercept () {
+    calculateB()
     calculateC()
     return _C
   }
