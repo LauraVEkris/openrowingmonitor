@@ -279,7 +279,7 @@ function createRowingStatistics (config) {
     // based on: http://eodg.atm.ox.ac.uk/user/dudhia/rowing/physics/ergometer.html#section11
     strokeCalories = (4 * cyclePower.clean() + 350) * (cycleDuration.clean()) / 4200
     strokeWork = cyclePower.clean() * cycleDuration.clean()
-    const totalCalories = calories.yAtSeriesEnd() + strokeCalories
+    const totalCalories = calories.Y.atSeriesEnd() + strokeCalories
     calories.push(totalMovingTime, totalCalories)
   }
 
@@ -394,7 +394,7 @@ function createRowingStatistics (config) {
       intervalTargetDistance: intervalTargetDistance > intervalPrevAccumulatedDistance ? intervalTargetDistance - intervalPrevAccumulatedDistance : 0,
       strokeCalories: strokeCalories > 0 ? strokeCalories : 0, // kCal
       strokeWork: strokeWork > 0 ? strokeWork : 0, // Joules
-      totalCalories: calories.yAtSeriesEnd() > 0 ? calories.yAtSeriesEnd() : 0, // kcal
+      totalCalories: calories.Y.atSeriesEnd() > 0 ? calories.Y.atSeriesEnd() : 0, // kcal
       totalCaloriesPerMinute: totalMovingTime > 60 ? caloriesPerPeriod(totalMovingTime - 60, totalMovingTime) : caloriesPerPeriod(0, 60),
       totalCaloriesPerHour: totalMovingTime > 3600 ? caloriesPerPeriod(totalMovingTime - 3600, totalMovingTime) : caloriesPerPeriod(0, 3600),
       cycleDuration: cycleDuration.clean() > minimumStrokeTime && cycleDuration.clean() < maximumStrokeTime && cycleLinearVelocity.raw() > 0 && sessionStatus === 'Rowing' ? cycleDuration.clean() : NaN, // seconds
