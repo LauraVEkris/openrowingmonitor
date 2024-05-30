@@ -84,7 +84,7 @@ function createFlywheel (rowerSettings) {
       // Also we nend feed the Drag calculation. We need to do this, BEFORE the array shifts, as the valueAtSeriesBeginvalue
       // value before the shift is certain to be part of a specific rowing phase (i.e. Drive or Recovery), once the buffer is filled completely
       totalNumberOfImpulses += 1
-      _deltaTimeBeforeFlank = _deltaTime.yAtSeriesBegin()
+      _deltaTimeBeforeFlank = _deltaTime.Y.atSeriesBegin()
       totalTimeSpinning += _deltaTimeBeforeFlank
       _angularVelocityBeforeFlank = _angularVelocityAtBeginFlank
       _angularAccelerationBeforeFlank = _angularAccelerationAtBeginFlank
