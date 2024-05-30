@@ -192,6 +192,8 @@ function createOLSLinearSeries (maxSeriesLength = 0) {
 
   return {
     push,
+    X,
+    Y,
     slope,
     intercept,
     length,
