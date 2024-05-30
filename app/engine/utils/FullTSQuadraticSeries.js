@@ -9,8 +9,8 @@
   At creation its length is determined. After it is filled, the oldest will be pushed
   out of the queue) automatically.
 
-  A key constraint is to prevent heavy calculations at the end (due to large
-  array based curve fitting), which might be performed on a Pi zero
+  A key constraint is to prevent heavy calculations at the end of a stroke (due to large
+  array based curve fitting), which might be performed on a Pi zero or Zero 2W
 
   In order to prevent unneccessary calculations, this implementation uses lazy evaluation,
   so it will calculate the B, C and goodnessOfFit only when needed, as many uses only
@@ -57,10 +57,9 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
     // Calculate the coefficient a for the new interval by adding the newly added datapoint
     let i = 0
     let j = 0
-    linearResidu.reset()
 
     switch (true) {
-      case (X.length() > 2):
+      case (X.length() >= 3):
         // There are now at least three datapoints in the X and Y arrays, so let's calculate the A portion belonging for the new datapoint via Quadratic Theil-Sen regression
         // First we calculate the A for the formula
         while (i < X.length() - 2) {
@@ -73,14 +72,8 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
         }
         _A = A.median()
 
-        // Next, we calculate the B and C via Linear regression over the residu
-        i = 0
-        while (i < X.length()) {
-          linearResidu.push(X.get(i), Y.get(i) - (_A * Math.pow(X.get(i), 2)))
-          i++
-        }
-
-        // We invalidate the B, C, and goodnessOfFit, as this will trigger a recalculate when they are needed
+        // We invalidate the linearResidu, B, C, and goodnessOfFit, as this will trigger a recalculate when they are needed
+        linearResiduReset()
         _B = null
         _C = null
         _goodnessOfFit = null
@@ -94,7 +87,7 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
   }
 
   function firstDerivativeAtPosition (position) {
-    if (X.length() > 1 && position < X.length()) {
+    if (X.length() >=3 && position < X.length()) {
       calculateB()
       return ((_A * 2 * X.get(position)) + _B)
     } else {
@@ -103,7 +96,7 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
   }
 
   function secondDerivativeAtPosition (position) {
-    if (X.length() > 1 && position < X.length()) {
+    if (X.length() >=3 && position < X.length()) {
       return (_A * 2)
     } else {
       return 0
@@ -287,7 +280,8 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
     // Calculate all the linear slope for the newly added point and the newly calculated A
     // This function is only called when a linear slope is really needed, as this saves a lot of CPU cycles when only a slope suffices
     if (_B === null) {
-      if (X.length() > 2) {
+      if (X.length() >= 3) {
+        fillLinearResidu()
         _B = linearResidu.slope()
       } else {
         _B = 0
@@ -299,13 +293,31 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
     // Calculate all the intercept for the newly added point and the newly calculated A
     // This function is only called when a linear intercept is really needed, as this saves a lot of CPU cycles when only a slope suffices
     if (_C === null) {
-      if (X.length() > 2) {
+      if (X.length() >= 3) {
+        fillLinearResidu()
         _C = linearResidu.intercept()
       } else {
         _C = 0
       }
     }
   }
+
+function linearResiduReset () {
+  if (linearResidu.length() > 0) {
+    linearResidu.reset()
+  }
+}
+
+function fillLinearResidu () {
+ // To calculate the B and C via Linear regression over the residu, we need to fill it if empty
+  if (linearResidu.length() === 0) {
+    let i = 0
+    while (i < X.length()) {
+      linearResidu.push(X.get(i), Y.get(i) - (_A * Math.pow(X.get(i), 2)))
+      i++
+    }
+  }
+}
 
   function reset () {
     X.reset()
@@ -320,6 +332,8 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
 
   return {
     push,
+    X,
+    Y,
     firstDerivativeAtPosition,
     secondDerivativeAtPosition,
     slope,
