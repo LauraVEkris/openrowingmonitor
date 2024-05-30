@@ -150,62 +150,6 @@ function createTSLinearSeries (maxSeriesLength = 0) {
     }
   }
 
-  function numberOfXValuesAbove (testedValue) {
-    return X.numberOfValuesAbove(testedValue)
-  }
-
-  function numberOfXValuesEqualOrBelow (testedValue) {
-    return X.numberOfValuesEqualOrBelow(testedValue)
-  }
-
-  function numberOfYValuesAbove (testedValue) {
-    return Y.numberOfValuesAbove(testedValue)
-  }
-
-  function numberOfYValuesEqualOrBelow (testedValue) {
-    return Y.numberOfValuesEqualOrBelow(testedValue)
-  }
-
-  function xAtSeriesBegin () {
-    return X.atSeriesBegin()
-  }
-
-  function xAtSeriesEnd () {
-    return X.atSeriesEnd()
-  }
-
-  function yAtSeriesBegin () {
-    return Y.atSeriesBegin()
-  }
-
-  function yAtSeriesEnd () {
-    return Y.atSeriesEnd()
-  }
-
-  function xSum () {
-    return X.sum()
-  }
-
-  function ySum () {
-    return Y.sum()
-  }
-
-  function xAverage () {
-    return X.average()
-  }
-
-  function yAverage () {
-    return Y.average()
-  }
-
-  function xSeries () {
-    return X.series()
-  }
-
-  function ySeries () {
-    return Y.series()
-  }
-
   function calculateSlope (pointOne, pointTwo) {
     if (pointOne !== pointTwo && X.get(pointOne) !== X.get(pointTwo)) {
       return ((Y.get(pointTwo) - Y.get(pointOne)) / (X.get(pointTwo) - X.get(pointOne)))
@@ -257,20 +201,6 @@ function createTSLinearSeries (maxSeriesLength = 0) {
     goodnessOfFit,
     projectX,
     projectY,
-    numberOfXValuesAbove,
-    numberOfXValuesEqualOrBelow,
-    numberOfYValuesAbove,
-    numberOfYValuesEqualOrBelow,
-    xAtSeriesBegin,
-    xAtSeriesEnd,
-    yAtSeriesBegin,
-    yAtSeriesEnd,
-    xSum,
-    ySum,
-    xAverage,
-    yAverage,
-    xSeries,
-    ySeries,
     reset
   }
 }
