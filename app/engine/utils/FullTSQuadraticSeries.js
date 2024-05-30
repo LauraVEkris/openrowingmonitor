@@ -87,7 +87,7 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
   }
 
   function firstDerivativeAtPosition (position) {
-    if (X.length() >=3 && position < X.length()) {
+    if (X.length() >= 3 && position < X.length()) {
       calculateB()
       return ((_A * 2 * X.get(position)) + _B)
     } else {
@@ -96,7 +96,7 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
   }
 
   function secondDerivativeAtPosition (position) {
-    if (X.length() >=3 && position < X.length()) {
+    if (X.length() >= 3 && position < X.length()) {
       return (_A * 2)
     } else {
       return 0
@@ -104,7 +104,7 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
   }
 
   function slope (x) {
-    if (X.length() > 2) {
+    if (X.length() >= 3) {
       calculateB()
       return ((_A * 2 * x) + _B)
     } else {
@@ -146,7 +146,7 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
     let sse = 0
     let sst = 0
     if (_goodnessOfFit === null) {
-      if (X.length() > 2) {
+      if (X.length() >= 3) {
         while (i < X.length()) {
           sse += Math.pow((Y.get(i) - projectX(X.get(i))), 2)
           sst += Math.pow((Y.get(i) - Y.average()), 2)
@@ -175,7 +175,7 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
   }
 
   function projectX (x) {
-    if (X.length() > 2) {
+    if (X.length() >= 3) {
       calculateB()
       calculateC()
       return ((_A * x * x) + (_B * x) + _C)
