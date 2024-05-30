@@ -146,6 +146,7 @@ function createTSLinearSeries (maxSeriesLength = 0) {
       calculateIntercept()
       return ((y - _B) / _A)
     } else {
+      log.error('TS Linear Regressor, attempted a Y-projection while slope was zero!')
       return 0
     }
   }
