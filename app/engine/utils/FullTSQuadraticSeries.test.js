@@ -594,24 +594,24 @@ test('Quadratic TS Estimation should result in a straight line for function y = 
 })
 
 function testCoefficientA (series, expectedValue) {
-  assert.ok(series.coefficientA() === expectedValue, `Expected value for coefficientA at X-position ${series.xAtSeriesEnd()} is ${expectedValue}, encountered a ${series.coefficientA()}`)
+  assert.ok(series.coefficientA() === expectedValue, `Expected value for coefficientA at X-position ${series.X.atSeriesEnd()} is ${expectedValue}, encountered a ${series.coefficientA()}`)
 }
 
 function testCoefficientB (series, expectedValue) {
-  assert.ok(series.coefficientB() === expectedValue, `Expected value for coefficientB at X-position ${series.xAtSeriesEnd()} is ${expectedValue}, encountered a ${series.coefficientB()}`)
+  assert.ok(series.coefficientB() === expectedValue, `Expected value for coefficientB at X-position ${series.X.atSeriesEnd()} is ${expectedValue}, encountered a ${series.coefficientB()}`)
 }
 
 function testCoefficientC (series, expectedValue) {
-  assert.ok(series.coefficientC() === expectedValue, `Expected value for coefficientC at X-position ${series.xAtSeriesEnd()} is ${expectedValue}, encountered a ${series.coefficientC()}`)
+  assert.ok(series.coefficientC() === expectedValue, `Expected value for coefficientC at X-position ${series.X.atSeriesEnd()} is ${expectedValue}, encountered a ${series.coefficientC()}`)
 }
 
 function testGoodnessOfFitEquals (series, expectedValue) {
-  assert.ok(series.goodnessOfFit() === expectedValue, `Expected goodnessOfFit at X-position ${series.xAtSeriesEnd()} is ${expectedValue}, encountered ${series.goodnessOfFit()}`)
+  assert.ok(series.goodnessOfFit() === expectedValue, `Expected goodnessOfFit at X-position ${series.X.atSeriesEnd()} is ${expectedValue}, encountered ${series.goodnessOfFit()}`)
 }
 
 function testGoodnessOfFitBetween (series, expectedValueAbove, expectedValueBelow) { // eslint-disable-line no-unused-vars
-  assert.ok(series.goodnessOfFit() > expectedValueAbove, `Expected goodnessOfFit at X-position ${series.xAtSeriesEnd()} above ${expectedValueAbove}, encountered ${series.goodnessOfFit()}`)
-  assert.ok(series.goodnessOfFit() < expectedValueBelow, `Expected goodnessOfFit at X-position ${series.xAtSeriesEnd()} below ${expectedValueBelow}, encountered ${series.goodnessOfFit()}`)
+  assert.ok(series.goodnessOfFit() > expectedValueAbove, `Expected goodnessOfFit at X-position ${series.X.atSeriesEnd()} above ${expectedValueAbove}, encountered ${series.goodnessOfFit()}`)
+  assert.ok(series.goodnessOfFit() < expectedValueBelow, `Expected goodnessOfFit at X-position ${series.X.atSeriesEnd()} below ${expectedValueBelow}, encountered ${series.goodnessOfFit()}`)
 }
 
 function testSlope (series, position, expectedValue) { // eslint-disable-line no-unused-vars
