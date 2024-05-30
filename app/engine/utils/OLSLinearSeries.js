@@ -34,7 +34,6 @@ function createOLSLinearSeries (maxSeriesLength = 0) {
   const Y = createSeries(maxSeriesLength)
   const YY = createSeries(maxSeriesLength)
   const XY = createSeries(maxSeriesLength)
-  const trend = createSeries(maxSeriesLength)
   let _slope = 0
   let _intercept = 0
   let _goodnessOfFit = 0
@@ -53,7 +52,6 @@ function createOLSLinearSeries (maxSeriesLength = 0) {
       const sse = YY.sum() - (_intercept * Y.sum()) - (_slope * XY.sum())
       const sst = YY.sum() - (Math.pow(Y.sum(), 2) / X.length())
       _goodnessOfFit = 1 - (sse / sst)
-      trend.push(determineTrend(X.length() - 2, X.length() - 1))
     } else {
       _slope = 0
       _intercept = 0
@@ -98,87 +96,6 @@ function createOLSLinearSeries (maxSeriesLength = 0) {
     }
   }
 
-  function numberOfXValuesAbove (testedValue) {
-    return X.numberOfValuesAbove(testedValue)
-  }
-
-  function numberOfXValuesEqualOrBelow (testedValue) {
-    return X.numberOfValuesEqualOrBelow(testedValue)
-  }
-
-  function numberOfYValuesAbove (testedValue) {
-    return Y.numberOfValuesAbove(testedValue)
-  }
-
-  function numberOfYValuesEqualOrBelow (testedValue) {
-    return Y.numberOfValuesEqualOrBelow(testedValue)
-  }
-
-  function numberOfUpwardTrend () {
-    return trend.numberOfValuesAbove(0)
-  }
-
-  function numberOfFlatOrDownwardTrend () {
-    return trend.numberOfValuesEqualOrBelow(0)
-  }
-
-  function xAtSeriesBegin () {
-    return X.atSeriesBegin()
-  }
-
-  function xAtSeriesEnd () {
-    return X.atSeriesEnd()
-  }
-
-  function yAtSeriesBegin () {
-    return Y.atSeriesBegin()
-  }
-
-  function yAtSeriesEnd () {
-    return Y.atSeriesEnd()
-  }
-
-  function xSum () {
-    return X.sum()
-  }
-
-  function ySum () {
-    return Y.sum()
-  }
-
-  function minimumX () {
-    return X.minimum()
-  }
-
-  function minimumY () {
-    return Y.minimum()
-  }
-
-  function maximumX () {
-    return X.maximum()
-  }
-
-  function maximumY () {
-    return Y.maximum()
-  }
-
-  function xSeries () {
-    return X.series()
-  }
-
-  function ySeries () {
-    return Y.series()
-  }
-
-  function determineTrend (pointOne, pointTwo) {
-    if (pointOne !== pointTwo) {
-      return (Y.get(pointTwo) - Y.get(pointOne))
-    } else {
-      log.error('OLS Linear Regressor, trend determination, trend can not be applied to one point!')
-      return 0
-    }
-  }
-
   function reset () {
     X.reset()
     XX.reset()
@@ -200,24 +117,6 @@ function createOLSLinearSeries (maxSeriesLength = 0) {
     goodnessOfFit,
     projectX,
     projectY,
-    numberOfXValuesAbove,
-    numberOfXValuesEqualOrBelow,
-    numberOfYValuesAbove,
-    numberOfYValuesEqualOrBelow,
-    numberOfUpwardTrend,
-    numberOfFlatOrDownwardTrend,
-    xAtSeriesBegin,
-    xAtSeriesEnd,
-    yAtSeriesBegin,
-    yAtSeriesEnd,
-    xSum,
-    ySum,
-    minimumX,
-    minimumY,
-    maximumX,
-    maximumY,
-    xSeries,
-    ySeries,
     reset
   }
 }
