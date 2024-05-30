@@ -199,43 +199,43 @@ function testLength (series, expectedValue) {
 }
 
 function testXAtSeriesBegin (series, expectedValue) {
-  assert.ok(series.xAtSeriesBegin() === expectedValue, `Expected xAtSeriesBegin to be ${expectedValue}, encountered a ${series.xAtSeriesBegin()}`)
+  assert.ok(series.X.atSeriesBegin() === expectedValue, `Expected X.atSeriesBegin to be ${expectedValue}, encountered a ${series.X.atSeriesBegin()}`)
 }
 
 function testYAtSeriesBegin (series, expectedValue) {
-  assert.ok(series.yAtSeriesBegin() === expectedValue, `Expected yAtSeriesBegin to be ${expectedValue}, encountered a ${series.yAtSeriesBegin()}`)
+  assert.ok(series.Y.atSeriesBegin() === expectedValue, `Expected Y.atSeriesBegin to be ${expectedValue}, encountered a ${series.Y.atSeriesBegin()}`)
 }
 
 function testXAtSeriesEnd (series, expectedValue) {
-  assert.ok(series.xAtSeriesEnd() === expectedValue, `Expected xAtSeriesEnd to be ${expectedValue}, encountered a ${series.xAtSeriesEnd()}`)
+  assert.ok(series.X.atSeriesEnd() === expectedValue, `Expected X.atSeriesEnd to be ${expectedValue}, encountered a ${series.X.atSeriesEnd()}`)
 }
 
 function testYAtSeriesEnd (series, expectedValue) {
-  assert.ok(series.yAtSeriesEnd() === expectedValue, `Expected yAtSeriesEnd to be ${expectedValue}, encountered a ${series.yAtSeriesEnd()}`)
+  assert.ok(series.Y.atSeriesEnd() === expectedValue, `Expected Y.atSeriesEnd to be ${expectedValue}, encountered a ${series.Y.atSeriesEnd()}`)
 }
 
 function testNumberOfXValuesAbove (series, cutoff, expectedValue) {
-  assert.ok(series.numberOfXValuesAbove(cutoff) === expectedValue, `Expected numberOfXValuesAbove(${cutoff}) to be ${expectedValue}, encountered a ${series.numberOfXValuesAbove(cutoff)}`)
+  assert.ok(series.X.numberOfValuesAbove(cutoff) === expectedValue, `Expected X.numberOfValuesAbove(${cutoff}) to be ${expectedValue}, encountered a ${series.X.numberOfValuesAbove(cutoff)}`)
 }
 
 function testNumberOfYValuesAbove (series, cutoff, expectedValue) {
-  assert.ok(series.numberOfYValuesAbove(cutoff) === expectedValue, `Expected numberOfYValuesAbove(${cutoff}) to be ${expectedValue}, encountered a ${series.numberOfYValuesAbove(cutoff)}`)
+  assert.ok(series.Y.numberOfValuesAbove(cutoff) === expectedValue, `Expected Y.numberOfValuesAbove(${cutoff}) to be ${expectedValue}, encountered a ${series.Y.numberOfValuesAbove(cutoff)}`)
 }
 
 function testNumberOfXValuesEqualOrBelow (series, cutoff, expectedValue) {
-  assert.ok(series.numberOfXValuesEqualOrBelow(cutoff) === expectedValue, `Expected numberOfXValuesEqualOrBelow(${cutoff}) to be ${expectedValue}, encountered a ${series.numberOfXValuesEqualOrBelow(cutoff)}`)
+  assert.ok(series.X.numberOfValuesEqualOrBelow(cutoff) === expectedValue, `Expected X.numberOfValuesEqualOrBelow(${cutoff}) to be ${expectedValue}, encountered a ${series.X.numberOfValuesEqualOrBelow(cutoff)}`)
 }
 
 function testNumberOfYValuesEqualOrBelow (series, cutoff, expectedValue) {
-  assert.ok(series.numberOfYValuesEqualOrBelow(cutoff) === expectedValue, `Expected numberOfYValuesEqualOrBelow(${cutoff}) to be ${expectedValue}, encountered a ${series.numberOfYValuesEqualOrBelow(cutoff)}`)
+  assert.ok(series.Y.numberOfValuesEqualOrBelow(cutoff) === expectedValue, `Expected Y.numberOfValuesEqualOrBelow(${cutoff}) to be ${expectedValue}, encountered a ${series.Y.numberOfValuesEqualOrBelow(cutoff)}`)
 }
 
 function testXSum (series, expectedValue) {
-  assert.ok(series.xSum() === expectedValue, `Expected xSum to be ${expectedValue}, encountered a ${series.xSum()}`)
+  assert.ok(series.X.sum() === expectedValue, `Expected X.sum to be ${expectedValue}, encountered a ${series.X.sum()}`)
 }
 
 function testYSum (series, expectedValue) {
-  assert.ok(series.ySum() === expectedValue, `Expected ySum to be ${expectedValue}, encountered a ${series.ySum()}`)
+  assert.ok(series.Y.sum() === expectedValue, `Expected Y.sum to be ${expectedValue}, encountered a ${series.Y.sum()}`)
 }
 
 function testSlopeEquals (series, expectedValue) {
