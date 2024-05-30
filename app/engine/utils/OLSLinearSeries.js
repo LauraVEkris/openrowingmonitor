@@ -92,6 +92,7 @@ function createOLSLinearSeries (maxSeriesLength = 0) {
     if (X.length() >= 2 && _slope !== 0) {
       return ((y - _intercept) / _slope)
     } else {
+      log.error('OLS Regressor, attempted a Y-projection while slope was zero!')
       return 0
     }
   }
