@@ -302,22 +302,22 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
   }
 
-function linearResiduReset () {
-  if (linearResidu.length() > 0) {
-    linearResidu.reset()
-  }
-}
-
-function fillLinearResidu () {
- // To calculate the B and C via Linear regression over the residu, we need to fill it if empty
-  if (linearResidu.length() === 0) {
-    let i = 0
-    while (i < X.length()) {
-      linearResidu.push(X.get(i), Y.get(i) - (_A * Math.pow(X.get(i), 2)))
-      i++
+  function linearResiduReset () {
+    if (linearResidu.length() > 0) {
+      linearResidu.reset()
     }
   }
-}
+
+  function fillLinearResidu () {
+    // To calculate the B and C via Linear regression over the residu, we need to fill it if empty
+    if (linearResidu.length() === 0) {
+      let i = 0
+      while (i < X.length()) {
+        linearResidu.push(X.get(i), Y.get(i) - (_A * Math.pow(X.get(i), 2)))
+        i++
+      }
+    }
+  }
 
   function reset () {
     X.reset()
