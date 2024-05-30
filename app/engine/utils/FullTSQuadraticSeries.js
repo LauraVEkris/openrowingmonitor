@@ -184,86 +184,6 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
   }
 
-  function numberOfXValuesAbove (testedValue) {
-    return X.numberOfValuesAbove(testedValue)
-  }
-
-  function numberOfXValuesEqualOrBelow (testedValue) {
-    return X.numberOfValuesEqualOrBelow(testedValue)
-  }
-
-  function numberOfYValuesAbove (testedValue) {
-    return Y.numberOfValuesAbove(testedValue)
-  }
-
-  function numberOfYValuesEqualOrBelow (testedValue) {
-    return Y.numberOfValuesEqualOrBelow(testedValue)
-  }
-
-  function xAtSeriesBegin () {
-    return X.atSeriesBegin()
-  }
-
-  function xAtSeriesEnd () {
-    return X.atSeriesEnd()
-  }
-
-  function xAtPosition (position) {
-    return X.get(position)
-  }
-
-  function yAtSeriesBegin () {
-    return Y.atSeriesBegin()
-  }
-
-  function yAtSeriesEnd () {
-    return Y.atSeriesEnd()
-  }
-
-  function yAtPosition (position) {
-    return Y.get(position)
-  }
-
-  function xSum () {
-    return X.sum()
-  }
-
-  function ySum () {
-    return Y.sum()
-  }
-
-  function minimumX () {
-    return X.minimum()
-  }
-
-  function minimumY () {
-    return Y.minimum()
-  }
-
-  function maximumX () {
-    return X.maximum()
-  }
-
-  function maximumY () {
-    return Y.maximum()
-  }
-
-  function xAverage () {
-    return X.average()
-  }
-
-  function yAverage () {
-    return Y.average()
-  }
-
-  function xSeries () {
-    return X.series()
-  }
-
-  function ySeries () {
-    return Y.series()
-  }
-
   function calculateA (pointOne, pointTwo, pointThree) {
     let result = 0
     if (X.get(pointOne) !== X.get(pointTwo) && X.get(pointOne) !== X.get(pointThree) && X.get(pointTwo) !== X.get(pointThree)) {
@@ -344,26 +264,6 @@ function createTSQuadraticSeries (maxSeriesLength = 0) {
     length,
     goodnessOfFit,
     projectX,
-    numberOfXValuesAbove,
-    numberOfXValuesEqualOrBelow,
-    numberOfYValuesAbove,
-    numberOfYValuesEqualOrBelow,
-    xAtSeriesBegin,
-    xAtSeriesEnd,
-    xAtPosition,
-    yAtSeriesBegin,
-    yAtSeriesEnd,
-    yAtPosition,
-    minimumX,
-    minimumY,
-    maximumX,
-    maximumY,
-    xAverage,
-    yAverage,
-    xSum,
-    ySum,
-    xSeries,
-    ySeries,
     reset
   }
 }
