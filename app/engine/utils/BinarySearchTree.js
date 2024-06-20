@@ -6,7 +6,7 @@
   It allows for efficient determining the Median, Number of Above and Below
 */
 
-function createLabelledBinarySearchTree () {
+export function createLabelledBinarySearchTree () {
   let tree = null
 
   function push (label, value) {
@@ -328,5 +328,3 @@ function createLabelledBinarySearchTree () {
     reset
   }
 }
-
-export { createLabelledBinarySearchTree }
