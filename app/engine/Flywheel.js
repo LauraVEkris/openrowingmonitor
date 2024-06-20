@@ -29,7 +29,7 @@ import { createWeighedSeries } from './utils/WeighedSeries.js'
 
 const log = loglevel.getLogger('RowingEngine')
 
-function createFlywheel (rowerSettings) {
+export function createFlywheel (rowerSettings) {
   const angularDisplacementPerImpulse = (2.0 * Math.PI) / rowerSettings.numOfImpulsesPerRevolution
   const flankLength = rowerSettings.flankLength
   const minimumDragFactorSamples = Math.floor(rowerSettings.minimumRecoveryTime / rowerSettings.maximumTimeBetweenImpulses)
@@ -359,5 +359,3 @@ function createFlywheel (rowerSettings) {
     reset
   }
 }
-
-export { createFlywheel }
