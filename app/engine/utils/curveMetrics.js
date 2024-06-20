@@ -1,12 +1,12 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   This keeps an array, for all in-stroke metrics
 */
 import { createSeries } from './Series.js'
 
-function createCurveMetrics () {
+export function createCurveMetrics () {
   const _curve = createSeries()
   let _max = 0
   let totalInputXTime = 0
@@ -69,5 +69,3 @@ function createCurveMetrics () {
     reset
   }
 }
-
-export { createCurveMetrics }
