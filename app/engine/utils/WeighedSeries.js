@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   This creates a series with a maximum number of values
   It allows for determining the Average, Median, Number of Positive, number of Negative
@@ -8,7 +8,7 @@
 
 import { createSeries } from './Series.js'
 
-function createWeighedSeries (maxSeriesLength, defaultValue) {
+export function createWeighedSeries (maxSeriesLength, defaultValue) {
   const dataArray = createSeries(maxSeriesLength)
   const weightArray = createSeries(maxSeriesLength)
   const weightedArray = createSeries(maxSeriesLength)
@@ -110,5 +110,3 @@ function createWeighedSeries (maxSeriesLength, defaultValue) {
     reset
   }
 }
-
-export { createWeighedSeries }
