@@ -9,7 +9,7 @@
 
 import { createSeries } from './Series.js'
 
-function createStreamFilter (maxLength, defaultValue) {
+export function createStreamFilter (maxLength, defaultValue) {
   const dataPoints = createSeries(maxLength)
   let lastRawDatapoint = defaultValue
   let cleanDatapoint = defaultValue
@@ -52,5 +52,3 @@ function createStreamFilter (maxLength, defaultValue) {
     reset
   }
 }
-
-export { createStreamFilter }
