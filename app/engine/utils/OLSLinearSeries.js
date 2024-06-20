@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   The LinearSeries is a datatype that represents a Linear Series. It allows
   values to be retrieved (like a FiFo buffer, or Queue) but it also includes
@@ -28,7 +28,7 @@ import { createSeries } from './Series.js'
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
-function createOLSLinearSeries (maxSeriesLength = 0) {
+export function createOLSLinearSeries (maxSeriesLength = 0) {
   const X = createSeries(maxSeriesLength)
   const XX = createSeries(maxSeriesLength)
   const Y = createSeries(maxSeriesLength)
@@ -121,5 +121,3 @@ function createOLSLinearSeries (maxSeriesLength = 0) {
     reset
   }
 }
-
-export { createOLSLinearSeries }
