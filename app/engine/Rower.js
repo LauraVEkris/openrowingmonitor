@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   The Rowing Engine models the physics of a real rowing boat.
   It takes impulses from the flywheel of a rowing machine and estimates
@@ -17,7 +17,7 @@ import { createCurveMetrics } from './utils/curveMetrics.js'
 
 const log = loglevel.getLogger('RowingEngine')
 
-function createRower (rowerSettings) {
+export function createRower (rowerSettings) {
   const flywheel = createFlywheel(rowerSettings)
   const sprocketRadius = rowerSettings.sprocketRadius / 100
   const driveHandleForce = createCurveMetrics()
@@ -375,5 +375,3 @@ function createRower (rowerSettings) {
     reset
   }
 }
-
-export { createRower }
