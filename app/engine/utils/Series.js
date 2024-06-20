@@ -1,12 +1,12 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   This creates a series with a maximum number of values
   It allows for determining the Average, Median, Number of Positive, number of Negative
 */
 
-function createSeries (maxSeriesLength) {
+export function createSeries (maxSeriesLength) {
   let seriesArray = []
   let seriesSum = 0
   let numPos = 0
@@ -164,5 +164,3 @@ function createSeries (maxSeriesLength) {
     reset
   }
 }
-
-export { createSeries }
