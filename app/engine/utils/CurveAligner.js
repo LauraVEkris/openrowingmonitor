@@ -1,11 +1,11 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   This keeps an array, for ForceMetrics, and cleans it up
 */
 
-function createCurveAligner (minimumValue) {
+export function createCurveAligner (minimumValue) {
   let _lastCompleteCurve = []
 
   function push (curve) {
@@ -40,5 +40,3 @@ function createCurveAligner (minimumValue) {
     reset
   }
 }
-
-export { createCurveAligner }
