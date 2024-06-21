@@ -73,7 +73,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
         _A = A.median()
 
         // We invalidate the linearResidu, B, C, and goodnessOfFit, as this will trigger a recalculate when they are needed
-        linearResiduReset()
+        linearResidu.reset()
         _B = null
         _C = null
         _goodnessOfFit = null
@@ -222,12 +222,6 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
     }
   }
 
-  function linearResiduReset () {
-    if (linearResidu.length() > 0) {
-      linearResidu.reset()
-    }
-  }
-
   function fillLinearResidu () {
     // To calculate the B and C via Linear regression over the residu, we need to fill it if empty
     if (linearResidu.length() === 0) {
@@ -240,14 +234,17 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
   }
 
   function reset () {
-    X.reset()
-    Y.reset()
-    A.reset()
-    linearResidu.reset()
-    _A = 0
-    _B = 0
-    _C = 0
-    _goodnessOfFit = 0
+    if (X.length() > 0) {
+      // There is something to reset
+      X.reset()
+      Y.reset()
+      A.reset()
+      linearResidu.reset()
+      _A = 0
+      _B = 0
+      _C = 0
+      _goodnessOfFit = 0
+    }
   }
 
   return {
