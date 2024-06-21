@@ -269,6 +269,7 @@ export function createFlywheel (rowerSettings) {
     // This is a typical indication that the flywheel is accelerating. We use the slope of successive currentDt's
     // A (more) negative slope indicates a powered flywheel. When set to 0, it determines whether the DeltaT's are decreasing
     // When set to a value below 0, it will become more stringent. In automatic, a percentage of the current slope (i.e. dragfactor) is used
+    // Please note, as this acceleration isn't linear, _deltaTime.goodnessOfFit() will not be good by definition, so we need omit it
     if (_deltaTime.slope() < threshold && _deltaTime.length() >= flankLength) {
       return true
     } else {
