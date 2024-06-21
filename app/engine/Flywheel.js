@@ -22,7 +22,6 @@
 
 import loglevel from 'loglevel'
 import { createStreamFilter } from './utils/StreamFilter.js'
-import { createOLSLinearSeries } from './utils/OLSLinearSeries.js'
 import { createTSLinearSeries } from './utils/FullTSLinearSeries.js'
 import { createTSQuadraticSeries } from './utils/FullTSQuadraticSeries.js'
 import { createWeighedSeries } from './utils/WeighedSeries.js'
@@ -36,7 +35,7 @@ export function createFlywheel (rowerSettings) {
   const minumumTorqueBeforeStroke = rowerSettings.minumumForceBeforeStroke * (rowerSettings.sprocketRadius / 100)
   const minimumAngularVelocity = angularDisplacementPerImpulse / rowerSettings.maximumTimeBetweenImpulses
   const currentDt = createStreamFilter(rowerSettings.smoothing, rowerSettings.maximumTimeBetweenImpulses)
-  const _deltaTime = createOLSLinearSeries(flankLength)
+  const _deltaTime = createTSLinearSeries(flankLength)
   const _angularDistance = createTSQuadraticSeries(flankLength)
   const drag = createWeighedSeries(rowerSettings.dragFactorSmoothing, (rowerSettings.dragFactor / 1000000))
   const recoveryDeltaTime = createTSLinearSeries()
@@ -102,7 +101,7 @@ export function createFlywheel (rowerSettings) {
     }
 
     // Let's feed the stroke detection algorithm
-    // Please note that deltaTime MUST use dirty data to be ale to use the OLS algorithms effictively (Otherwise the Goodness of Fit can't be used as a filter!)
+    // Please note that deltaTime MUST use dirty data to be ale to use the regression algorithms effictively (Otherwise the Goodness of Fit can't be used as a filter!)
     currentRawTime += currentDt.raw()
     currentAngularDistance += angularDisplacementPerImpulse
     _deltaTime.push(currentRawTime, currentDt.raw())
@@ -270,7 +269,7 @@ export function createFlywheel (rowerSettings) {
     // This is a typical indication that the flywheel is accelerating. We use the slope of successive currentDt's
     // A (more) negative slope indicates a powered flywheel. When set to 0, it determines whether the DeltaT's are decreasing
     // When set to a value below 0, it will become more stringent. In automatic, a percentage of the current slope (i.e. dragfactor) is used
-    if (_deltaTime.slope() < threshold && _deltaTime.goodnessOfFit() >= strokedetectionMinimalGoodnessOfFit && _deltaTime.length() >= flankLength) {
+    if (_deltaTime.slope() < threshold && _deltaTime.length() >= flankLength) {
       return true
     } else {
       return false
