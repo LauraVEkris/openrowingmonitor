@@ -182,12 +182,15 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
   }
 
   function reset () {
-    X.reset()
-    Y.reset()
-    A.reset()
-    _A = 0
-    _B = 0
-    _goodnessOfFit = 0
+    if (X.length() > 0) {
+      // There is something to reset
+      X.reset()
+      Y.reset()
+      A.reset()
+      _A = 0
+      _B = 0
+      _goodnessOfFit = 0
+    }
   }
 
   return {
