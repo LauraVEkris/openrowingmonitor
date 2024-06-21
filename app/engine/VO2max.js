@@ -53,7 +53,7 @@ function createVO2max (config) {
   function extrapolatedVO2max (metrics) {
     // This implements the extrapolation-based VO2Max determination
     // Which is based on the extrapolated maximum power output based on the correlation between heartrate and power,
-    // Underlying formula's can be found here: https://sportcoaching.co.nz/how-does-garmin-calculate-vo2-max/
+    // Underlying formula's can be found here: https://sites.udel.edu/coe-engex/2019/03/16/how-accurate-is-your-garmins-vo2max-estimate/
     let ProjectedVO2max
     let i = 0
     while (i < metrics.length && metrics[i].totalMovingTime < offset) {
