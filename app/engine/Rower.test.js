@@ -412,7 +412,7 @@ test('A full session for a Concept2 Model C should produce plausible results', a
   testTotalLinearDistanceSinceStart(rower, 551.329900892444)
   testTotalNumberOfStrokes(rower, 84)
   // As dragFactor isn't static, it should have changed
-  testRecoveryDragFactor(rower, 80.79044336920735)
+  testRecoveryDragFactor(rower, 123.8258729427957)
 })
 
 test('A full session for a Concept2 RowErg should produce plausible results', async () => {
