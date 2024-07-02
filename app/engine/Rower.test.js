@@ -399,6 +399,22 @@ test('A full session for SportsTech WRX700 should produce plausible results', as
   testRecoveryDragFactor(rower, rowerProfiles.Sportstech_WRX700.dragFactor)
 })
 
+test('A full session for a Concept2 Model C should produce plausible results', async () => {
+  const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_Model_C))
+  testTotalMovingTimeSinceStart(rower, 0)
+  testTotalLinearDistanceSinceStart(rower, 0)
+  testTotalNumberOfStrokes(rower, 0)
+  testRecoveryDragFactor(rower, (rowerProfiles.Concept2_Model_C.dragFactor / 1000000))
+
+  await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
+
+  testTotalMovingTimeSinceStart(rower, 181.47141999999985)
+  testTotalLinearDistanceSinceStart(rower, 2029.785512056144)
+  testTotalNumberOfStrokes(rower, 206)
+  // As dragFactor isn't static, it should have changed
+  testRecoveryDragFactor(rower, 80.79044336920735)
+})
+
 test('A full session for a Concept2 RowErg should produce plausible results', async () => {
   const rower = createRower(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_RowErg))
   testTotalMovingTimeSinceStart(rower, 0)
