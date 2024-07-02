@@ -404,7 +404,7 @@ test('A full session for a Concept2 Model C should produce plausible results', a
   testTotalMovingTimeSinceStart(rower, 0)
   testTotalLinearDistanceSinceStart(rower, 0)
   testTotalNumberOfStrokes(rower, 0)
-  testRecoveryDragFactor(rower, (rowerProfiles.Concept2_Model_C.dragFactor / 1000000))
+  testRecoveryDragFactor(rower, (rowerProfiles.Concept2_Model_C.dragFactor))
 
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
