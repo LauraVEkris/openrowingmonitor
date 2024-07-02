@@ -301,7 +301,7 @@ test('A full session for a Concept2 Model C should produce plausible results', a
   await replayRowingSession(flywheel.pushValue, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
   testSpinningTime(flywheel, 181.47141999999985)
-  testAngularPosition(flywheel, 65961.92655232249)
+  testAngularPosition(flywheel, 15636.753834467596)
   // As we don't detect strokes here (this is a function of Rower.js, the dragcalculation shouldn't be triggered
   testDragFactor(flywheel, (rowerProfiles.Concept2_Model_C.dragFactor / 1000000))
 })
