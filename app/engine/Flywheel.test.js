@@ -291,6 +291,21 @@ test('Correct Flywheel behaviour with a full session on a SportsTech WRX700', as
   testDragFactor(flywheel, (rowerProfiles.Sportstech_WRX700.dragFactor / 1000000))
 })
 
+test('A full session for a Concept2 Model C should produce plausible results', async () => {
+  const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_Model_C))
+  testSpinningTime(flywheel, 0)
+  testAngularPosition(flywheel, 0)
+  testDragFactor(flywheel, (rowerProfiles.Concept2_Model_C.dragFactor / 1000000))
+  flywheel.maintainStateAndMetrics()
+
+  await replayRowingSession(flywheel.pushValue, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
+
+  testSpinningTime(flywheel, 591.0432650000008)
+  testAngularPosition(flywheel, 65961.92655232249)
+  // As we don't detect strokes here (this is a function of Rower.js, the dragcalculation shouldn't be triggered
+  testDragFactor(flywheel, (rowerProfiles.Concept2_Model_C.dragFactor / 1000000))
+})
+
 test('A full session for a Concept2 RowErg should produce plausible results', async () => {
   const flywheel = createFlywheel(deepMerge(rowerProfiles.DEFAULT, rowerProfiles.Concept2_RowErg))
   testSpinningTime(flywheel, 0)
