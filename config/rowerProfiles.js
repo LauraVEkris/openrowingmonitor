@@ -117,6 +117,30 @@ export default {
     maximumStrokeTimeBeforePause: 6.0
   },
 
+  // Concept2 RowErg, Model B and C
+  Concept2_Model_C: {
+    numOfImpulsesPerRevolution: 3,
+    sprocketRadius: 1.4,
+    minimumTimeBetweenImpulses: 0.014,
+    maximumTimeBetweenImpulses: 0.040,
+    smoothing: 1,
+    flankLength: 6,
+    minumumForceBeforeStroke: 50,
+    minumumRecoverySlope: 0.00070,
+    minimumStrokeQuality: 0.36,
+    autoAdjustRecoverySlope: true,
+    autoAdjustRecoverySlopeMargin: 0.01,
+    minimumDriveTime: 0.400, // minimum time of the drive phase
+    minimumRecoveryTime: 0.900, // minimum time of the recovery phase
+    dragFactor: 110,
+    autoAdjustDragFactor: true,
+    dragFactorSmoothing: 3,
+    minimumDragQuality: 0.95,
+    flywheelInertia: 0.10148,
+    maximumStrokeTimeBeforePause: 6.0,
+    magicConstant: 2.8
+  },
+
   // Concept2 RowErg, Model D, E and RowErg
   Concept2_RowErg: {
     numOfImpulsesPerRevolution: 6,
