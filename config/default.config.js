@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   This file contains the default configuration of the Open Rowing Monitor.
 
@@ -167,7 +167,10 @@ export default {
     // This can be "male" or "female"
     sex: 'male',
 
-    // See for this definition: https://www.concept2.com/indoor-rowers/training/calculators/vo2max-calculator
+    // Definition copied from https://www.concept2.co.uk/indoor-rowers/training/calculators/vo2max-calculator
+    // If you have been rowing regularly for several years, training at least four days per week, doing a variety of workout types
+    // and improving your rowing scores, then we suggest selecting "Highly trained" when using the calculator.
+    // If you consider yourself a fitness rower and don't push yourself very hard or do any hard pieces, then we suggest selecting "Not highly trained."
     highlyTrained: false
   },
 
