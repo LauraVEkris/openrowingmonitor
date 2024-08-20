@@ -7,11 +7,11 @@ In this manual, we cover the following topics:
 
 * Why have specific settings in the first place
 
-* Check that OpenRowingMonitor works
+* Check that OpenRowingMonitor works correctly
 
   * Checking that the software works
 
-* Setting up a more detailed logging for a better insight into OpenRowingMonitor
+  * Setting up a more detailed logging for a better insight into OpenRowingMonitor
 
 * Setting up the hardware connection
 
@@ -41,7 +41,7 @@ No rowing machine is the same, and some physical construction parameters are imp
 
 If you want something special, or if your rower isn't in there, this guide will help you set it up. Please note that determining these settings is quite labor-intensive, and typically some hard rowing is involved. As said, if you find suitable settings for a new type of rower, please send in the data and settings, so we can add it to OpenRowingMonitor and make other users happy as well.
 
-## Check that OpenRowingMonitor works
+## Check that OpenRowingMonitor works correctly
 
 Before we dive into the settings themselves, we need to check OpenRowingMonitor's install.
 
@@ -72,9 +72,9 @@ Which typically results in the following response (with some additional logging)
 
 Please note that the process identification numbers will differ.
 
-## Setting up a more detailed logging for a better insight into OpenRowingMonitor
+### Setting up a more detailed logging for a better insight into OpenRowingMonitor
 
-When installed, OpenRowingMonitor will not flood the log with messages. However, when testing it is great to see what OpenRowingMonitor is doing. So first thing to do is to set the following in the settings:
+When installed, OpenRowingMonitor will not flood the log with messages. However, when testing parameters is great to see what OpenRowingMonitor is doing under the hood. So, first thing to do is to set the following in the settings:
 
  ```js
  // Available log levels: trace, debug, info, warn, error, silent
@@ -86,7 +86,7 @@ When installed, OpenRowingMonitor will not flood the log with messages. However,
    },
  ```
 
-You can look at the the log output of the OpenRowingMonitor-service by putting the following in the command-line:
+You activate these settings by restarting OpenRowingMonitor (or the entire Raspberry Pi). You can look at the the log output of the OpenRowingMonitor-service by putting the following in the command-line:
 
   ```zsh
   sudo journalctl -u openrowingmonitor
@@ -96,9 +96,9 @@ This allows you to see the current state of the rower. Typically this will show:
 
   ```zsh
   Sep 12 20:37:45 roeimachine systemd[1]: Started Open Rowing Monitor.
-  Sep 12 20:38:03 roeimachine npm[751]: > openrowingmonitor@0.8.2 start
+  Sep 12 20:38:03 roeimachine npm[751]: > openrowingmonitor@0.9.4 start
   Sep 12 20:38:03 roeimachine npm[751]: > node app/server.js
-  Sep 12 20:38:06 roeimachine npm[802]: ==== Open Rowing Monitor 0.8.2 ====
+  Sep 12 20:38:06 roeimachine npm[802]: ==== Open Rowing Monitor 0.9.4 ====
   Sep 12 20:38:06 roeimachine npm[802]: Setting priority for the main server thread to -5
   Sep 12 20:38:06 roeimachine npm[802]: Session settings: distance limit none meters, time limit none seconds
   Sep 12 20:38:06 roeimachine npm[802]: bluetooth profile: Concept2 PM5
