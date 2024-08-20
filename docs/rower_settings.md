@@ -74,7 +74,40 @@ Please note that the process identification numbers will differ.
 
 ## Setting up a more detailed logging for a better insight into OpenRowingMonitor
 
-@@ Write some good text here
+When installed, OpenRowingMonitor will not flood the log with messages. However, when testing it is great to see what OpenRowingMonitor is doing. So first thing to do is to set the following in the settings:
+
+ ```js
+ // Available log levels: trace, debug, info, warn, error, silent
+ loglevel: {
+     // The default log level
+     default: 'info',
+     // The log level of of the rowing engine (stroke detection and physics model)
+     RowingEngine: 'debug'
+   },
+ ```
+
+You can look at the the log output of the OpenRowingMonitor-service by putting the following in the command-line:
+
+  ```zsh
+  sudo journalctl -u openrowingmonitor
+  ```
+
+This allows you to see the current state of the rower. Typically this will show:
+
+  ```zsh
+  Sep 12 20:37:45 roeimachine systemd[1]: Started Open Rowing Monitor.
+  Sep 12 20:38:03 roeimachine npm[751]: > openrowingmonitor@0.8.2 start
+  Sep 12 20:38:03 roeimachine npm[751]: > node app/server.js
+  Sep 12 20:38:06 roeimachine npm[802]: ==== Open Rowing Monitor 0.8.2 ====
+  Sep 12 20:38:06 roeimachine npm[802]: Setting priority for the main server thread to -5
+  Sep 12 20:38:06 roeimachine npm[802]: Session settings: distance limit none meters, time limit none seconds
+  Sep 12 20:38:06 roeimachine npm[802]: bluetooth profile: Concept2 PM5
+  Sep 12 20:38:06 roeimachine npm[802]: webserver running on port 80
+  Sep 12 20:38:06 roeimachine npm[862]: Setting priority for the Gpio-service to -7
+  Sep 12 20:38:09 roeimachine npm[802]: websocket client connected
+  ```
+
+This shows that OpenRowingMonitor is running, and that bluetooth and the webserver are alive, and that the webclient has connected. We will use this to get some grip on OpenRowingMonitor's settings throughout the process.
 
 ## Making sure the hardware is connected correctly and works as intended
 
@@ -143,43 +176,6 @@ Another specific issue to watch out for are systemic errors in the magnet placem
 In some cases, changing the magnet placing or orientation can fix this completely (see for example [this discussion](https://github.com/laberning/openrowingmonitor/discussions/87)), which yields very good results and near-perfect data. Sometimes, you can't fix this or you are unwilling to physically modify the machine. OpenRowingMonitor can handle this kind of systematic error, as long as the *flankLength* (described later) is set to at least two full rotations (in this case, 12 impulses *flankLength* for a 6 magnet machine).
 
 **Please fix any mechanical/electrical/quality issues before proceeding, as the subsequent steps depend on a signal with decent quality!!**
-
-## Setting up a more detailed logging for a better insight into OpenRowingMonitor
-
-When installed, OpenRowingMonitor will not flood the log with messages. However, when testing it is great to see what OpenRowingMonitor is doing. So first thing to do is to set the following in the settings:
-
- ```js
- // Available log levels: trace, debug, info, warn, error, silent
- loglevel: {
-     // The default log level
-     default: 'info',
-     // The log level of of the rowing engine (stroke detection and physics model)
-     RowingEngine: 'debug'
-   },
- ```
-
-You can look at the the log output of the OpenRowingMonitor-service by putting the following in the command-line:
-
-  ```zsh
-  sudo journalctl -u openrowingmonitor
-  ```
-
-This allows you to see the current state of the rower. Typically this will show:
-
-  ```zsh
-  Sep 12 20:37:45 roeimachine systemd[1]: Started Open Rowing Monitor.
-  Sep 12 20:38:03 roeimachine npm[751]: > openrowingmonitor@0.8.2 start
-  Sep 12 20:38:03 roeimachine npm[751]: > node app/server.js
-  Sep 12 20:38:06 roeimachine npm[802]: ==== Open Rowing Monitor 0.8.2 ====
-  Sep 12 20:38:06 roeimachine npm[802]: Setting priority for the main server thread to -5
-  Sep 12 20:38:06 roeimachine npm[802]: Session settings: distance limit none meters, time limit none seconds
-  Sep 12 20:38:06 roeimachine npm[802]: bluetooth profile: Concept2 PM5
-  Sep 12 20:38:06 roeimachine npm[802]: webserver running on port 80
-  Sep 12 20:38:06 roeimachine npm[862]: Setting priority for the Gpio-service to -7
-  Sep 12 20:38:09 roeimachine npm[802]: websocket client connected
-  ```
-
-This shows that OpenRowingMonitor is running, and that bluetooth and the webserver are alive, and that the webclient has connected. We will use this to get some grip on OpenRowingMonitor's settings throughout the process.
 
 ## Critical parameters you must change or review for noise reduction
 
