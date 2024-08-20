@@ -1,7 +1,7 @@
 # Guide for rower specific settings
 
 <!-- markdownlint-disable no-inline-html -->
-This guide helps you to adjust the rowing monitor specifically for a new type of rower or even for your specific use, when the supported rowers don't suffice (you can [find a list of supported rowers here](Supported_Rowers.md)). In this manual, we will guide you through the settings needed to get your machine working. This is a work in progress, and please get in touch through the [GitHub Discussions](https://github.com/JaapvanEkris/openrowingmonitor/discussions) when you run into problems.
+This guide helps you to adjust the rowing monitor specifically for a new type of rower or even for your specific use, when the supported rowers don't suffice (you can [find a list of supported rowers here](Supported_Rowers.md)). In this manual, we will guide you through the settings needed to get your machine working if it isn't listed there. This will always be a work in progress, and please get in touch through the [GitHub Discussions](https://github.com/JaapvanEkris/openrowingmonitor/discussions) when you run into problems.
 
 In this manual, we cover the following topics:
 
@@ -9,17 +9,23 @@ In this manual, we cover the following topics:
 
 * Check that OpenRowingMonitor works
 
-* Making sure the hardware is connected correctly and works as intended
+  * Checking that the software works
 
 * Setting up a more detailed logging for a better insight into OpenRowingMonitor
 
-* Setting GPIO parameters to get a clean signal (general settings)
+* Setting up the hardware connection
 
-* Critical parameters you must change or review for noise reduction
+  * Making sure the hardware is connected correctly and works as intended
 
-* Critical parameters you must change or review for stroke detection
+  * Setting GPIO parameters to get a clean signal (general settings)
 
-* What reliable stroke detection should look like in the logs
+  * Critical parameters you must change or review for noise reduction
+
+* Setting up stroke detection
+
+  * Critical parameters you must change or review for stroke detection
+
+  * What reliable stroke detection should look like in the logs
 
 * Settings required to get the basic metrics right
 
@@ -36,6 +42,10 @@ No rowing machine is the same, and some physical construction parameters are imp
 If you want something special, or if your rower isn't in there, this guide will help you set it up. Please note that determining these settings is quite labor-intensive, and typically some hard rowing is involved. As said, if you find suitable settings for a new type of rower, please send in the data and settings, so we can add it to OpenRowingMonitor and make other users happy as well.
 
 ## Check that OpenRowingMonitor works
+
+Before we dive into the settings themselves, we need to check OpenRowingMonitor's install.
+
+### Checking that the software works
 
 First check you need to do is to check the status of the OpenRowingMonitor service, which you can do with the command:
 
@@ -61,6 +71,10 @@ Which typically results in the following response (with some additional logging)
   ```
 
 Please note that the process identification numbers will differ.
+
+## Setting up a more detailed logging for a better insight into OpenRowingMonitor
+
+@@ Write some good text here
 
 ## Making sure the hardware is connected correctly and works as intended
 
