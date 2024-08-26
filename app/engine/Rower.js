@@ -69,6 +69,7 @@ export function createRower (rowerSettings) {
           _strokeState = 'Drive'
           startDrivePhase()
         }
+        break
       case (_strokeState === 'WaitingForDrive'):
         // We can't change into the "Drive" phase since we are waiting for a drive phase, but there isn't a clear force exerted on the flywheel. So, there is nothing more to do
         break
