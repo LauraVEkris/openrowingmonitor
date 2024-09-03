@@ -26,9 +26,9 @@ export function createRower (rowerSettings) {
   let _strokeState = 'WaitingForDrive'
   let _totalNumberOfStrokes = -1.0
   let recoveryPhaseStartTime = 0.0
-  let _recoveryDuration = 0.0
+  let _recoveryDuration
   let drivePhaseStartTime = 0.0
-  let _driveDuration = 0.0
+  let _driveDuration
   let drivePhaseStartAngularPosition = 0.0
   let drivePhaseAngularDisplacement = 0.0
   let _driveLinearDistance = 0.0
@@ -36,12 +36,14 @@ export function createRower (rowerSettings) {
   let recoveryPhaseAngularDisplacement = 0.0
   let _recoveryLinearDistance = 0.0
   const minimumCycleDuration = rowerSettings.minimumDriveTime + rowerSettings.minimumRecoveryTime
-  let _cycleDuration = minimumCycleDuration
-  let _cycleLinearVelocity = 0.0
-  let _cyclePower = 0.0
+  let _cycleDuration
+  let _cycleLinearVelocity
+  let _cyclePower
   let totalLinearDistance = 0.0
   let preliminaryTotalLinearDistance = 0.0
   let _driveLength = 0.0
+
+  flywheel.maintainStateOnly()
 
   // called if the sensor detected an impulse, currentDt is an interval in seconds
   function handleRotationImpulse (currentDt) {
@@ -150,16 +152,22 @@ export function createRower (rowerSettings) {
 
   function endDrivePhase () {
     // Here, we conclude the Drive Phase
-    // The FSM guarantees that we have a credible driveDuration and cycletime
+    // The FSM guarantees that we have a credible driveDuration and cycletime in normal operation, but NOT at the start
     _driveDuration = flywheel.spinningTime() - drivePhaseStartTime
-    _cycleDuration = _recoveryDuration + _driveDuration
     drivePhaseAngularDisplacement = flywheel.angularPosition() - drivePhaseStartAngularPosition
     _driveLength = drivePhaseAngularDisplacement * sprocketRadius
     _driveLinearDistance = calculateLinearDistance(drivePhaseAngularDisplacement, _driveDuration)
     totalLinearDistance += _driveLinearDistance
-    _cyclePower = calculateCyclePower()
-    _cycleLinearVelocity = calculateLinearVelocity(drivePhaseAngularDisplacement + recoveryPhaseAngularDisplacement, _cycleDuration)
     preliminaryTotalLinearDistance = totalLinearDistance
+    if (_driveDuration >= rowerSettings.minimumDriveTime && _recoveryDuration >= rowerSettings.minimumRecoveryTime) {
+      _cycleDuration = _recoveryDuration + _driveDuration
+      _cycleLinearVelocity = calculateLinearVelocity(drivePhaseAngularDisplacement + recoveryPhaseAngularDisplacement, _cycleDuration)
+      _cyclePower = calculateCyclePower()
+    } else {
+      _cycleDuration = undefined
+      _cycleLinearVelocity = undefined
+      _cyclePower = undefined
+    }
   }
 
   function startRecoveryPhase () {
@@ -178,15 +186,21 @@ export function createRower (rowerSettings) {
 
   function endRecoveryPhase () {
     // First, we conclude the recovery phase
-    // The FSM guarantees that we have a credible recoveryDuration and cycletime
+    // The FSM guarantees that we have a credible recoveryDuration and cycletime in normal operation, but NOT at the start
     _recoveryDuration = flywheel.spinningTime() - recoveryPhaseStartTime
-    _cycleDuration = _recoveryDuration + _driveDuration
     recoveryPhaseAngularDisplacement = flywheel.angularPosition() - recoveryPhaseStartAngularPosition
     _recoveryLinearDistance = calculateLinearDistance(recoveryPhaseAngularDisplacement, _recoveryDuration)
     totalLinearDistance += _recoveryLinearDistance
     preliminaryTotalLinearDistance = totalLinearDistance
-    _cycleLinearVelocity = calculateLinearVelocity(drivePhaseAngularDisplacement + recoveryPhaseAngularDisplacement, _cycleDuration)
-    _cyclePower = calculateCyclePower()
+    if (_driveDuration >= rowerSettings.minimumDriveTime && _recoveryDuration >= rowerSettings.minimumRecoveryTime) {
+      _cycleDuration = _recoveryDuration + _driveDuration
+      _cycleLinearVelocity = calculateLinearVelocity(drivePhaseAngularDisplacement + recoveryPhaseAngularDisplacement, _cycleDuration)
+      _cyclePower = calculateCyclePower()
+    } else {
+      _cycleDuration = undefined
+      _cycleLinearVelocity = undefined
+      _cyclePower = undefined
+    }
     flywheel.markRecoveryPhaseCompleted()
   }
 
@@ -245,59 +259,106 @@ export function createRower (rowerSettings) {
   }
 
   function cycleDuration () {
-    // ToDo: return 0 in the situation where the first cycle hasn't completed yet
-    return _cycleDuration
+    if (_driveDuration >= rowerSettings.minimumDriveTime && _recoveryDuration >= rowerSettings.minimumRecoveryTime) {
+      return _cycleDuration
+    } else {
+      return undefined
+    }
   }
 
   function cycleLinearDistance () {
-    // ToDo: return 0 in the situation where the first cycle hasn't completed yet
-    return _driveLinearDistance + _recoveryLinearDistance
+    if (_driveDuration >= rowerSettings.minimumDriveTime && _recoveryDuration >= rowerSettings.minimumRecoveryTime) {
+      return _driveLinearDistance + _recoveryLinearDistance
+    } else {
+      return undefined
+    }
   }
 
   function cycleLinearVelocity () {
-    // ToDo: return 0 in the situation where the first cycle hasn't completed yet
-    return _cycleLinearVelocity
+    if (_driveDuration >= rowerSettings.minimumDriveTime && _recoveryDuration >= rowerSettings.minimumRecoveryTime) {
+      return _cycleLinearVelocity
+    } else {
+      return undefined
+    }
   }
 
   function cyclePower () {
-    // ToDo: return 0 in the situation where the first cycle hasn't completed yet
-    return _cyclePower
+    if (_driveDuration >= rowerSettings.minimumDriveTime && _recoveryDuration >= rowerSettings.minimumRecoveryTime) {
+      return _cyclePower
+    } else {
+      return undefined
+    }
   }
-
   function driveDuration () {
-    return _driveDuration
+    if (_driveDuration >= rowerSettings.minimumDriveTime) {
+      return _driveDuration
+    } else {
+      return undefined
+    }
   }
 
   function driveLinearDistance () {
-    return _driveLinearDistance
+    if (_driveDuration >= rowerSettings.minimumDriveTime) {
+      return _driveLinearDistance
+    } else {
+      return undefined
+    }
   }
 
   function driveLength () {
-    return _driveLength
+    if (_driveDuration >= rowerSettings.minimumDriveTime) {
+      return _driveLength
+    } else {
+      return undefined
+    }
   }
 
   function driveAverageHandleForce () {
-    return driveHandleForce.average()
+    if (_driveDuration >= rowerSettings.minimumDriveTime) {
+      return driveHandleForce.average()
+    } else {
+      return undefined
+    }
   }
 
   function drivePeakHandleForce () {
-    return driveHandleForce.peak()
+    if (_driveDuration >= rowerSettings.minimumDriveTime) {
+      return driveHandleForce.peak()
+    } else {
+      return undefined
+    }
   }
 
   function driveHandleForceCurve () {
-    return driveHandleForce.curve()
+    if (_driveDuration >= rowerSettings.minimumDriveTime) {
+      return driveHandleForce.curve()
+    } else {
+      return undefined
+    }
   }
 
   function driveHandleVelocityCurve () {
-    return driveHandleVelocity.curve()
+    if (_driveDuration >= rowerSettings.minimumDriveTime) {
+      return driveHandleVelocity.curve()
+    } else {
+      return undefined
+    }
   }
 
   function driveHandlePowerCurve () {
-    return driveHandlePower.curve()
+    if (_driveDuration >= rowerSettings.minimumDriveTime) {
+      return driveHandlePower.curve()
+    } else {
+      return undefined
+    }
   }
 
   function recoveryDuration () {
-    return _recoveryDuration
+    if (_recoveryDuration >= rowerSettings.minimumRecoveryTime) {
+      return _recoveryDuration
+    } else {
+      return undefined
+    }
   }
 
   function recoveryDragFactor () {
