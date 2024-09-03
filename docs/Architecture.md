@@ -43,6 +43,8 @@ L(WebServer.js) -->|Heart rate data| M(Client.js)
 
 Here, *currentDt* stands for the time between the impulses of the sensor, as measured by the pigpio in 'ticks' (i.e. microseconds sinds OS start).
 
+Key element is that clients always will filter for themselves: the rowing engine will transform *currentDt*'s into rowing metrics, and attach flags onto them in the `metricsContext` object contained in the metrics. This context allows clients to act upon specific relevant states, like the start of the drive, the start of a session, etc.
+
 We first describe the relation between these main functional components by describing the flow of the key pieces of information in more detail: the flywheel and heartrate measurements, as well as the command structure.
 
 ### Rowing metrics flow
@@ -144,18 +146,18 @@ In total, this takes full control of the displayed metrics in a specific interva
 
 #### RowingStatistics.js
 
-`RowingStatistics.js` recieves *currentDt* updates, forwards them to `Rower.js` and subsequently inspects `Rower.js` for the resulting strokestate and associated metrics. Based on this inspection, it updates the finite state machine of the sessionstate and the associated metrics (i.e. linear velocity, linear distance, power, etc.).
+`RowingStatistics.js` recieves *currentDt* updates, forwards them to `Rower.js` and subsequently inspects `Rower.js` for the resulting strokestate and associated metrics. Based on this inspection, it updates the associated metrics (i.e. linear velocity, linear distance, power, etc.).
 
 ##### metrics maintained in RowingStatistics.js
 
-The goal is to translate the linear rowing metrics into meaningful information for the consumers of data updating both session state and the underlying metrics. As `Rower.js` can only provide a limited set of absolute metrics at a time (as most are stroke state dependent) and is unaware of previous strokes and the context of the interval, `RowingStatistics.js` will consume this data and transform it into a consistent and more stable set of metrics useable for presentation. `RowingStatistics.js` also buffers data as well, providing a complete set of metrics regardless of stroke state. Adittionally, `RowingStatistics.js` also smoothens data across strokes to remove eratic behaviour of metrics due to small measurement errors.
+The goal is to translate the linear rowing metrics from `Rower.js` into meaningful information for the consumers of data. As `Rower.js` can only provide a limited set of absolute metrics at a specific time (as most are stroke state dependent) and is unaware of previous strokes and the context of the interval, `RowingStatistics.js` will consume this data and transform it into a consistent and more stable set of metrics useable for presentation. `RowingStatistics.js` also buffers data as well, providing a complete set of metrics regardless of stroke state. Adittionally, `RowingStatistics.js` also smoothens data across strokes to remove eratic behaviour of metrics due to small measurement errors.
 
 In a nutshell:
 
 * `RowingStatistics.js` applies a moving median filter across strokes to make metrics less volatile and thus better suited for presentation,
 * `RowingStatistics.js` calculates derived metrics (like Calories) and trands (like Calories per hour),
 
-In total, this takes full control of the displayed metrics in a specific stroke.
+In total, this takes full control of buffering and stabilising the displayed metrics in a specific stroke.
 
 #### Rower.js
 
