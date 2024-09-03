@@ -210,7 +210,7 @@ Working with small numbers, and using the impulse time to calculate the angular 
 
 `Rower.js` could report distance incrementally to `RowingStatistics.js`. However, we chose to report in absolute times and distances, making `Rower.js` in full control of these essential metrics. This way, `Rower.js` can report absolute times and distances, taking full control of the metrics regarding linear movement. This way, these metrics can be calculated temporarily for frequent updates, but calculated definitively when the phase completes. Any derived metrics for specific clients, and smoothing/buffering, is done by `RowingStatistics.js`.
 
-Adittional benefit of this approach is that it makes transitions in intervals more smooth: `RowingStatistics.js` can intersect stroke without causing any pause in metrics (as RowingEngine.js keeps reporting absolutes, intervals and laps become a view on the same data).
+Adittional benefit of this approach is that it makes transitions in intervals more smooth: `SessionManager.js` can intersect stroke without causing any pause in metrics (as `Rower.js` and `RowingStatistics.js` keep reporting absolutes, intervals and laps become a view on the same data).
 
 ## Open issues, Known problems and Regrettable design decissions
 
