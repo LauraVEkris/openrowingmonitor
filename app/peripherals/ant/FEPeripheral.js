@@ -111,14 +111,14 @@ function createFEPeripheral (antManager) {
           0x11, // Page 17
           0xFF, // Reserved
           0xFF, // Reserved
-          ...Messages.intToLEHexArray(sessionData.distancePerStroke, 1), // Stroke Length in 0.01 m
+          ...Messages.intToLEHexArray((sessionData.distancePerStroke > 0 ? sessionData.distancePerStroke : 0), 1), // Stroke Length in 0.01 m
           0x7FFF, // Incline (Not Used)
           0x00, // Resistance (DF may be reported if conversion to the % is worked out (value in % with a resolution of 0.5%).
           ...Messages.intToLEHexArray(feCapabilitiesBitField, 1)
         ]
         if (sessionData.sessionStatus === 'Rowing') {
           log.trace(`Page 17 Data Sent. Event=${dataPageCount}. Stroke Length=${sessionData.distancePerStroke}.`)
-          log.trace(`Hex Stroke Length=0x${sessionData.distancePerStroke.toString(16)}.`)
+          log.trace(`Hex Stroke Length=0x${sessionData.distancePerStroke > 0 ? sessionData.distancePerStroke.toString(16) : 0}.`)
         }
         break
       case dataPageCount % 8 === 3: // 0x16 - Specific Rower Data (once a second)
@@ -128,9 +128,9 @@ function createFEPeripheral (antManager) {
           0x16, // Page 22
           0xFF, // Reserved
           0xFF, // Reserved
-          ...Messages.intToLEHexArray(sessionData.accumulatedStrokes, 1), // Stroke Count
-          ...Messages.intToLEHexArray(sessionData.strokeRate, 1), // Cadence / Stroke Rate
-          ...Messages.intToLEHexArray(sessionData.instantaneousPower, 2), // Instant Power (2 bytes)
+          ...Messages.intToLEHexArray((sessionData.accumulatedStrokes > 0 ? sessionData.accumulatedStrokes : 0), 1), // Stroke Count
+          ...Messages.intToLEHexArray((sessionData.strokeRate > 0 ? sessionData.strokeRate : 0), 1), // Cadence / Stroke Rate
+          ...Messages.intToLEHexArray((sessionData.instantaneousPower > 0 ? sessionData.instantaneousPower : 0), 2), // Instant Power (2 bytes)
           ...Messages.intToLEHexArray((sessionData.fitnessEquipmentState + rowingCapabilitiesBitField), 1)
         ]
         if (sessionData.sessionStatus === 'Rowing') {
@@ -144,9 +144,9 @@ function createFEPeripheral (antManager) {
           channel,
           0x10, // Page 16
           0x16, // Rowing Machine (22)
-          ...Messages.intToLEHexArray(sessionData.accumulatedTime, 1), // elapsed time
-          ...Messages.intToLEHexArray(sessionData.accumulatedDistance, 1), // distance travelled
-          ...Messages.intToLEHexArray(sessionData.cycleLinearVelocity, 2), // speed in 0.001 m/s
+          ...Messages.intToLEHexArray((sessionData.accumulatedTime > 0 ? sessionData.accumulatedTime : 0), 1), // elapsed time
+          ...Messages.intToLEHexArray((sessionData.accumulatedDistance > 0 ? sessionData.accumulatedDistance : 0), 1), // distance travelled
+          ...Messages.intToLEHexArray((sessionData.cycleLinearVelocity > 0 ? sessionData.cycleLinearVelocity : 0), 2), // speed in 0.001 m/s
           0xFF, // heart rate not being sent
           ...Messages.intToLEHexArray((sessionData.fitnessEquipmentState + feCapabilitiesBitField), 1)
         ]
