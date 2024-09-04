@@ -167,19 +167,19 @@ function createFEPeripheral (antManager) {
       accumulatedDistance: (data.totalLinearDistance > 0 ? data.totalLinearDistance : 0) & 0xFF,
       accumulatedStrokes: (data.totalNumberOfStrokes > 0 ? data.totalNumberOfStrokes : 0) & 0xFF,
       accumulatedTime: (data.totalMovingTime > 0 ? Math.trunc(data.totalMovingTime * 4) : 0) & 0xFF,
-      cycleLinearVelocity: (data.cycleLinearVelocity > 0 ? Math.round(data.cycleLinearVelocity * 1000) : 0),
-      strokeRate: (data.cycleStrokeRate > 0 ? Math.round(data.cycleStrokeRate) : 0) & 0xFF,
-      instantaneousPower: (data.cyclePower > 0 ? Math.round(data.cyclePower) : 0) & 0xFFFF,
-      distancePerStroke: (data.cycleDistance > 0 ? Math.round(data.cycleDistance * 100) : 0),
+      cycleLinearVelocity: (data.metricsContext.isMoving && data.cycleLinearVelocity > 0 ? Math.round(data.cycleLinearVelocity * 1000) : 0),
+      strokeRate: (data.metricsContext.isMoving && data.cycleStrokeRate > 0 ? Math.round(data.cycleStrokeRate) : 0) & 0xFF,
+      instantaneousPower: (data.metricsContext.isMoving && data.cyclePower > 0 ? Math.round(data.cyclePower) : 0) & 0xFFFF,
+      distancePerStroke: (data.metricsContext.isMoving && data.cycleDistance > 0 ? Math.round(data.cycleDistance * 100) : 0),
       sessionStatus: data.sessionStatus
     }
 
     // See https://c2usa.fogbugz.com/default.asp?W119
-    // * when machine is on and radio active, but have not yet begun a session -> status set to "ready", speed, etc. are all 0
-    // first stroke -> status = 3 (in use)
-    // end of wokrout -> status = 4 (finished)
-    // Pause (sweatshirt mode); go to 4 (finished, if isMoving = false); back to inUse if rowing starts coming back.
-    // every time move from ready to inuse it will create a new piece on the watch.
+    // * when machine is on and radio active, but have not yet begun a session -> status set to "ready", speed, etc. are all 0 (as forced by above requirement for data.metricsContext.isMoving)
+    // * first stroke -> status = 3 (in use)
+    // * end of wokrout -> status = 4 (finished)
+    // * Pause: go to 4 (finished, if data.metricsContext.isMoving = false); back to inUse if rowing starts coming back.
+    // every time move from "ready" to "inUse" it will create a new piece on the watch.
     // ToDo: if cross split; raise LAP Toggle
     switch (true) {
       case (data.metricsContext.isSessionStart):
