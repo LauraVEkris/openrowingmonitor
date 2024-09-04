@@ -131,7 +131,7 @@ function createFEPeripheral (antManager) {
           ...Messages.intToLEHexArray(sessionData.accumulatedStrokes, 1), // Stroke Count
           ...Messages.intToLEHexArray(sessionData.strokeRate, 1), // Cadence / Stroke Rate
           ...Messages.intToLEHexArray(sessionData.instantaneousPower, 2), // Instant Power (2 bytes)
-          ...Messages.intToLEHexArray((sessionData.fitnessEquipmentState + feCapabilitiesBitField), 1)
+          ...Messages.intToLEHexArray((sessionData.fitnessEquipmentState + rowingCapabilitiesBitField), 1)
         ]
         if (sessionData.sessionStatus === 'Rowing') {
           log.trace(`Page 22 Data Sent. Event=${dataPageCount}. Strokes=${sessionData.accumulatedStrokes}. Stroke Rate=${sessionData.strokeRate}. Power=${sessionData.instantaneousPower}`)
