@@ -55,22 +55,25 @@ export function createRower (rowerSettings) {
       case (_strokeState === 'Stopped'):
         // We are in a stopped state, so don't do anything
         break
-      case (_strokeState === 'WaitingForDrive' && flywheel.isAboveMinimumSpeed()):
+      case (_strokeState === 'WaitingForDrive' && flywheel.isAboveMinimumSpeed() && flywheel.isPowered()):
         // We are above the minimum speed, so we can leave the WaitingForDrive state
         // As we are not certain what caused the "WaitingForDrive", we explicitly start the flywheel maintaining metrics again
         flywheel.maintainStateAndMetrics()
-        if (flywheel.isUnpowered()) {
-          // We change into the "REcovery" phase, as somehow there is no clear force exerted on the flywheel
-          log.debug(`*** Rowing (re)started with a RECOVERY phase at time: ${flywheel.spinningTime().toFixed(4)} sec`)
-          _totalNumberOfStrokes++
-          _strokeState = 'Recovery'
-          startRecoveryPhase()
-        } else {
-          // We change into the "Drive" phase since were waiting for a drive phase, and we see a clear force exerted on the flywheel
-          log.debug(`*** Rowing (re)started with a DRIVE phase at time: ${flywheel.spinningTime().toFixed(4)} sec`)
-          _strokeState = 'Drive'
-          startDrivePhase()
-        }
+        // We change into the "Drive" phase since were waiting for a drive phase, and we see a clear force exerted on the flywheel
+        log.debug(`*** Rowing (re)started with a DRIVE phase at time: ${flywheel.spinningTime().toFixed(4)} sec`)
+        _strokeState = 'Drive'
+        startDrivePhase()
+        break
+      case (_strokeState === 'WaitingForDrive' && flywheel.isAboveMinimumSpeed() && flywheel.isUnpowered()):
+        // We are above the minimum speed, so we can leave the WaitingForDrive state
+        // As we are not certain what caused the "WaitingForDrive", we explicitly start the flywheel maintaining metrics again
+        flywheel.maintainStateAndMetrics()
+        // We change into the "REcovery" phase, as somehow there is a force exerted on the flywheel consistent with a dragforce
+        // We need to update the _totalNumberOfStrokes manually as startDrivePhase() normally does this
+        log.debug(`*** Rowing (re)started with a RECOVERY phase at time: ${flywheel.spinningTime().toFixed(4)} sec`)
+        _totalNumberOfStrokes++
+        _strokeState = 'Recovery'
+        startRecoveryPhase()
         break
       case (_strokeState === 'WaitingForDrive'):
         // We can't change into the "Drive" phase since we are waiting for a drive phase, but there isn't a clear force exerted on the flywheel. So, there is nothing more to do
