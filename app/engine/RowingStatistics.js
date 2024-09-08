@@ -206,7 +206,7 @@ function createRowingStatistics (config) {
     }
     if (rower.recoveryDuration() !== undefined && rower.recoveryDragFactor() !== undefined) {
       dragFactor = rower.recoveryDragFactor()
-    }  else {
+    } else {
       dragFactor = undefined
     }
     // based on: http://eodg.atm.ox.ac.uk/user/dudhia/rowing/physics/ergometer.html#section11
