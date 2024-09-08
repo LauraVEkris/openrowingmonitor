@@ -8,6 +8,7 @@ import log from 'loglevel'
 import zlib from 'zlib'
 import fs from 'fs/promises'
 import xml2js from 'xml2js'
+import { createSeries } from '../engine/utils/Series.js'
 import { createVO2max } from './VO2max.js'
 import { promisify } from 'util'
 const gzip = promisify(zlib.gzip)
@@ -138,7 +139,18 @@ function createTCXRecorder (config) {
   async function workoutToTcx (workout) {
     let versionArray = process.env.npm_package_version.split('.')
     if (versionArray.length < 3) versionArray = ['0', '0', '0']
-    const lastStroke = workout.strokes[strokes.length - 1]
+    const lastStroke = workout.strokes[workout.strokes.length - 1]
+
+    const drag = createSeries()
+    const power = createSeries()
+    let i = 0
+    while (i < workout.strokes.length) {
+      if (workout.strokes[i].dragFactor !== undefined && workout.strokes[i].dragFactor > 0) {drag.push(workout.strokes[i].dragFactor)}
+      if (workout.strokes[i].cyclePower !== undefined && workout.strokes[i].cyclePower > 0) {power.push(workout.strokes[i].cyclePower)}
+      i = i + 1
+    }
+    const averageVelocity = lastStroke.totalLinearDistance / lastStroke.totalMovingTime
+
     const drag = workout.strokes.reduce((sum, s) => sum + s.dragFactor, 0) / strokes.length
 
     // VO2Max calculation for the remarks section
@@ -214,15 +226,13 @@ function createTCXRecorder (config) {
                 Extensions: {
                   'ns2:LX': {
                     'ns2:Steps': lastStroke.totalNumberOfStrokes.toFixed(0),
-                    // please note, the -1 is needed as we have a stroke 0, with a speed and power of 0. The - 1 corrects this.
-                    'ns2:AvgSpeed': (workout.strokes.reduce((sum, s) => sum + s.cycleLinearVelocity, 0) / (workout.strokes.length - 1)).toFixed(2),
-                    'ns2:AvgWatts': (workout.strokes.reduce((sum, s) => sum + s.cyclePower, 0) / (workout.strokes.length - 1)).toFixed(0),
-                    'ns2:MaxWatts': Math.round(workout.strokes.map((stroke) => stroke.cyclePower).reduce((acc, cyclePower) => Math.max(acc, cyclePower)))
-                  }
+                    'ns2:AvgSpeed': averageVelocity.toFixed(2),
+                    'ns2:AvgWatts': power.average().toFixed(0),
+                    'ns2:MaxWatts': power.maximum().toFixed(0)                  }
                 }
               }
             ],
-            Notes: `Indoor Rowing, Drag factor: ${drag.toFixed(1)} 10-6 N*m*s2, Estimated VO2Max: ${VO2maxoutput}${hrrAdittion}`
+            Notes: `Indoor Rowing, Drag factor: ${drag.average().toFixed(1)} 10-6 N*m*s2, Estimated VO2Max: ${VO2maxoutput}${hrrAdittion}`
           }
         },
         Author: {
