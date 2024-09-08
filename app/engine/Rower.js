@@ -365,7 +365,11 @@ export function createRower (rowerSettings) {
   }
 
   function recoveryDragFactor () {
-    return flywheel.dragFactor() * 1000000
+    if (rower.dragFactorIsReliable()) {
+      return flywheel.dragFactor() * 1000000
+    } else {
+      return undefined
+    }
   }
 
   function instantHandlePower () {
