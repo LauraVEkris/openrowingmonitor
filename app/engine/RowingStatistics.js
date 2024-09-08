@@ -203,6 +203,8 @@ function createRowingStatistics (config) {
     driveLastStartTime = rower.driveLastStartTime()
     if (rower.recoveryDuration() !== undefined) {
       recoveryDuration.push(rower.recoveryDuration())
+    }
+    if (rower.recoveryDuration() !== undefined && rower.recoveryDragFactor() !== undefined) {
       dragFactor = rower.recoveryDragFactor()
     }
     // based on: http://eodg.atm.ox.ac.uk/user/dudhia/rowing/physics/ergometer.html#section11
