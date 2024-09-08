@@ -55,7 +55,7 @@ test('Correct rower behaviour at initialisation', () => {
   testDriveAverageHandleForce(rower, undefined)
   testDrivePeakHandleForce(rower, undefined)
   testRecoveryDuration(rower, undefined)
-  testRecoveryDragFactor(rower, 110)
+  testRecoveryDragFactor(rower, undefined)
   testInstantHandlePower(rower, 0)
 })
 
@@ -78,7 +78,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveAverageHandleForce(rower, undefined)
   testDrivePeakHandleForce(rower, undefined)
   testRecoveryDuration(rower, undefined)
-  testRecoveryDragFactor(rower, 110)
+  testRecoveryDragFactor(rower, undefined)
   testInstantHandlePower(rower, 0)
   // Drive initial stroke starts here
   rower.handleRotationImpulse(0.011221636)
@@ -114,7 +114,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveAverageHandleForce(rower, undefined)
   testDrivePeakHandleForce(rower, undefined)
   testRecoveryDuration(rower, undefined)
-  testRecoveryDragFactor(rower, 110)
+  testRecoveryDragFactor(rower, undefined)
   testInstantHandlePower(rower, 372.09477620281604)
   // Recovery initial stroke starts here
   rower.handleRotationImpulse(0.010769)
@@ -146,7 +146,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveAverageHandleForce(rower, 276.20193475035796)
   testDrivePeakHandleForce(rower, 325.1619554833936)
   testRecoveryDuration(rower, undefined)
-  testRecoveryDragFactor(rower, 110)
+  testRecoveryDragFactor(rower, undefined)
   testInstantHandlePower(rower, 0)
   // Drive seconds stroke starts here
   rower.handleRotationImpulse(0.011221636)
@@ -359,6 +359,7 @@ test('sample data for DKN R-320 should produce plausible results', async () => {
   testTotalMovingTimeSinceStart(rower, 0)
   testTotalLinearDistanceSinceStart(rower, 0)
   testTotalNumberOfStrokes(rower, 0)
+  // As dragFactor is static, it should be known at initialisation
   testRecoveryDragFactor(rower, rowerProfiles.DKN_R320.dragFactor)
 
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/DKNR320.csv', realtime: false, loop: false })
@@ -375,7 +376,7 @@ test('sample data for NordicTrack RX800 should produce plausible results', async
   testTotalMovingTimeSinceStart(rower, 0)
   testTotalLinearDistanceSinceStart(rower, 0)
   testTotalNumberOfStrokes(rower, 0)
-  testRecoveryDragFactor(rower, rowerProfiles.NordicTrack_RX800.dragFactor)
+  testRecoveryDragFactor(rower, undefined)
 
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
@@ -407,7 +408,7 @@ test('A full session for a Concept2 Model C should produce plausible results', a
   testTotalMovingTimeSinceStart(rower, 0)
   testTotalLinearDistanceSinceStart(rower, 0)
   testTotalNumberOfStrokes(rower, 0)
-  testRecoveryDragFactor(rower, (rowerProfiles.Concept2_Model_C.dragFactor))
+  testRecoveryDragFactor(rower, undefined)
 
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
@@ -423,7 +424,7 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
   testTotalMovingTimeSinceStart(rower, 0)
   testTotalLinearDistanceSinceStart(rower, 0)
   testTotalNumberOfStrokes(rower, 0)
-  testRecoveryDragFactor(rower, rowerProfiles.Concept2_RowErg.dragFactor)
+  testRecoveryDragFactor(rower, undefined)
 
   await replayRowingSession(rower.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
