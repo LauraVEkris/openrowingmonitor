@@ -206,6 +206,8 @@ function createRowingStatistics (config) {
     }
     if (rower.recoveryDuration() !== undefined && rower.recoveryDragFactor() !== undefined) {
       dragFactor = rower.recoveryDragFactor()
+    }  else {
+      dragFactor = undefined
     }
     // based on: http://eodg.atm.ox.ac.uk/user/dudhia/rowing/physics/ergometer.html#section11
     strokeCalories = (4 * cyclePower.clean() + 350) * (cycleDuration.clean()) / 4200
