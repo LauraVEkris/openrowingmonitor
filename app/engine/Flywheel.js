@@ -223,8 +223,18 @@ export function createFlywheel (rowerSettings) {
   }
 
   function dragFactor () {
-    // Ths function returns the current dragfactor of the flywheel
+    // This function returns the current dragfactor of the flywheel
     return drag.weighedAverage()
+  }
+
+  function dragFactorIsReliable () {
+    // This returns whether the dragfactor is considered reliable, based on measurements instead of a default value
+    // We can't use reliable() as a filter on the dragFactor() function as Rower.js always needs some dragfactor for most calculations
+    if (rowerSettings.autoAdjustDragFactor) {
+      return drag.reliable()
+    } else {
+      return true
+    }
   }
 
   function isDwelling () {
@@ -354,6 +364,7 @@ export function createFlywheel (rowerSettings) {
     angularAcceleration,
     torque,
     dragFactor,
+    dragFactorIsReliable,
     isDwelling,
     isAboveMinimumSpeed,
     isUnpowered,
