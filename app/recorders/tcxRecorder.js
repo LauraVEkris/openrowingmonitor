@@ -145,8 +145,8 @@ function createTCXRecorder (config) {
     const power = createSeries()
     let i = 0
     while (i < workout.strokes.length) {
-      if (workout.strokes[i].dragFactor !== undefined && workout.strokes[i].dragFactor > 0) {drag.push(workout.strokes[i].dragFactor)}
-      if (workout.strokes[i].cyclePower !== undefined && workout.strokes[i].cyclePower > 0) {power.push(workout.strokes[i].cyclePower)}
+      if (workout.strokes[i].dragFactor !== undefined && workout.strokes[i].dragFactor > 0) { drag.push(workout.strokes[i].dragFactor) }
+      if (workout.strokes[i].cyclePower !== undefined && workout.strokes[i].cyclePower > 0) { power.push(workout.strokes[i].cyclePower) }
       i = i + 1
     }
     const averageVelocity = lastStroke.totalLinearDistance / lastStroke.totalMovingTime
@@ -226,7 +226,8 @@ function createTCXRecorder (config) {
                     'ns2:Steps': lastStroke.totalNumberOfStrokes.toFixed(0),
                     'ns2:AvgSpeed': averageVelocity.toFixed(2),
                     'ns2:AvgWatts': power.average().toFixed(0),
-                    'ns2:MaxWatts': power.maximum().toFixed(0)                  }
+                    'ns2:MaxWatts': power.maximum().toFixed(0)
+                  }
                 }
               }
             ],
