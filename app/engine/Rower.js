@@ -365,7 +365,7 @@ export function createRower (rowerSettings) {
   }
 
   function recoveryDragFactor () {
-    if (rower.dragFactorIsReliable()) {
+    if (flywheel.dragFactorIsReliable()) {
       return flywheel.dragFactor() * 1000000
     } else {
       return undefined
