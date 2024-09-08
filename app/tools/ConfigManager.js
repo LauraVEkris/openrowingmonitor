@@ -45,7 +45,7 @@ function checkConfig (configToCheck) {
   checkFloatValue(configToCheck.userSettings, 'restingHR', 30, 220, false, true, 40)
   checkFloatValue(configToCheck.userSettings, 'maxHR', configToCheck.userSettings.restingHR, 220, false, true, 220)
   if (configToCheck.createTcxFiles) {
-    checkFloatValue(configToCheck.userSettings, 'Power', 1, 500, false, true, 50)
+    checkFloatValue(configToCheck.userSettings, 'minPower', 1, 500, false, true, 50)
     checkFloatValue(configToCheck.userSettings, 'maxPower', 100, 6000, false, true, 500)
     checkFloatValue(configToCheck.userSettings, 'distanceCorrectionFactor', 0, 50, false, true, 5)
     checkFloatValue(configToCheck.userSettings, 'weight', 25, 500, false, true, 80)
