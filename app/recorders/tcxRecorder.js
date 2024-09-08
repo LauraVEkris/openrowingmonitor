@@ -151,8 +151,6 @@ function createTCXRecorder (config) {
     }
     const averageVelocity = lastStroke.totalLinearDistance / lastStroke.totalMovingTime
 
-    const drag = workout.strokes.reduce((sum, s) => sum + s.dragFactor, 0) / strokes.length
-
     // VO2Max calculation for the remarks section
     let VO2maxoutput = 'UNDEFINED'
     const VO2max = createVO2max(config)
