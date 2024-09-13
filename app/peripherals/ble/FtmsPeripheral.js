@@ -3,19 +3,25 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Creates a Bluetooth Low Energy (BLE) Peripheral with all the Services that are required for
-  a Cycling Speed and Cadence Profile
+  a Fitness Machine Device
+
+  Relevant parts from https://www.bluetooth.com/specifications/specs/fitness-machine-profile-1-0/
+  The Fitness Machine shall instantiate one and only one Fitness Machine Service as Primary Service
+  The User Data Service, if supported, shall be instantiated as a Primary Service.
+  The Fitness Machine may instantiate the Device Information Service
+  (Manufacturer Name String, Model Number String)
 */
 import bleno from '@abandonware/bleno'
+import FitnessMachineService from './ftms/FitnessMachineService.js'
 import config from '../../tools/ConfigManager.js'
 import log from 'loglevel'
 import DeviceInformationService from './common/DeviceInformationService.js'
-import CyclingSpeedCadenceService from './csc/CyclingSpeedCadenceService.js'
 import AdvertisingDataBuilder from './common/AdvertisingDataBuilder.js'
 
-function createCscPeripheral () {
-  const peripheralName = `${config.ftmsRowerPeripheralName} (CSC)`
-  const cyclingSpeedCadenceService = new CyclingSpeedCadenceService((event) => log.debug('CSC Control Point', event))
-
+function createFtmsPeripheral (controlCallback, options) {
+  const peripheralName = options?.simulateIndoorBike ? config.ftmsBikePeripheralName : config.ftmsRowerPeripheralName
+  const fitnessMachineService = new FitnessMachineService(options, controlPointCallback)
+  const deviceInformationService = new DeviceInformationService()
   const broadcastInterval = config.peripheralUpdateInterval
   let lastKnownMetrics = {
     sessiontype: 'JustRow',
@@ -25,8 +31,9 @@ function createCscPeripheral () {
     totalLinearDistance: 0,
     dragFactor: config.rowerSettings.dragFactor
   }
+  
   let timer = setTimeout(onBroadcastInterval, broadcastInterval)
-
+  
   bleno.on('stateChange', (state) => {
     triggerAdvertising(state)
   })
@@ -34,10 +41,7 @@ function createCscPeripheral () {
   bleno.on('advertisingStart', (error) => {
     if (!error) {
       bleno.setServices(
-        [
-          cyclingSpeedCadenceService,
-          new DeviceInformationService()
-        ],
+        [fitnessMachineService, deviceInformationService],
         (error) => {
           if (error) log.error(error)
         })
@@ -72,8 +76,16 @@ function createCscPeripheral () {
     log.debug('rssiUpdate', event)
   })
 
+  function controlPointCallback (event) {
+    const obj = {
+      req: event,
+      res: {}
+    }
+    if (controlCallback) controlCallback(obj)
+    return obj.res
+  }
+
   function destroy () {
-    clearTimeout(timer)
     return new Promise((resolve) => {
       bleno.disconnect()
       bleno.removeAllListeners()
@@ -84,12 +96,13 @@ function createCscPeripheral () {
   function triggerAdvertising (eventState) {
     const activeState = eventState || bleno.state
     if (activeState === 'poweredOn') {
-      const cscAppearance = 1157
-      const advertisingData = new AdvertisingDataBuilder([cyclingSpeedCadenceService.uuid], cscAppearance, peripheralName)
+      const advertisingBuilder = new AdvertisingDataBuilder([fitnessMachineService.uuid])
+      advertisingBuilder.setShortName(peripheralName)
+      advertisingBuilder.setLongName(peripheralName)
 
       bleno.startAdvertisingWithEIRData(
-        advertisingData.buildAppearanceData(),
-        advertisingData.buildScanData(),
+        advertisingBuilder.buildAppearanceData(),
+        advertisingBuilder.buildScanData(),
         (error) => {
           if (error) log.error(error)
         }
@@ -101,7 +114,7 @@ function createCscPeripheral () {
 
   // present current rowing metrics to FTMS central
   function onBroadcastInterval () {
-    cyclingSpeedCadenceService.notifyData(lastKnownMetrics)
+    fitnessMachineService.notifyData(lastKnownMetrics)
     timer = setTimeout(onBroadcastInterval, broadcastInterval)
   }
 
@@ -110,8 +123,9 @@ function createCscPeripheral () {
     lastKnownMetrics = data
   }
 
-  // CSC does not have status characteristic
+  // present current rowing status to FTMS central
   function notifyStatus (status) {
+    fitnessMachineService.notifyStatus(status)
   }
 
   return {
@@ -122,4 +136,4 @@ function createCscPeripheral () {
   }
 }
 
-export { createCscPeripheral }
+export { createFtmsPeripheral }
