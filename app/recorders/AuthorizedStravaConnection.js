@@ -7,7 +7,7 @@
 import log from 'loglevel'
 import axios from 'axios'
 import FormData from 'form-data'
-import config from './ConfigManager.js'
+import config from '../tools/ConfigManager.js'
 import fs from 'fs/promises'
 
 const clientId = config.stravaClientId
