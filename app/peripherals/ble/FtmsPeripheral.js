@@ -31,9 +31,9 @@ function createFtmsPeripheral (controlCallback, options) {
     totalLinearDistance: 0,
     dragFactor: config.rowerSettings.dragFactor
   }
-  
+
   let timer = setTimeout(onBroadcastInterval, broadcastInterval)
-  
+
   bleno.on('stateChange', (state) => {
     triggerAdvertising(state)
   })
@@ -86,6 +86,7 @@ function createFtmsPeripheral (controlCallback, options) {
   }
 
   function destroy () {
+    clearTimeout(timer)
     return new Promise((resolve) => {
       bleno.disconnect()
       bleno.removeAllListeners()
