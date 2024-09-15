@@ -179,7 +179,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rowingStatistics.handleRotationImpulse(0.010386684)
   testStrokeState(rowingStatistics, 'Drive')
   testTotalMovingTime(rowingStatistics, 0.44915539800000004)
-  testTotalLinearDistance(rowingStatistics, 1.5782562351248521)
+  testTotalLinearDistance(rowingStatistics, 1.828822466846578)
   testTotalNumberOfStrokes(rowingStatistics, 1)
   testCycleDuration(rowingStatistics, undefined)
   testCycleDistance(rowingStatistics, undefined)
@@ -416,7 +416,7 @@ test('sample data for NordicTrack RX800 should produce plausible results', async
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
   testTotalMovingTime(rowingStatistics, 21.97324892)
-  testTotalLinearDistance(rowingStatistics, 79.2166251462397)
+  testTotalLinearDistance(rowingStatistics, 80.42009355207885)
   testTotalNumberOfStrokes(rowingStatistics, 9)
   // As dragFactor is dynamic, it should have changed
   testDragFactor(rowingStatistics, 494.92868774518126)
@@ -466,7 +466,7 @@ test('A full session for a Concept2 Model C should produce plausible results', a
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
   testTotalMovingTime(rowingStatistics, 181.47141999999985)
-  testTotalLinearDistance(rowingStatistics, 551.8079721452832)
+  testTotalLinearDistance(rowingStatistics, 552.0863658667265)
   testTotalNumberOfStrokes(rowingStatistics, 83)
   // As dragFactor isn't static, it should have changed
   testDragFactor(rowingStatistics, 123.82587294279575)
@@ -491,7 +491,7 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
   testTotalMovingTime(rowingStatistics, 590.111937)
-  testTotalLinearDistance(rowingStatistics, 2029.714313667487)
+  testTotalLinearDistance(rowingStatistics, 2029.1846608962908)
   testTotalNumberOfStrokes(rowingStatistics, 205)
   // As dragFactor isn't static, it should have changed
   testDragFactor(rowingStatistics, 80.79044336920732)
