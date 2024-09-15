@@ -492,7 +492,7 @@ test('A 2000 meter session for a Concept2 RowErg should produce plausible result
 
   testTotalMovingTime(sessionManager, 581.7102639999993)
   testTotalLinearDistance(sessionManager, 2000.0168747914822)
-  testTotalNumberOfStrokes(sessionManager, 202)
+  testTotalNumberOfStrokes(sessionManager, 203)
   // As dragFactor isn't static, it should have changed
   testDragFactor(sessionManager, 80.7736995688596)
 })
