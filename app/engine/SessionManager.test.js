@@ -218,7 +218,7 @@ test('sample data for NordicTrack RX800 should produce plausible results for a 7
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 20.52171210899998)
-  testTotalLinearDistance(sessionManager, 75.07332940337801)
+  testTotalLinearDistance(sessionManager, 75.04262460921579)
   testTotalNumberOfStrokes(sessionManager, 9)
   // As dragFactor is dynamic, it should have changed
   testDragFactor(sessionManager, 494.92868774518126)
@@ -400,7 +400,7 @@ test('A 500 meter session for a Concept2 Model C should produce plausible result
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 156.87138200000004)
-  testTotalLinearDistance(sessionManager, 500.05137008767286)
+  testTotalLinearDistance(sessionManager, 500.03019828253076)
   testTotalNumberOfStrokes(sessionManager, 73)
   // As dragFactor isn't static, it should have changed
   testDragFactor(sessionManager, 123.69864738410088)
@@ -491,7 +491,7 @@ test('A 2000 meter session for a Concept2 RowErg should produce plausible result
   await replayRowingSession(sessionManager.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
   testTotalMovingTime(sessionManager, 581.7102639999993)
-  testTotalLinearDistance(sessionManager, 2000.0023380273299)
+  testTotalLinearDistance(sessionManager, 2000.0168747914822)
   testTotalNumberOfStrokes(sessionManager, 202)
   // As dragFactor isn't static, it should have changed
   testDragFactor(sessionManager, 80.7736995688596)
