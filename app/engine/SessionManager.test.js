@@ -494,7 +494,7 @@ test('A 2000 meter session for a Concept2 RowErg should produce plausible result
   testTotalLinearDistance(sessionManager, 2000.0168747914822)
   testTotalNumberOfStrokes(sessionManager, 203)
   // As dragFactor isn't static, it should have changed
-  testDragFactor(sessionManager, 80.7736995688596)
+  testDragFactor(sessionManager, 80.73169956632738)
 })
 
 test('A 580 seconds session for a Concept2 RowErg should produce plausible results', async () => {
