@@ -190,6 +190,7 @@ export function createRower (rowerSettings) {
   function endRecoveryPhase () {
     // First, we conclude the recovery phase
     // The FSM guarantees that we have a credible recoveryDuration and cycletime in normal operation, but NOT at the start
+    flywheel.markRecoveryPhaseCompleted() // This MUST be executed before the dragfactor is used in any calculation here!
     _recoveryDuration = flywheel.spinningTime() - recoveryPhaseStartTime
     recoveryPhaseAngularDisplacement = flywheel.angularPosition() - recoveryPhaseStartAngularPosition
     _recoveryLinearDistance = calculateLinearDistance(recoveryPhaseAngularDisplacement, _recoveryDuration)
@@ -204,7 +205,6 @@ export function createRower (rowerSettings) {
       _cycleLinearVelocity = undefined
       _cyclePower = undefined
     }
-    flywheel.markRecoveryPhaseCompleted()
   }
 
   function calculateLinearDistance (baseAngularDisplacement, baseTime) {
