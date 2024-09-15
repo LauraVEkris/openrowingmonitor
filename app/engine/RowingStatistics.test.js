@@ -157,7 +157,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testRecoveryDuration(rowingStatistics, undefined)
   testDragFactor(rowingStatistics, 110)
   testInstantHandlePower(rowingStatistics, undefined)
-  // Drive seconds stroke starts here
+  // Drive second stroke starts here
   rowingStatistics.handleRotationImpulse(0.011221636)
   rowingStatistics.handleRotationImpulse(0.011175504)
   rowingStatistics.handleRotationImpulse(0.01116456)
@@ -312,7 +312,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testStrokeState(rowingStatistics, 'WaitingForDrive')
   testTotalMovingTime(rowingStatistics, 1.1137102920000004)
   testTotalNumberOfStrokes(rowingStatistics, 2)
-  testTotalLinearDistance(rowingStatistics, 4.554256569952211)
+  testTotalLinearDistance(rowingStatistics, 4.804822801673938)
   testCycleDuration(rowingStatistics, undefined)
   testCycleDistance(rowingStatistics, undefined)
   testCycleLinearVelocity(rowingStatistics, undefined)
