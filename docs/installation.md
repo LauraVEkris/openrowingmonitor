@@ -4,11 +4,10 @@ This guide roughly explains how to set up the rowing software and hardware.
 
 ## Requirements
 
-* A Raspberry Pi that supports Bluetooth Low Energy. Probably this also runs on other devices.
+* A Raspberry Pi that supports Bluetooth Low Energy.
   * Raspberry Pi Zero 2 W or WH
   * Raspberry Pi 3 Model A+, B or B+
   * Raspberry Pi 4 Model B
-  * Raspberry Pi 5
 * An SD Card, any size above 4GB should be fine
 * A rowing machine (obviously) with some way to measure the rotation of the flywheel
   * with a build in reed sensor that you can directly connect to the GPIO pins of the Raspberry Pi
@@ -30,7 +29,7 @@ This guide roughly explains how to set up the rowing software and hardware.
 Connect to the device with SSH and initiate the following command to set up all required dependencies and to install Open Rowing Monitor as an automatically starting system service:
 
 ```zsh
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/JaapvanEkris/openrowingmonitor/v1beta_updates/install/install.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/jaapvanekris/openrowingmonitor/HEAD/install/install.sh)"
 ```
 
 ### Check if OpenRowingMonitor runs without issue
