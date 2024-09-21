@@ -51,13 +51,14 @@ ask() {
 CURRENT_DIR=$(pwd)
 INSTALL_DIR="/opt/openrowingmonitor"
 GIT_REMOTE="https://github.com/JaapvanEkris/openrowingmonitor.git"
-BRANCH="v1beta_updates"
+BRANCH="main"
 
 print "This script will set up Open Rowing Monitor on one of the following devices"
 print "  Raspberry Pi Zero 2 W or WH"
 print "  Raspberry Pi 3 Model A+, B or B+"
 print "  Raspberry Pi 4 Model B"
-print "  Raspberry Pi 5"
+print
+print "A Raspberry Pi 5 is currently NOT compatible"
 print
 print "You should only run this script on a SD Card that contains Raspberry Pi OS (Lite)"
 print "and does not contain any important data."
@@ -142,21 +143,23 @@ print "Installing Open Rowing Monitor, branch $BRANCH..."
 
 if ! [[ -d "${INSTALL_DIR}" ]]; then
   sudo mkdir -p $INSTALL_DIR
+
+  cd $INSTALL_DIR
+
+  # get project code from repository
+  sudo git init -q
+  # older versions of git would use 'master' instead of 'main' for the default branch
+  sudo git checkout -q -b $BRANCH
+  sudo git config remote.origin.url $GIT_REMOTE
+  sudo git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+  # prevent altering line endings
+  sudo git config core.autocrlf false
+  sudo git fetch --force origin
+  sudo git fetch --force --tags origin
+  sudo git reset --hard origin/$BRANCH
 fi
 
 cd $INSTALL_DIR
-
-# get project code from repository
-sudo git init -q
-# older versions of git would use 'master' instead of 'main' for the default branch
-sudo git checkout -q -b $BRANCH
-sudo git config remote.origin.url $GIT_REMOTE
-sudo git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
-# prevent altering line endings
-sudo git config core.autocrlf false
-sudo git fetch --force origin
-sudo git fetch --force --tags origin
-sudo git reset --hard origin/$BRANCH
 
 # add bin directory to the system path
 echo "export PATH=\"\$PATH:$INSTALL_DIR/bin\"" >> ~/.bashrc
