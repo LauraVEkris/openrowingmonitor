@@ -84,7 +84,7 @@ export default {
   // Selects the AN+ that is broadcasted to external peripherals and apps. Supported modes:
   // - FE: ANT+ Fitness Equipment
   // - OFF: Turns Bluetooth advertisement off
-  antplusMode: 'OFF',
+  antPlusMode: 'OFF',
 
   // Selects the heart rate monitor mode. Supported modes:
   // - BLE: Use Bluetooth Low Energy to connect Heart Rate Monitor (Will currently connect to the first device found)

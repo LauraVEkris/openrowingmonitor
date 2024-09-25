@@ -27,10 +27,14 @@ function checkConfig (configToCheck) {
   checkRangeValue(configToCheck, 'gpioPollingInterval', [1, 2, 5, 10], true, 10)
   checkRangeValue(configToCheck, 'gpioTriggeredFlank', ['Up', 'Down', 'Both'], true, 'Up')
   checkIntegerValue(configToCheck, 'appPriority', configToCheck.gpioPriority, 0, true, true, 0)
-  checkIntegerValue(configToCheck, 'webUpdateInterval', 50, 1000, false, true, 1000)
-  checkIntegerValue(configToCheck, 'peripheralUpdateInterval', 50, 1000, false, true, 1000)
+  checkIntegerValue(configToCheck, 'webUpdateInterval', 80, 1000, false, true, 1000)
+  checkIntegerValue(configToCheck, 'peripheralUpdateInterval', 150, 1000, false, true, 1000) // Please note: the minimum update interval for iOS is 30ms, for android 7.5ms (see https://stackoverflow.com/questions/37776536/bluetooth-low-energy-on-different-platforms), and some PM5 messages send 5 telegrams
   checkRangeValue(configToCheck, 'bluetoothMode', ['OFF', 'PM5', 'FTMS', 'FTMSBIKE', 'CPS', 'CSC'], true, 'OFF')
-  checkRangeValue(configToCheck, 'antplusMode', ['OFF', 'FE'], true, 'OFF')
+  if (Object.keys(configToCheck).includes('antplusMode')) {
+    log.error('WARNING: An old version of the config file was detected, please update the name of the following setting in the config.js file: antplusMode into antPlusMode')
+    configToCheck.antPlusMode = configToCheck.antplusMode
+  }
+  checkRangeValue(configToCheck, 'antPlusMode', ['OFF', 'FE'], true, 'OFF')
   checkRangeValue(configToCheck, 'heartRateMode', ['OFF', 'ANT', 'BLE'], true, 'OFF')
   checkIntegerValue(configToCheck, 'numOfPhasesForAveragingScreenData', 2, null, false, true, 4)
   checkBooleanValue(configToCheck, 'createRowingDataFiles', true, true)
@@ -61,8 +65,16 @@ function checkConfig (configToCheck) {
     checkFloatValue(configToCheck.rowerSettings, 'minimumDragQuality', 0, 1, true, true, 0)
   }
   checkFloatValue(configToCheck.rowerSettings, 'flywheelInertia', 0, null, false, false, null)
-  checkFloatValue(configToCheck.rowerSettings, 'minumumForceBeforeStroke', 0, 500, true, true, 0)
-  checkFloatValue(configToCheck.rowerSettings, 'minumumRecoverySlope', 0, null, true, true, 0)
+  if (Object.keys(configToCheck.rowerSettings).includes('minumumForceBeforeStroke')) {
+    log.error('WARNING: An old version of the config file was detected, please update the name of the following setting in the config.js file: minumumForceBeforeStroke into minimumForceBeforeStroke')
+    configToCheck.rowerSettings.minimumForceBeforeStroke = configToCheck.rowerSettings.minumumForceBeforeStroke
+  }
+  checkFloatValue(configToCheck.rowerSettings, 'minimumForceBeforeStroke', 0, 500, true, true, 0)
+  if (Object.keys(configToCheck.rowerSettings).includes('minumumRecoverySlope')) {
+    log.error('WARNING: An old version of the config file was detected, please update the name of the following setting in the config.js file: minumumRecoverySlope into minimumRecoverySlope')
+    configToCheck.rowerSettings.minimumRecoverySlope = configToCheck.rowerSettings.minumumRecoverySlope
+  }
+  checkFloatValue(configToCheck.rowerSettings, 'minimumRecoverySlope', 0, null, true, true, 0)
   checkFloatValue(configToCheck.rowerSettings, 'minimumStrokeQuality', 0, 1, true, true, 0)
   checkBooleanValue(configToCheck.rowerSettings, 'autoAdjustRecoverySlope', true, false)
   if (!configToCheck.rowerSettings.autoAdjustDragFactor && configToCheck.rowerSettings.autoAdjustRecoverySlope) {
