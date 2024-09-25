@@ -52,7 +52,7 @@ function createWebServer (config) {
   })
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
-  // we need to filter here what the PeripheralManager will react to and what it will ignore
+  // we need to filter here what the WebServer will react to and what it will ignore
   function handleCommand (commandName) {
     switch (commandName) {
       case ('start'):
