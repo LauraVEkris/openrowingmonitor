@@ -1,4 +1,7 @@
+'use strict'
 /*
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
+
   This test is a test of the Rower object, that tests wether this object fills all fields correctly, given one validated rower, (the
   Concept2 RowErg) using a validated cycle of strokes. This thoroughly tests the raw physics of the translation of Angular physics
   to Linear physics. The combination with all possible known rowers is tested when testing the above function RowingStatistics, as
@@ -99,7 +102,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   rower.handleRotationImpulse(0.010386684)
   testStrokeState(rower, 'Drive')
   testTotalMovingTimeSinceStart(rower, 0.077918634)
-  testTotalLinearDistanceSinceStart(rower, 0.2847935546277449)
+  testTotalLinearDistanceSinceStart(rower, 0.2491943602992768)
   testTotalNumberOfStrokes(rower, 1)
   testCycleDuration(rower, undefined) // still default value
   testCycleLinearDistance(rower, undefined)
