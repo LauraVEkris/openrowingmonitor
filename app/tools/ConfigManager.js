@@ -3,7 +3,7 @@
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   Merges the different config files and presents the configuration to the application
-  Checks the config for plausibilit, fixes the errors when needed
+  Checks the config for plausibility, fixes the errors when needed
 */
 import defaultConfig from '../../config/default.config.js'
 import { deepMerge } from './Helper.js'
@@ -94,23 +94,23 @@ function checkIntegerValue (parameterSection, parameterName, minimumValue, maxim
   let errors = 0
   switch (true) {
     case (parameterSection[parameterName] === undefined):
-      log.error(`Configuration Error: ${parameterName} isn't defined (at the right spot)`)
+      log.error(`Configuration Error: ${parameterSection}.${parameterName} isn't defined`)
       errors++
       break
     case (!Number.isInteger(parameterSection[parameterName])):
-      log.error(`Configuration Error: ${parameterName} should be an integer value, encountered ${parameterSection[parameterName]}`)
+      log.error(`Configuration Error: ${parameterSection}.${parameterName} should be an integer value, encountered ${parameterSection[parameterName]}`)
       errors++
       break
     case (minimumValue != null && parameterSection[parameterName] < minimumValue):
-      log.error(`Configuration Error: ${parameterName} should be at least ${minimumValue}, encountered ${parameterSection[parameterName]}`)
+      log.error(`Configuration Error: ${parameterSection}.${parameterName} should be at least ${minimumValue}, encountered ${parameterSection[parameterName]}`)
       errors++
       break
     case (maximumvalue != null && parameterSection[parameterName] > maximumvalue):
-      log.error(`Configuration Error: ${parameterName} can't be above ${maximumvalue}, encountered ${parameterSection[parameterName]}`)
+      log.error(`Configuration Error: ${parameterSection}.${parameterName} can't be above ${maximumvalue}, encountered ${parameterSection[parameterName]}`)
       errors++
       break
     case (!allowZero && parameterSection[parameterName] === 0):
-      log.error(`Configuration Error: ${parameterName} can't be zero`)
+      log.error(`Configuration Error: ${parameterSection}.${parameterName} can't be zero`)
       errors++
       break
     default:
@@ -119,10 +119,10 @@ function checkIntegerValue (parameterSection, parameterName, minimumValue, maxim
   if (errors > 0) {
     // Errors were made
     if (allowRepair) {
-      log.error(`   resolved by setting ${parameterName} to ${defaultValue}`)
+      log.error(`   resolved by setting ${parameterSection}.${parameterName} to ${defaultValue}`)
       parameterSection[parameterName] = defaultValue
     } else {
-      log.error(`   as ${parameterName} is a fatal parameter, I'm exiting`)
+      log.error(`   as ${parameterSection}.${parameterName} is a fatal parameter, I'm exiting`)
       process.exit(9)
     }
   }
@@ -133,23 +133,23 @@ function checkFloatValue (parameterSection, parameterName, minimumValue, maximum
   let errors = 0
   switch (true) {
     case (parameterSection[parameterName] === undefined):
-      log.error(`Configuration Error: ${parameterName} isn't defined (at the right spot)`)
+      log.error(`Configuration Error: ${parameterSection}.${parameterName} isn't defined`)
       errors++
       break
     case (!(typeof (parameterSection[parameterName]) === 'number')):
-      log.error(`Configuration Error: ${parameterName} should be a numerical value, encountered ${parameterSection[parameterName]}`)
+      log.error(`Configuration Error: ${parameterSection}.${parameterName} should be a numerical value, encountered ${parameterSection[parameterName]}`)
       errors++
       break
     case (minimumValue != null && parameterSection[parameterName] < minimumValue):
-      log.error(`Configuration Error: ${parameterName} should be at least ${minimumValue}, encountered ${parameterSection[parameterName]}`)
+      log.error(`Configuration Error: ${parameterSection}.${parameterName} should be at least ${minimumValue}, encountered ${parameterSection[parameterName]}`)
       errors++
       break
     case (maximumvalue != null && parameterSection[parameterName] > maximumvalue):
-      log.error(`Configuration Error: ${parameterName} can't be above ${maximumvalue}, encountered ${parameterSection[parameterName]}`)
+      log.error(`Configuration Error: ${parameterSection}.${parameterName} can't be above ${maximumvalue}, encountered ${parameterSection[parameterName]}`)
       errors++
       break
     case (!allowZero && parameterSection[parameterName] === 0):
-      log.error(`Configuration Error: ${parameterName} can't be zero`)
+      log.error(`Configuration Error: ${parameterSection}.${parameterName} can't be zero`)
       errors++
       break
     default:
@@ -158,10 +158,10 @@ function checkFloatValue (parameterSection, parameterName, minimumValue, maximum
   if (errors > 0) {
     // Errors were made
     if (allowRepair) {
-      log.error(`   resolved by setting ${parameterName} to ${defaultValue}`)
+      log.error(`   resolved by setting ${parameterSection}.${parameterName} to ${defaultValue}`)
       parameterSection[parameterName] = defaultValue
     } else {
-      log.error(`   as ${parameterName} is a fatal parameter, I'm exiting`)
+      log.error(`   as ${parameterSection}.${parameterName} is a fatal parameter, I'm exiting`)
       process.exit(9)
     }
   }
@@ -172,11 +172,11 @@ function checkBooleanValue (parameterSection, parameterName, allowRepair, defaul
   let errors = 0
   switch (true) {
     case (parameterSection[parameterName] === undefined):
-      log.error(`Configuration Error: ${parameterName} isn't defined (at the right spot)`)
+      log.error(`Configuration Error: ${parameterSection}.${parameterName} isn't defined`)
       errors++
       break
     case (!(parameterSection[parameterName] === true || parameterSection[parameterName] === false)):
-      log.error(`Configuration Error: ${parameterName} should be either false or true, encountered ${parameterSection[parameterName]}`)
+      log.error(`Configuration Error: ${parameterSection}.${parameterName} should be either false or true, encountered ${parameterSection[parameterName]}`)
       errors++
       break
     default:
@@ -185,10 +185,10 @@ function checkBooleanValue (parameterSection, parameterName, allowRepair, defaul
   if (errors > 0) {
     // Errors were made
     if (allowRepair) {
-      log.error(`   resolved by setting ${parameterName} to ${defaultValue}`)
+      log.error(`   resolved by setting ${parameterSection}.${parameterName} to ${defaultValue}`)
       parameterSection[parameterName] = defaultValue
     } else {
-      log.error(`   as ${parameterName} is a fatal parameter, I'm exiting`)
+      log.error(`   as ${parameterSection}.${parameterName} is a fatal parameter, I'm exiting`)
       process.exit(9)
     }
   }
@@ -199,11 +199,11 @@ function checkRangeValue (parameterSection, parameterName, range, allowRepair, d
   let errors = 0
   switch (true) {
     case (parameterSection[parameterName] === undefined):
-      log.error(`Configuration Error: ${parameterName} isn't defined (at the right spot)`)
+      log.error(`Configuration Error: ${parameterSection}.${parameterName} isn't defined`)
       errors++
       break
     case (!range.includes(parameterSection[parameterName])):
-      log.error(`Configuration Error: ${parameterName} should be come from ${range}, encountered ${parameterSection[parameterName]}`)
+      log.error(`Configuration Error: ${parameterSection}.${parameterName} should be come from ${range}, encountered ${parameterSection[parameterName]}`)
       errors++
       break
     default:
@@ -212,10 +212,10 @@ function checkRangeValue (parameterSection, parameterName, range, allowRepair, d
   if (errors > 0) {
     // Errors were made
     if (allowRepair) {
-      log.error(`   resolved by setting ${parameterName} to ${defaultValue}`)
+      log.error(`   resolved by setting ${parameterSection}.${parameterName} to ${defaultValue}`)
       parameterSection[parameterName] = defaultValue
     } else {
-      log.error(`   as ${parameterName} is a fatal parameter, I'm exiting`)
+      log.error(`   as ${parameterSection}.${parameterName} is a fatal parameter, I'm exiting`)
       process.exit(9)
     }
   }
