@@ -132,7 +132,7 @@ webServer.on('messageReceived', async (message, client) => {
       sessionManager.handleCommand(message.command)
       recordingManager.handleCommand(message.command)
       peripheralManager.handleCommand(message.command)
-      webServer.handleCommand(message.command)  
+      webServer.handleCommand(message.command)
       break
   }
 })
