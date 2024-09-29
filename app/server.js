@@ -128,7 +128,7 @@ webServer.on('messageReceived', async (message, client) => {
       // ToDo? Do some preprocessing from the data element to intervalsettings????
       sessionManager.setIntervalParameters(message.data)
       break
-    default
+    default:
       sessionManager.handleCommand(message.command)
       recordingManager.handleCommand(message.command)
       peripheralManager.handleCommand(message.command)
