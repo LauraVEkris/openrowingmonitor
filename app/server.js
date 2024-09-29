@@ -110,21 +110,30 @@ workoutUploader.on('authorizeStrava', (data, client) => {
 const webServer = createWebServer(config)
 webServer.on('messageReceived', async (message, client) => {
   log.debug(`webclient requested ${message.command}`)
-  if (message.command === 'shutdown' && shutdownEnabled) {
-    await shutdown()
-  } else {
-    sessionManager.handleCommand(message.command)
-    recordingManager.handleCommand(message.command)
-    peripheralManager.handleCommand(message.command)
-    webServer.handleCommand(message.command)
-    switch (message.command) {
-      case 'uploadTraining':
-        workoutUploader.upload(client)
-        break
-      case 'stravaAuthorizationCode':
-        workoutUploader.stravaAuthorizationCode(message.data)
-        break
-    }
+  switch (message.command) {
+    case 'shutdown':
+      if (shutdownEnabled) {
+        await shutdown()
+      } else {
+        log.error('Shutdown requested, but shutdown is disabled')
+      }
+      break
+    case 'uploadTraining':
+      workoutUploader.upload(client)
+      break
+    case 'stravaAuthorizationCode':
+      workoutUploader.stravaAuthorizationCode(message.data)
+      break
+    case 'updateIntervalSettings':
+      // ToDo? Do some preprocessing from the data element to intervalsettings????
+      sessionManager.setIntervalParameters(message.data)
+      break
+    default
+      sessionManager.handleCommand(message.command)
+      recordingManager.handleCommand(message.command)
+      peripheralManager.handleCommand(message.command)
+      webServer.handleCommand(message.command)  
+      break
   }
 })
 
