@@ -13,12 +13,14 @@ import log from 'loglevel'
 import EventEmitter from 'events'
 
 function createWebServer (config) {
+  const guaranteedRefreshInterval = 2 * config.webUpdateInterval
   const emitter = new EventEmitter()
   const port = process.env.PORT || 80
   const serve = serveStatic('./build', { index: ['index.html'] })
-  let timeOfLastMetricsUpdate = 0
+  let timer = setTimeout(timeBasedPresenter, config.webUpdateInterval)
   let lastKnownMetrics
   let heartRate
+  let heartRateBatteryLevel
 
   const server = http.createServer((req, res) => {
     serve(req, res, finalhandler(req, res))
@@ -52,7 +54,8 @@ function createWebServer (config) {
   })
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
-  // we need to filter here what the WebServer will react to and what it will ignore
+  // we need to filter here what the webserver will react to and what it will ignore
+  // The start...reset commands are handled by the RowingEngine and the result will be reported by the metrics update, so we ignore them here
   function handleCommand (commandName) {
     switch (commandName) {
       case ('start'):
@@ -93,7 +96,6 @@ function createWebServer (config) {
 
   function presentRowingMetrics (metrics) {
     if (metrics.metricsContext === undefined) return
-    addHeartRateToMetrics(metrics)
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
         notifyClients('metrics', metrics)
@@ -116,27 +118,31 @@ function createWebServer (config) {
       case (metrics.metricsContext.isRecoveryStart):
         notifyClients('metrics', metrics)
         break
-      case ((Date.now() - timeOfLastMetricsUpdate) > config.webUpdateInterval):
-        // Normal metrics update, only config.webUpdateInterval ms after the last broadcast
-        notifyClients('metrics', metrics)
     }
     lastKnownMetrics = metrics
-  }
-
-  // Make sure that the GUI is updated with the latest metrics even when no fresh data arrives
-  setInterval(timeBasedPresenter, config.webUpdateInterval * 2)
-  function timeBasedPresenter () {
-    if (lastKnownMetrics !== undefined && (Date.now() - timeOfLastMetricsUpdate) > config.webUpdateInterval) {
-      notifyClients('metrics', lastKnownMetrics)
-    }
   }
 
   // initiated when a new heart rate value is received from heart rate sensor
   async function presentHeartRate (value) {
     heartRate = value.heartrate
-    if ((Date.now() - timeOfLastMetricsUpdate) > config.webUpdateInterval) {
-      addHeartRateToMetrics(lastKnownMetrics)
-      notifyClients('metrics', lastKnownMetrics)
+    heartRateBatteryLevel = value.batteryLevel
+  }
+
+  // Make sure that the GUI is updated with the latest metrics even when no fresh data arrives
+  function timeBasedPresenter () {
+    notifyClients('metrics', lastKnownMetrics)
+  }
+
+  function addHeartRateToMetrics (metrics) {
+    if (heartRate !== undefined) {
+      metrics.heartrate = heartRate
+    } else {
+      metrics.heartrate = undefined
+    }
+    if (heartRateBatteryLevel !== undefined) {
+      metrics. heartRateBatteryLevel = heartRateBatteryLevel
+    } else {
+      metrics. heartRateBatteryLevel = undefined
     }
   }
 
@@ -152,21 +158,15 @@ function createWebServer (config) {
   }
 
   function notifyClients (type, data) {
+    clearTimeout(timer)
+    addHeartRateToMetrics(data)
     const messageString = JSON.stringify({ type, data })
-    if (type === 'metrics') timeOfLastMetricsUpdate = Date.now()
     wss.clients.forEach(function each (client) {
       if (client.readyState === WebSocket.OPEN) {
         client.send(messageString)
       }
     })
-  }
-
-  function addHeartRateToMetrics (metrics) {
-    if (heartRate !== undefined) {
-      metrics.heartrate = heartRate
-    } else {
-      metrics.heartrate = undefined
-    }
+    timer = setTimeout(timeBasedPresenter, config.webUpdateInterval)
   }
 
   function getConfig () {
@@ -181,7 +181,6 @@ function createWebServer (config) {
 
   return Object.assign(emitter, {
     notifyClient,
-    notifyClients,
     presentRowingMetrics,
     presentHeartRate,
     handleCommand
