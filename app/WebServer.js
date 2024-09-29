@@ -13,7 +13,6 @@ import log from 'loglevel'
 import EventEmitter from 'events'
 
 function createWebServer (config) {
-  const guaranteedRefreshInterval = 2 * config.webUpdateInterval
   const emitter = new EventEmitter()
   const port = process.env.PORT || 80
   const serve = serveStatic('./build', { index: ['index.html'] })
