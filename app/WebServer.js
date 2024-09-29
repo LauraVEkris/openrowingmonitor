@@ -139,9 +139,9 @@ function createWebServer (config) {
       metrics.heartrate = undefined
     }
     if (heartRateBatteryLevel !== undefined) {
-      metrics. heartRateBatteryLevel = heartRateBatteryLevel
+      metrics.heartRateBatteryLevel = heartRateBatteryLevel
     } else {
-      metrics. heartRateBatteryLevel = undefined
+      metrics.heartRateBatteryLevel = undefined
     }
   }
 
