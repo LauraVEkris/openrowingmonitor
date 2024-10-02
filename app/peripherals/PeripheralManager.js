@@ -123,10 +123,7 @@ function createPeripheralManager (config) {
         break
       case 'FTMSBIKE':
         log.info('bluetooth profile: FTMS Indoor Bike')
-        blePeripheral = createFtmsPeripheral(controlCallback, {
-          ...config,
-          simulateIndoorBike: true
-        })
+        blePeripheral = createFtmsPeripheral(controlCallback, config, true)
         bleMode = 'FTMSBIKE'
         break
       case 'CSC':
@@ -141,10 +138,7 @@ function createPeripheralManager (config) {
         break
       case 'FTMS':
         log.info('bluetooth profile: FTMS Rower')
-        blePeripheral = createFtmsPeripheral(controlCallback, {
-          ...config,
-          simulateIndoorBike: false
-        })
+        blePeripheral = createFtmsPeripheral(controlCallback, config, false)
         bleMode = 'FTMS'
         break
       default:
