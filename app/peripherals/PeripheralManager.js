@@ -118,29 +118,31 @@ function createPeripheralManager (config) {
     switch (newMode) {
       case 'PM5':
         log.info('bluetooth profile: Concept2 PM5')
-        blePeripheral = createPm5Peripheral(controlCallback, config)
+        blePeripheral = createPm5Peripheral(config)
         bleMode = 'PM5'
         break
       case 'FTMSBIKE':
         log.info('bluetooth profile: FTMS Indoor Bike')
         blePeripheral = createFtmsPeripheral(controlCallback, {
+          ...config,
           simulateIndoorBike: true
         })
         bleMode = 'FTMSBIKE'
         break
       case 'CSC':
         log.info('bluetooth profile: Cycling Speed and Cadence')
-        blePeripheral = createCscPeripheral()
+        blePeripheral = createCscPeripheral(config)
         bleMode = 'CSC'
         break
       case 'CPS':
         log.info('bluetooth profile: Cycling Power Meter')
-        blePeripheral = createCpsPeripheral()
+        blePeripheral = createCpsPeripheral(config)
         bleMode = 'CPS'
         break
       case 'FTMS':
         log.info('bluetooth profile: FTMS Rower')
         blePeripheral = createFtmsPeripheral(controlCallback, {
+          ...config,
           simulateIndoorBike: false
         })
         bleMode = 'FTMS'

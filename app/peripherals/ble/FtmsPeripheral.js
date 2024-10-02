@@ -13,16 +13,15 @@
 */
 import bleno from '@abandonware/bleno'
 import FitnessMachineService from './ftms/FitnessMachineService.js'
-import config from '../../tools/ConfigManager.js'
 import log from 'loglevel'
 import DeviceInformationService from './common/DeviceInformationService.js'
 import AdvertisingDataBuilder from './common/AdvertisingDataBuilder.js'
 
-function createFtmsPeripheral (controlCallback, options) {
-  const peripheralName = options?.simulateIndoorBike ? config.ftmsBikePeripheralName : config.ftmsRowerPeripheralName
-  const fitnessMachineService = new FitnessMachineService(options, controlPointCallback)
+function createFtmsPeripheral (controlCallback, config) {
+  const peripheralName = config.simulateIndoorBike ? config.ftmsBikePeripheralName : config.ftmsRowerPeripheralName
+  const fitnessMachineService = new FitnessMachineService(config, controlPointCallback)
   const deviceInformationService = new DeviceInformationService()
-  const broadcastInterval = config.peripheralUpdateInterval
+  const broadcastInterval = config.ftmsUpdateInterval
   let lastKnownMetrics = {
     sessiontype: 'JustRow',
     sessionStatus: 'WaitingForStart',
