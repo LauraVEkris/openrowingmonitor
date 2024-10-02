@@ -17,8 +17,8 @@ import log from 'loglevel'
 import DeviceInformationService from './common/DeviceInformationService.js'
 import AdvertisingDataBuilder from './common/AdvertisingDataBuilder.js'
 
-function createFtmsPeripheral (controlCallback, config) {
-  const peripheralName = config.simulateIndoorBike ? config.ftmsBikePeripheralName : config.ftmsRowerPeripheralName
+function createFtmsPeripheral (controlCallback, config, simulateIndoorBike) {
+  const peripheralName = simulateIndoorBike ? config.ftmsBikePeripheralName : config.ftmsRowerPeripheralName
   const fitnessMachineService = new FitnessMachineService(config, controlPointCallback)
   const deviceInformationService = new DeviceInformationService()
   const broadcastInterval = config.ftmsUpdateInterval
