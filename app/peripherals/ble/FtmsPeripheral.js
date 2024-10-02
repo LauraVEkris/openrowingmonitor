@@ -19,7 +19,7 @@ import AdvertisingDataBuilder from './common/AdvertisingDataBuilder.js'
 
 function createFtmsPeripheral (controlCallback, config, simulateIndoorBike) {
   const peripheralName = simulateIndoorBike ? config.ftmsBikePeripheralName : config.ftmsRowerPeripheralName
-  const fitnessMachineService = new FitnessMachineService(config, controlPointCallback)
+  const fitnessMachineService = new FitnessMachineService(controlPointCallback, simulateIndoorBike)
   const deviceInformationService = new DeviceInformationService()
   const broadcastInterval = config.ftmsUpdateInterval
   let lastKnownMetrics = {
