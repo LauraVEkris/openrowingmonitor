@@ -1,7 +1,7 @@
-# Open Rowing Monitor architecture
+# OpenRowingMonitor architecture
 
 <!-- markdownlint-disable no-inline-html -->
-In this document, we describe the architectual construction of Open Rowing Monitor. For the reasons behind the physics, please look at [the Physics behind Open Rowing Monitor](Physics_Of_OpenRowingMonitor.md). In this document we describe the main functional blocks in Open Rowing Monitor, and the major design decissions.
+In this document, we describe the architectual construction of OpenRowingMonitor. For the reasons behind the physics, please look at [the Physics behind OpenRowingMonitor](Physics_Of_OpenRowingMonitor.md). In this document we describe the main functional blocks in OpenRowingMonitor, and the major design decissions.
 
 ## Platform choice
 
@@ -49,7 +49,7 @@ We first describe the relation between these main functional components by descr
 
 ### Rowing metrics flow
 
-We first follow the flow of the flywheel data, which is provided by the interrupt driven `GpioTimerService.js`. The only information retrieved by Open Rowing Monitor is *CurrentDt*: the time between impulses. This data element is transformed in meaningful metrics in the following manner:
+We first follow the flow of the flywheel data, which is provided by the interrupt driven `GpioTimerService.js`. The only information retrieved by OpenRowingMonitor is *CurrentDt*: the time between impulses. This data element is transformed in meaningful metrics in the following manner:
 
 ```mermaid
 sequenceDiagram
@@ -74,7 +74,22 @@ sequenceDiagram
   server.js-)clients: Metrics Updates<br>(State/Time based)
 ```
 
-The clients (both the webserver and periphal bluetooth devices) are updated based on the updates of metrics. Open Rowing Monitor therefore consists out of two subsystems: an solely interruptdriven part that processes flywheel and heartrate interrupts, and the time/state based needs of the clients. It is the responsibility of `SessionManager.js` to provide a steady stream of updated metrics as it monitors the timers, session state and guarantees that it can present the clients with the freshest data available. It is the responsibility of the clients themselves to act based on the metric updates, and guard against their internal timers. If a broadcast has to be made periodically, say ANT+ updates every 400ms, the ANT+-peripheral should buffer metrics and determine when the broadcast is due. This is needed as more complex broadcast patterns, like the PM5 which mixes time and event based updates, are too complex to manage from a single point.
+The clients (both the webserver and periphal bluetooth devices) are updated based on the updates of metrics. OpenRowingMonitor therefore consists out of two subsystems: an solely interruptdriven part that processes flywheel and heartrate interrupts, and the time/state based needs of the clients. It is the responsibility of `SessionManager.js` to provide a steady stream of updated metrics as it monitors the timers, session state and guarantees that it can present the clients with the freshest data available. It is the responsibility of the clients themselves to act based on the metric updates, and guard against their internal timers. If a broadcast has to be made periodically, say ANT+ updates every 400ms, the ANT+-peripheral should buffer metrics and determine when the broadcast is due. This is needed as more complex broadcast patterns, like the PM5 which mixes time and event based updates, are too complex to manage from a single point.
+
+Part of the metrics is the metricsContext object, which provides an insight in the state of both stroke (determined in `RowingStatistics.js`) and session (determined in `SessionManager.js`), allowing the clients to trigger on these flags. The following flags are recognised:
+
+| Flag | Meaning |
+| isMoving | Rower is moving |
+| isDriveStart | Current metrics are related to the start of a drive |
+| isRecoveryStart | Current metrics are related to the start of a recovery |
+| isSessionStart | Current metrics are related to the start of a session |
+| isIntervalStart | Current metrics are related to the start of an session interval |
+| isSplitEnd | Current metrics are related to the end of a session split |
+| isPauseStart | Current metrics are related to the start of a session pause |
+| isPauseEnd | Current metrics are related to the end of a session pause |
+| isSessionStop | Current metrics are related to the stop of a session |
+
+State driven clients, like the PM5 interface and the recorders will react to these flags by recording or broadcasting these flags.
 
 ### Heartrate data flow
 
@@ -91,25 +106,63 @@ sequenceDiagram
 
 ### Command flow
 
+All major elements (i.e the 'managers') in the application expose a `handleCommand()` function, which respond to a defined set of commands. These commands are explicitly restricted to user actions via the web-interface or a peripheral. In essence, this is a user of external session control (via Bluetooth or ANT+) dictating behaviour of OpenRowingMonitor as an external trigger. Effects of a session-state (i.e. session start or end based on a predefined session end) should be handled via the metrics updates. Adittionally, effects upon a session state as a result of a comand (i.e. session ends because of a command) should also be handled via the metrics updates whenever possible. These manual commands are connected as follows:
+
+```mermaid
+sequenceDiagram
+  participant webServer.js
+  participant clients
+  participant server.js
+  participant SessionManager.js
+  participant RecordingManager.js
+  participant PeripheralManager.js
+  webServer.js-)server.js: command<br>(interrupt based)
+  PeripheralManager.js-)server.js: command<br>(interrupt based)
+  server.js-)SessionManager.js: command<br>(interrupt based)
+  server.js-)RecordingManager.js: command<br>(interrupt based)
+  server.js-)PeripheralManager.js: command<br>(interrupt based)
+  SessionManager.js-)server.js: Metrics Update<br>(interrupt based)
+  server.js-)RecordingManager.js: Metrics Update<br>(interrupt based)
+  server.js-)PeripheralManager.js: Metrics Update<br>(interrupt based)
+  server.js-)webServer.js: Metrics Update<br>(interrupt based)
+```
+
+Both the `webServer.js` and `PeripheralManager.js` can trigger a command. Server.js will communicate this command to all managers, where they will handle this as they see fit. Several commands are defined:
+
+| command | description |
+| start | start of a session initiated by the user (start of a session triggered from the flywheel will always be triggered via the metrics) |
+| startOrResume | User forced (re)start of a session (restart of a session triggered from the flywheel will always be triggered via the metrics) |
+| pause | User forced pause of a session (pause of a session triggered from the flywheel will always be triggered via the metrics) |
+| stop | User forced stop of a session (stop of a session triggered from the flywheel will always be triggered via the metrics) |
+| reset | User has reset the session |
+| blePeripheralMode | A change in BLE device has been detected (triggers a refresh of the current config from the GUI) |
+| switchBlePeripheralMode | User has selected another BLE device from the GUI, the peripheralmanager needs to effectuate this |
+| antPeripheralMode | A change in ANT+ device has been detected (triggers a refresh of the current config from the GUI) |
+| switchAntPeripheralMode | User has selected another ANT+ device from the GUI, the peripheralmanager needs to effectuate this |
+| hrmPeripheralMode | A change in heartrate device has been detected (triggers a refresh of the current config from the GUI) |
+| switchHrmMode | User has selected another heartrate device |
+| uploadTraining | A request is made to upload a training to Strava |
+| stravaAuthorizationCode | An authorization code is provided to upload a training to Strava |
+| shutdown | A shutdown is requested, also used when a part of the application crashes |
+
 ### Key components
 
 #### pigpio
 
-`pigpio` is a wrapper around the [pigpio C library](https://github.com/joan2937/pigpio), which is an extreme high frequency monitor of the pigpio port. As the pigpio npm is just a wrapper around the C library, all time measurement is done by the high cyclic C library, making it extremely accurate. It can be configured to ignore too short pulses (thus providing a basis for debounce) and it reports the `tick` (i.e. the number of microseconds since OS bootup) when it concludes the signal is valid. It reporting is detached from its measurement, and we deliberatly use the *Alert* instead of the *Interrupt* as their documentation indicates that both types of messaging provide an identical accuracy of the `tick`, but *Alerts* do provide the functionality of a debounce filter. As the C-implementation of `pigpio` determines the accuracy of the `tick`, this is the only true time critical element of Open Rowing Monitor. Latency in this process will present itself as noise in the measurements of *CurrentDt*.
+`pigpio` is a wrapper around the [pigpio C library](https://github.com/joan2937/pigpio), which is an extreme high frequency monitor of the pigpio port. As the pigpio npm is just a wrapper around the C library, all time measurement is done by the high cyclic C library, making it extremely accurate. It can be configured to ignore too short pulses (thus providing a basis for debounce) and it reports the `tick` (i.e. the number of microseconds since OS bootup) when it concludes the signal is valid. It reporting is detached from its measurement, and we deliberatly use the *Alert* instead of the *Interrupt* as their documentation indicates that both types of messaging provide an identical accuracy of the `tick`, but *Alerts* do provide the functionality of a debounce filter. As the C-implementation of `pigpio` determines the accuracy of the `tick`, this is the only true time critical element of OpenRowingMonitor. Latency in this process will present itself as noise in the measurements of *CurrentDt*.
 
 #### GpioTimerService.js
 
-`GpioTimerService.js` is a small independent process, acting as a data handler to the signals from `pigpio`. It translates the *Alerts* with their `tick` into a stream of times between these *Alerts* (which we call *CurrentDt*). The interrupthandler is still triggered to run with extreme low latency as the called `gpio` process will inherit its nice-level, which is extremely time critical. To Open Rowing Monitor it provides a stream of measurements that needed to be handled.
+`GpioTimerService.js` is a small independent process, acting as a data handler to the signals from `pigpio`. It translates the *Alerts* with their `tick` into a stream of times between these *Alerts* (which we call *CurrentDt*). The interrupthandler is still triggered to run with extreme low latency as the called `gpio` process will inherit its nice-level, which is extremely time critical. To OpenRowingMonitor it provides a stream of measurements that needed to be handled.
 
 #### Server.js
 
 `Server.js` orchestrates all information flows and starts/stops processes when needed. It will:
 
-* Recieve (interrupt based) GPIO timing signals from `GpioTimerService.js` and send them to the `RowingStatistics.js`;
-* Recieve (interrupt based) Heartrate measurements and sent them to the `RowingStatistics.js`;
-* Recieve the metrics update messages from `RowingStatistics.js` (time-based and state-based updates of metrics) and distribut them to the webclients and blutooth periphials;
-* Handle user input (through webinterface and periphials) and instruct `RowingStatistics.js` to act accordingly;
-* Handle escalations from `RowingStatistics.js` (like reaching the end of the interval, or seeing the rower has stopped) and instruct the rest of the application, like the `WorkoutRecorder.js` accordingly.
+* Recieve (interrupt based) GPIO timing signals from `GpioTimerService.js` and send them to the `SessionManager.js`;
+* Recieve (interrupt based) Heartrate measurements and sent them to the all interested clients;
+* Recieve the metrics update messages from `SessionManager.js` (time-based and state-based updates of metrics) and distribut them to the webclients and periphials;
+* Handle user input (through webinterface and periphials) and instruct all managers to act accordingly;
 
 #### SessionManager.js
 
@@ -140,7 +193,7 @@ Please note: `handleRotationImpulse` implements all these state transitions, whe
 In a nutshell:
 
 * `SessionManager.js` maintains the session state, thus determines whether the rowing machine is 'Rowing', or 'WaitingForDrive', etc.,
-* `RowingStatistics.js` maintains the workout intervals, guards interval and session boundaries, and will chop up the metrics-stream accordingly, where `RowingStatistics.js` will just move on without looking at these artifical boundaries.
+* `SessionManager.js` maintains the workout intervals, guards interval and session boundaries, and will chop up the metrics-stream accordingly, where `RowingStatistics.js` will just move on without looking at these artifical boundaries.
 
 In total, this takes full control of the displayed metrics in a specific interval (i.e. distance or time to set interval target, etc.).
 
@@ -214,4 +267,30 @@ Adittional benefit of this approach is that it makes transitions in intervals mo
 
 ## Open issues, Known problems and Regrettable design decissions
 
-Please see [Physics behind Open Rowing Monitor](physics_openrowingmonitor.md)
+### Lack of support for the Raspberry Pi 5
+
+Along with the introduction of Raspberry Pi 5, a new GPIO hardware architecture has been introduced, breaking compatibility with `pigpio` (see https://github.com/JaapvanEkris/openrowingmonitor/issues/52). As discussed there, `pigpio` has strong benefits over competing libraries, specifically
+
+* the provision of a high resolution measurement
+* the possibility to measure on the upward or downward moving flank, or both
+* the provision of a built-in debounce filter
+
+An alternative is the `onoff` library, which was used in OpenRowingMonitor up to version 0.8.2, which does work with the new RPi5 architecture. Although the latter benefits could be moved to `GpioTimerService.js`, the two former benefits can't. Therefore, we decided to wait with moving to onoff until a decent alternative for `pigpio` emerges.
+
+### Intertwined relation FLywheel.js and Rower.js regarding stroke state
+
+`Rower.js` and `Flywheel.js` have an odd intertwined relation: `Flywheel.js` determines the dragfactor, but in order to do that, it needs to know whether it is in a recovery phase, which is determined by `Rower.js`. This technically breaks the dataflow, as processing of the data in `Flywheel.js` becomes dependent on the stroke state determined in `Rower.js` as a resonse to the flywheel state determined in `Flywheel.js`. At its core, dragfactor is a flywheel property, and thus concepually should be positioned in `Flywheel.js`. But from a physics perspective, one can only determine the dragfactor when the stroke state is in recovery. The case can be made that it should be positioned in `Rower.js`, making `Flywheel.js` a conduit only providing angular velocity and angular acceleration. As a side-effect, many calculations that depend on dragfactor (i.e. flywheel torque, etc.) and decissions based upon that (i.e. `isPowered()` and `isUnpowered()`) are also moved to `Rower.js`. This would make `Rower.js` an even stronger concentration of decission logic, without the aid of the current abstractions of `Flywheel.js` to keep the code readable. therefore, it was agreed against it.
+
+### Use of classes for fundamental datatypes
+
+OpenRowingMonitor depends a lot on special datatypes, like the `FullTSLinearSeries.js` and `FullTSQuadraticSeries.js` that are the fundamental basis for the physics engine. Unlike some other parts, these have not been converted to a class-like structure, although their fundamental naure would suggest they should. There are three main reasons for this:
+
+* In JavaScript, a class-like structure is a syntactic modification that does not provide any additional technical benefits, making a change to a class-like structure a pure esthetic excercise.
+* The resulting code did not become easier to read. As it would be a purely esthetic excercise, the main argument for implementing it would be that the resulting could is easier to understand. Our experience it actually degrades as it results in adding a lot of `this.` to internal variables and variable scoping become more confusing.
+* Testing has shown that a side-effect of moving to this new structure is a decrease in performance. As these fundamental datatypes are instantiated and destroyed quite often, having some overhead on this might cause this. But the effect was substatial enough to be measureable.
+
+Based on this experiment, we did change the exposure of internal variables (for example, making `fullTSSeries.minimumY()` into `fullTSSeries.Y.minimum()`) and explicitly exported the constructor function, preparing for a final move towards such a setup might the above issues be resolved and improving code readability.
+
+### Issues in the physics model
+
+Please see [Physics behind OpenRowingMonitor](physics_openrowingmonitor.md) for some issues in the physics model
