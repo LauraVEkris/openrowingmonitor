@@ -287,13 +287,13 @@ An alternative is the `onoff` library, which was used in OpenRowingMonitor up to
 
 ### Use of classes for fundamental datatypes
 
-OpenRowingMonitor depends a lot on special datatypes, like the `FullTSLinearSeries.js` and `FullTSQuadraticSeries.js` that are the fundamental basis for the physics engine. Unlike some other parts, these have not been converted to a class-like structure, although their fundamental naure would suggest they should. There are three main reasons for this:
+OpenRowingMonitor depends a lot on special datatypes, like the `FullTSLinearSeries.js` and `FullTSQuadraticSeries.js` that are the fundamental basis for the physics engine. Unlike some other parts, these have not been converted to a ES6's class-like structure, although their fundamental naure would suggest they should. There are three main reasons for this:
 
 * In JavaScript, a class-like structure is a syntactic modification that does not provide any additional technical benefits, making a change to a class-like structure a pure esthetic excercise.
-* The resulting code did not become easier to read. As it would be a purely esthetic excercise, the main argument for implementing it would be that the resulting could is easier to understand. Our experience it actually degrades as it results in adding a lot of `this.` to internal variables and variable scoping become more confusing.
-* Testing has shown that a side-effect of moving to this new structure is a decrease in performance. As these fundamental datatypes are instantiated and destroyed quite often, having some overhead on this might cause this. But the effect was substatial enough to be measureable.
+* The resulting code did not become easier to read. As it would be a purely esthetic excercise, the main argument for implementation would be that the resulting code is easier to understand. Our experience it actually degrades as it results in adding a lot of `this.` to internal variables and making variable scoping more confusing.
+* Testing has shown that a side-effect of moving to this new structure is a decrease in performance. As these fundamental datatypes are instantiated and destroyed quite often, having some overhead on this might cause this. But the effect was substatial enough to be measureable, and as it is in a time-critical portion of the application, making this unacceptable.
 
-Based on this experiment, we did change the exposure of internal variables (for example, making `fullTSSeries.minimumY()` into `fullTSSeries.Y.minimum()`) and explicitly exported the constructor function, preparing for a final move towards such a setup might the above issues be resolved and improving code readability.
+Although deciding against a class-based notation based on this experiment, we did change the exposure of internal variables (for example, making `fullTSSeries.minimumY()` into `fullTSSeries.Y.minimum()`) and explicitly exported the constructor function, preparing for a final move towards such a setup might the above issues be resolved and improving code readability.
 
 ### Issues in the physics model
 
