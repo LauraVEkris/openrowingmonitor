@@ -273,7 +273,7 @@ Adittional benefit of this approach is that it makes transitions in intervals mo
 
 ### Lack of support for the Raspberry Pi 5
 
-Along with the introduction of Raspberry Pi 5, a new GPIO hardware architecture has been introduced, breaking compatibility with `pigpio` (see https://github.com/JaapvanEkris/openrowingmonitor/issues/52). As discussed there, `pigpio` has strong benefits over competing libraries, specifically
+Along with the introduction of Raspberry Pi 5, a new GPIO hardware architecture has been introduced, breaking compatibility with `pigpio` (see [issue 52](https://github.com/JaapvanEkris/openrowingmonitor/issues/52)). As discussed there, `pigpio` has strong benefits over competing libraries, specifically
 
 * the provision of a high resolution measurement
 * the possibility to measure on the upward or downward moving flank, or both
