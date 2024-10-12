@@ -90,7 +90,7 @@ Part of the metrics is the metricsContext object, which provides an insight in t
 | isPauseEnd | Current metrics are related to the end of a session pause |
 | isSessionStop | Current metrics are related to the stop of a session |
 
-State driven clients, like the PM5 interface and the recorders will react to these flags by recording or broadcasting these flags.
+State driven clients, like the PM5 interface and the recorders, will react to these flags by recording or broadcasting when these flags are seen.
 
 ### Heartrate data flow
 
