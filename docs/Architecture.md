@@ -79,6 +79,7 @@ The clients (both the webserver and periphal bluetooth devices) are updated base
 Part of the metrics is the metricsContext object, which provides an insight in the state of both stroke (determined in `RowingStatistics.js`) and session (determined in `SessionManager.js`), allowing the clients to trigger on these flags. The following flags are recognised:
 
 | Flag | Meaning |
+|---|---|
 | isMoving | Rower is moving |
 | isDriveStart | Current metrics are related to the start of a drive |
 | isRecoveryStart | Current metrics are related to the start of a recovery |
@@ -130,6 +131,7 @@ sequenceDiagram
 Both the `webServer.js` and `PeripheralManager.js` can trigger a command. Server.js will communicate this command to all managers, where they will handle this as they see fit. Several commands are defined:
 
 | command | description |
+|---|---|
 | start | start of a session initiated by the user (start of a session triggered from the flywheel will always be triggered via the metrics) |
 | startOrResume | User forced (re)start of a session (restart of a session triggered from the flywheel will always be triggered via the metrics) |
 | pause | User forced pause of a session (pause of a session triggered from the flywheel will always be triggered via the metrics) |
@@ -143,7 +145,9 @@ Both the `webServer.js` and `PeripheralManager.js` can trigger a command. Server
 | switchHrmMode | User has selected another heartrate device |
 | uploadTraining | A request is made to upload a training to Strava |
 | stravaAuthorizationCode | An authorization code is provided to upload a training to Strava |
-| shutdown | A shutdown is requested, also used when a part of the application crashes |
+| shutdown | A shutdown is requested, also used when a part of the application crashes or the application recieves a 'SIGINT' |
+
+Please note, to guarantee a decent closure of data, a 'stop' command from the user will be ignored by `RecordingManager.js` and `PeripheralManager.js`, as the `SessionManager.js` will respond with a new set of metrics, with the 'isSessionStop' flag embedded. On a 'shutdown' command, `RecordingManager.js` and `PeripheralManager.js` do respond by closing their datastreams as if a session-stop was given, to ensure a decent closure.
 
 ### Key components
 
