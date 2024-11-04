@@ -107,27 +107,27 @@ function createCpsPeripheral (config) {
   // Records the last known rowing metrics to CPS central
   // As the client calculates its own speed based on time and distance,
   // we an only update the last known metrics upon a stroke state change to prevent spiky behaviour
-  function notifyData (data) {
+  function notifyData (metrics) {
     const now = Date.now()
     if (metrics.metricsContext === undefined) return
     switch (true) {
       case (metrics.metricsContext.isSessionStop):
-        lastKnownMetrics = { ...data, lastDataUpdateTime: now }
+        lastKnownMetrics = { ...metrics, lastDataUpdateTime: now }
         clearTimeout(timer)
         onBroadcastInterval()
         break
       case (metrics.metricsContext.isPauseStart):
-        lastKnownMetrics = { ...data, lastDataUpdateTime: now }
+        lastKnownMetrics = { ...metrics, lastDataUpdateTime: now }
         clearTimeout(timer)
         onBroadcastInterval()
         break
       case (metrics.metricsContext.isRecoveryStart):
-        lastKnownMetrics = { ...data, lastDataUpdateTime: now }
+        lastKnownMetrics = { ...metrics, lastDataUpdateTime: now }
         clearTimeout(timer)
         onBroadcastInterval()
         break
       case (now - lastKnownMetrics.lastDataUpdateTime >= bleMinimumKnowDataUpdateInterval):
-        lastKnownMetrics = { ...data, lastDataUpdateTime: now }
+        lastKnownMetrics = { ...metrics, lastDataUpdateTime: now }
         clearTimeout(timer)
         onBroadcastInterval()
         break
