@@ -6,7 +6,7 @@ Please read the following sections in order to know how to ask questions and how
 
 ## Code of Conduct
 
-All contributors are expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md). I want this to be a place where everyone feels comfortable. Please make sure you are welcoming and friendly to others.
+All contributors are expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md). We want this to be a place where everyone feels comfortable. We deeply understand passion for a specific feature, but please be respectfull when other people to contribute their vision as well. Please make sure you are welcoming and friendly to others.
 
 ## How can I contribute?
 
