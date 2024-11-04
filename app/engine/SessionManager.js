@@ -18,7 +18,7 @@ export function createSessionManager (config) {
   const rowingStatistics = createRowingStatistics(config)
   let metrics
   let watchdogTimer
-  const watchdogTimout = 2 * config.rowerSettings.maximumStrokeTimeBeforePause
+  const watchdogTimout = 2000 * config.rowerSettings.maximumStrokeTimeBeforePause // Twice the pause timeout in miliseconds
   let sessionState = 'WaitingForStart'
   let lastSessionState = 'WaitingForStart'
   let intervalSettings = []
@@ -352,7 +352,6 @@ export function createSessionManager (config) {
   function resetWatchdogTimer () {
     clearTimeout(watchdogTimer)
     watchdogTimer = setTimeout(onWatchdogTimeout, watchdogTimout)
-    log.error(`Time: ${metrics.totalMovingTime}, Watchdog refresh`)
   }
 
   function onWatchdogTimeout () {
