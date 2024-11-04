@@ -143,11 +143,18 @@ export function createSessionManager (config) {
   }
 
   function handleRotationImpulse (currentDt) {
-    // Provide the rower with new data
+    // Clear the watchdog as we got a currentDt, we set it at the end again
     clearTimeout(watchdogTimer)
+
+    // Provide the rower with new data
     metrics = rowingStatistics.handleRotationImpulse(currentDt)
 
     resetMetricsContext()
+
+    // ToDo: check if we need to update the projected end time of the interval
+    if (metrics.metricsContext.isMoving && (metrics.metricsContext.isDriveStart || metrics.metricsContext.isRecoveryStart)) {
+      distanceOverTime.push(metrics.totalMovingTime, metrics.totalLinearDistance)
+    }
 
     // This is the core of the finite state machine that defines all state transitions
     switch (true) {
@@ -207,11 +214,6 @@ export function createSessionManager (config) {
         splitPrevAccumulatedDistance = intervalPrevAccumulatedDistance + (splitNumber * splitDistance)
         metrics.metricsContext.isSplitEnd = true
         break
-      case (lastSessionState === 'Rowing' && metrics.metricsContext.isMoving && (metrics.metricsContext.isDriveStart || metrics.metricsContext.isRecoveryStart)):
-        // ToDo: check if we need to update the projected end time of the interval
-        sessionState = 'Rowing'
-        distanceOverTime.push(metrics.totalMovingTime, metrics.totalLinearDistance)
-        break
       case (lastSessionState === 'Rowing' && metrics.metricsContext.isMoving):
         sessionState = 'Rowing'
         break
@@ -220,7 +222,8 @@ export function createSessionManager (config) {
     }
     emitMetrics('metricsUpdate')
 
-    if (sessionState === 'Rowing') {
+    if (sessionState === 'Rowing' && metrics.metricsContext.isMoving) {
+      // We have a valid value of currentDt and we are moving, let's reset the watchdog to a new position
       watchdogTimer = setTimeout(onWatchdogTimeout, watchdogTimout)
     }
     lastSessionState = sessionState
