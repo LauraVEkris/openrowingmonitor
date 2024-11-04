@@ -352,6 +352,7 @@ export function createSessionManager (config) {
   function resetWatchdogTimer () {
     clearTimeout(watchdogTimer)
     watchdogTimer = setTimeout(onWatchdogTimeout, watchdogTimout)
+    log.error(`Time: ${metrics.totalMovingTime}, Watchdog refresh`)
   }
 
   function onWatchdogTimeout () {
