@@ -135,7 +135,7 @@ function createCpsPeripheral (config) {
         // Do nothing
     }
   }
-  
+
   // CPS does not have status characteristic
   function notifyStatus (status) {
   }
