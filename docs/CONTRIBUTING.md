@@ -2,7 +2,7 @@
 
 Thank you for considering contributing to [OpenRowingMonitor](https://github.com/JaapvanEkris/openrowingmonitor). Help is always welcome, and even if you are an absolute beginner in both rowing and coding, you can still help in your own way.
 
-Please read the following sections in order to know how to ask questions and how to work on something. OpenRowingMonitor is a spare time project where [many have contributed already](attribution.md) and made things possible we never ever dared to dream of.
+Please read the following sections in order to know how to ask questions and how to work on something. OpenRowingMonitor is a spare time project where [many have contributed already](attribution.md) and made things possible we never ever dared to dream of. People who contribute are [attributed](attribution.md) and are mentioned in the [release notes](Release_Notes.md) as a way of saying thank you, as OpenRowingMonitor has grown a lot thanks to the community that supports it, and it would never have become what it is now, if it wasn't for these great community contributions and discussions.
 
 ## Code of Conduct
 
@@ -47,7 +47,7 @@ Keep in mind that OpenRowingMonitor is a spare time project to improve the perfo
 
 Academics who use OpenRowingMonitor and improve the math or physics models are more than welcome, and we gladly help you in understanding our setup and discussing your needs, providing that essential improvements in the models will flow back to our codebase.
 
-If you want to contribute new features or major modifications to the code, please first discuss the change so we can better understand your plans and we can help you place this better in the application. Best way to do this is via an issue or the forum. This will make sure that we have as much fun in implementing new ideas and people don't spend much time on working on things we need to change again.
+If you want to contribute new features or major modifications to the code, please first discuss the change so we can better understand your plans and we can help you place this better in the application. Best way to do this is via an issue or the forum. This will make sure that we all have as much fun in implementing new ideas and people don't spend much time on working on things we need to refactor.
 
 #### Standards for Contributions
 
