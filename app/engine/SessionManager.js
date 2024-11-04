@@ -18,7 +18,7 @@ export function createSessionManager (config) {
   const rowingStatistics = createRowingStatistics(config)
   let metrics
   let watchdogTimer
-  const watchdogTimout = 2000 * config.rowerSettings.maximumStrokeTimeBeforePause // Twice the pause timeout in miliseconds
+  const watchdogTimout = 1000 * config.rowerSettings.maximumStrokeTimeBeforePause // Pause timeout in miliseconds
   let sessionState = 'WaitingForStart'
   let lastSessionState = 'WaitingForStart'
   let intervalSettings = []
@@ -99,7 +99,6 @@ export function createSessionManager (config) {
   }
 
   function startOrResumeTraining () {
-    watchdogTimer = setTimeout(onWatchdogTimeout, watchdogTimout)
     rowingStatistics.startOrResumeTraining()
   }
 
@@ -145,6 +144,7 @@ export function createSessionManager (config) {
 
   function handleRotationImpulse (currentDt) {
     // Provide the rower with new data
+    clearTimeout(watchdogTimer)
     metrics = rowingStatistics.handleRotationImpulse(currentDt)
 
     resetMetricsContext()
@@ -187,7 +187,7 @@ export function createSessionManager (config) {
         sessionState = 'Paused'
         metrics.metricsContext.isPauseStart = true
         break
-      case (lastSessionState === 'Rowing' && isIntervalTargetReached() && isNextIntervalAvailable()):
+      case (lastSessionState === 'Rowing' && metrics.metricsContext.isMoving && isIntervalTargetReached() && isNextIntervalAvailable()):
         activateNextIntervalParameters()
         sessionState = 'Rowing'
         splitNumber = 0
@@ -195,13 +195,13 @@ export function createSessionManager (config) {
         metrics.metricsContext.isIntervalStart = true
         metrics.metricsContext.isSplitEnd = true
         break
-      case (lastSessionState === 'Rowing' && isIntervalTargetReached()):
+      case (lastSessionState === 'Rowing' && metrics.metricsContext.isMoving && isIntervalTargetReached()):
         // Here we do NOT want zero the metrics, as we want to keep the metrics we had when we crossed the finishline
         stopTraining()
         sessionState = 'Stopped'
         metrics.metricsContext.isSessionStop = true
         break
-      case (lastSessionState === 'Rowing' && isSplitBoundaryReached()):
+      case (lastSessionState === 'Rowing' && metrics.metricsContext.isMoving && isSplitBoundaryReached()):
         sessionState = 'Rowing'
         splitNumber++
         splitPrevAccumulatedDistance = intervalPrevAccumulatedDistance + (splitNumber * splitDistance)
@@ -210,7 +210,6 @@ export function createSessionManager (config) {
       case (lastSessionState === 'Rowing' && metrics.metricsContext.isMoving && (metrics.metricsContext.isDriveStart || metrics.metricsContext.isRecoveryStart)):
         // ToDo: check if we need to update the projected end time of the interval
         sessionState = 'Rowing'
-        resetWatchdogTimer()
         distanceOverTime.push(metrics.totalMovingTime, metrics.totalLinearDistance)
         break
       case (lastSessionState === 'Rowing' && metrics.metricsContext.isMoving):
@@ -220,6 +219,10 @@ export function createSessionManager (config) {
         log.error(`Time: ${metrics.totalMovingTime}, combination of ${sessionState} and state ${metrics.strokeState()} found in the Rowing Statistics, which is not captured by Finite State Machine`)
     }
     emitMetrics('metricsUpdate')
+
+    if (sessionState === 'Rowing') {
+      watchdogTimer = setTimeout(onWatchdogTimeout, watchdogTimout)
+    }
     lastSessionState = sessionState
   }
 
@@ -349,15 +352,10 @@ export function createSessionManager (config) {
     return metrics
   }
 
-  function resetWatchdogTimer () {
-    clearTimeout(watchdogTimer)
-    watchdogTimer = setTimeout(onWatchdogTimeout, watchdogTimout)
-  }
-
   function onWatchdogTimeout () {
-    resetMetricsContext()
     stopTraining()
     metrics = rowingStatistics.getMetrics()
+    resetMetricsContext()
     metrics.metricsContext.isSessionStop = true
     sessionState = 'Stopped'
     distanceOverTime.push(metrics.totalMovingTime, metrics.totalLinearDistance)
