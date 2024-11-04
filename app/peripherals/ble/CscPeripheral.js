@@ -108,12 +108,32 @@ function createCscPeripheral (config) {
   // Records the last known rowing metrics to CSC central
   // As the client calculates its own speed based on time and distance,
   // we an only update the last known metrics upon a stroke state change to prevent spiky behaviour
-  function notifyData (data) {
+  function notifyData (metrics) {
     const now = Date.now()
-    if (data?.metricsContext && ((data.metricsContext.isRecoveryStart || data.metricsContext.isPauseStart || data.metricsContext.isSessionStop) || now - lastKnownMetrics.lastDataUpdateTime >= bleMinimumKnowDataUpdateInterval)) {
-      lastKnownMetrics = { ...data, lastDataUpdateTime: now }
-      clearTimeout(timer)
-      onBroadcastInterval()
+    if (metrics.metricsContext === undefined) return
+    switch (true) {
+      case (metrics.metricsContext.isSessionStop):
+        lastKnownMetrics = { ...metrics, lastDataUpdateTime: now }
+        clearTimeout(timer)
+        onBroadcastInterval()
+        break
+      case (metrics.metricsContext.isPauseStart):
+        lastKnownMetrics = { ...metrics, lastDataUpdateTime: now }
+        clearTimeout(timer)
+        onBroadcastInterval()
+        break
+      case (metrics.metricsContext.isRecoveryStart):
+        lastKnownMetrics = { ...metrics, lastDataUpdateTime: now }
+        clearTimeout(timer)
+        onBroadcastInterval()
+        break
+      case (now - lastKnownMetrics.lastDataUpdateTime >= bleMinimumKnowDataUpdateInterval):
+        lastKnownMetrics = { ...metrics, lastDataUpdateTime: now }
+        clearTimeout(timer)
+        onBroadcastInterval()
+        break
+      default:
+        // Do nothing
     }
   }
 
