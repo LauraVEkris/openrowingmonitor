@@ -27,8 +27,10 @@ export function createSessionManager (config) {
   let currentIntervalNumber = -1
   let intervalTargetDistance = 0
   let intervalTargetTime = 0
-  let intervalPrevAccumulatedDistance = 0
   let intervalPrevAccumulatedTime = 0
+  let intervalAndPausePrevAccumulatedTime = 0
+  let intervalPrevAccumulatedDistance = 0
+  let intervalAndPausePrevAccumulatedDistance = 0
   const splitDistance = 500 // ToDo: make flexible
   let splitNumber = 0
   let splitPrevAccumulatedDistance = 0
@@ -114,10 +116,11 @@ export function createSessionManager (config) {
 
   // clear the metrics in case the user pauses rowing
   function pauseTraining () {
-    log.debug('*** Paused rowing ***')
     clearTimeout(watchdogTimer)
     distanceOverTime.push(metrics.totalMovingTime, metrics.totalLinearDistance)
     rowingStatistics.pauseTraining()
+    intervalAndPausePrevAccumulatedTime = metrics.totalMovingTime
+    intervalAndPausePrevAccumulatedDistance = metrics.totalLinearDistance
     noSpontaneousPauses++
   }
 
@@ -132,8 +135,10 @@ export function createSessionManager (config) {
     currentIntervalNumber = -1
     intervalTargetDistance = 0
     intervalTargetTime = 0
-    intervalPrevAccumulatedDistance = 0
     intervalPrevAccumulatedTime = 0
+    intervalAndPausePrevAccumulatedTime = 0
+    intervalPrevAccumulatedDistance = 0
+    intervalAndPausePrevAccumulatedDistance = 0
     splitNumber = 0
     splitPrevAccumulatedDistance = 0
     distanceOverTime.reset()
@@ -276,7 +281,9 @@ export function createSessionManager (config) {
       // This function sets the interval parameters in absolute distances/times
       // Thus the interval target always is a projected "finishline" from the current position
       intervalPrevAccumulatedTime = metrics.totalMovingTime
+      intervalAndPausePrevAccumulatedTime = metrics.totalMovingTime
       intervalPrevAccumulatedDistance = metrics.totalLinearDistance
+      intervalAndPausePrevAccumulatedDistance = metrics.totalLinearDistance
 
       currentIntervalNumber++
       switch (true) {
@@ -339,8 +346,10 @@ export function createSessionManager (config) {
     // ToDo: Add split number
     metrics.intervalNumber = Math.max(noSpontaneousPauses + currentIntervalNumber + 1, 0) // Interval number, for both planned and unplanned intervals
     metrics.intervalMovingTime = metrics.totalMovingTime - intervalPrevAccumulatedTime
+    metrics.intervalAndPauseMovingTime = metrics.totalMovingTime - intervalAndPausePrevAccumulatedTime
     metrics.intervalTargetTime = intervalTargetTime > intervalPrevAccumulatedTime ? intervalTargetTime - intervalPrevAccumulatedTime : 0
     metrics.intervalLinearDistance = metrics.totalLinearDistance - intervalPrevAccumulatedDistance
+    metrics.intervalAndPauseLinearDistance = metrics.totalLinearDistance - intervalAndPausePrevAccumulatedDistance
     metrics.intervalTargetDistance = intervalTargetDistance > intervalPrevAccumulatedDistance ? intervalTargetDistance - intervalPrevAccumulatedDistance : 0
     metrics.splitNumber = metrics.metricsContext.isSplitEnd ? splitNumber - 1 : splitNumber // This is needed to satisfy the RowingData recorder, it needs the start of the split to mark the end of the previous split
     metrics.splitLinearDistance = metrics.metricsContext.isSplitEnd ? splitDistance : metrics.totalLinearDistance - splitPrevAccumulatedDistance // This is needed to satisfy the RowingData recorder
