@@ -12,11 +12,13 @@ import { secondsToTimeString } from '../tools/Helper.js'
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
-function createSessionManager (config) {
+export function createSessionManager (config) {
   const numOfDataPointsForAveraging = config.numOfPhasesForAveragingScreenData
   const emitter = new EventEmitter()
   const rowingStatistics = createRowingStatistics(config)
   let metrics
+  let watchdogTimer
+  const watchdogTimout = 2 * config.rowerSettings.maximumStrokeTimeBeforePause
   let sessionState = 'WaitingForStart'
   let lastSessionState = 'WaitingForStart'
   let intervalSettings = []
@@ -97,6 +99,7 @@ function createSessionManager (config) {
   }
 
   function startOrResumeTraining () {
+    watchdogTimer = setTimeout(onWatchdogTimeout, watchdogTimout)
     rowingStatistics.startOrResumeTraining()
   }
 
@@ -105,6 +108,7 @@ function createSessionManager (config) {
   }
 
   function stopTraining () {
+    clearTimeout(watchdogTimer)
     distanceOverTime.push(metrics.totalMovingTime, metrics.totalLinearDistance)
     rowingStatistics.stopTraining()
   }
@@ -112,6 +116,7 @@ function createSessionManager (config) {
   // clear the metrics in case the user pauses rowing
   function pauseTraining () {
     log.debug('*** Paused rowing ***')
+    clearTimeout(watchdogTimer)
     distanceOverTime.push(metrics.totalMovingTime, metrics.totalLinearDistance)
     rowingStatistics.pauseTraining()
     noSpontaneousPauses++
@@ -143,11 +148,6 @@ function createSessionManager (config) {
     metrics = rowingStatistics.handleRotationImpulse(currentDt)
 
     resetMetricsContext()
-
-    // ToDo: check if we need to update the projected end time of the interval
-    if (metrics.metricsContext.isMoving && (metrics.metricsContext.isDriveStart || metrics.metricsContext.isRecoveryStart)) {
-      distanceOverTime.push(metrics.totalMovingTime, metrics.totalLinearDistance)
-    }
 
     // This is the core of the finite state machine that defines all state transitions
     switch (true) {
@@ -207,7 +207,13 @@ function createSessionManager (config) {
         splitPrevAccumulatedDistance = intervalPrevAccumulatedDistance + (splitNumber * splitDistance)
         metrics.metricsContext.isSplitEnd = true
         break
-      case (lastSessionState === 'Rowing'):
+      case (lastSessionState === 'Rowing' && metrics.metricsContext.isMoving && (metrics.metricsContext.isDriveStart || metrics.metricsContext.isRecoveryStart)):
+        // ToDo: check if we need to update the projected end time of the interval
+        sessionState = 'Rowing'
+        resetWatchdogTimer()
+        distanceOverTime.push(metrics.totalMovingTime, metrics.totalLinearDistance)
+        break
+      case (lastSessionState === 'Rowing' && metrics.metricsContext.isMoving):
         sessionState = 'Rowing'
         break
       default:
@@ -310,7 +316,7 @@ function createSessionManager (config) {
     }
   }
 
-  // initiated when a new heart rate value is received from heart rate sensor
+  // ToDo: REMOVE THIS INJECTION WHEN POSSIBLE
   function handleHeartRateMeasurement (value) {
     heartrate = value.heartrate
     heartRateBatteryLevel = value.batteryLevel
@@ -334,13 +340,29 @@ function createSessionManager (config) {
     metrics.splitLinearDistance = metrics.metricsContext.isSplitEnd ? splitDistance : metrics.totalLinearDistance - splitPrevAccumulatedDistance // This is needed to satisfy the RowingData recorder
     metrics.cycleProjectedEndTime = intervalTargetDistance > 0 ? distanceOverTime.projectY(intervalTargetDistance) : intervalTargetTime
     metrics.cycleProjectedEndLinearDistance = intervalTargetTime > 0 ? distanceOverTime.projectX(intervalTargetTime) : intervalTargetDistance
-    metrics.heartrate = heartrate > 30 ? heartrate : 0 // OPRUIMEN VAN DEZE INJECTIE
-    metrics.heartRateBatteryLevel = heartRateBatteryLevel // OPRUIMEN VAN DEZE INJECTIE
+    metrics.heartrate = heartrate > 30 ? heartrate : 0 // ToDo: REMOVE THIS INJECTION
+    metrics.heartRateBatteryLevel = heartRateBatteryLevel // ToDo: REMOVE THIS INJECTION
   }
 
   function getMetrics () { // TESTING PURPOSSES ONLY!
     enrichMetrics()
     return metrics
+  }
+
+  function resetWatchdogTimer () {
+    clearTimeout(watchdogTimer)
+    watchdogTimer = setTimeout(onWatchdogTimeout, watchdogTimout)
+  }
+
+  function onWatchdogTimeout () {
+    resetMetricsContext()
+    stopTraining()
+    metrics = rowingStatistics.getMetrics()
+    metrics.metricsContext.isSessionStop = true
+    sessionState = 'Stopped'
+    distanceOverTime.push(metrics.totalMovingTime, metrics.totalLinearDistance)
+    emitMetrics('metricsUpdate')
+    log.error(`Time: ${metrics.totalMovingTime}, Watchdog has forced a hard stop due to exceeding the twice maximumStrokeTimeBeforePause (i.e. ${watchdogTimout} seconds) without drive/recovery change`)
   }
 
   return Object.assign(emitter, {
@@ -351,5 +373,3 @@ function createSessionManager (config) {
     getMetrics
   })
 }
-
-export { createSessionManager }
