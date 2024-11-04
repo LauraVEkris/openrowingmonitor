@@ -363,7 +363,7 @@ export function createSessionManager (config) {
     sessionState = 'Stopped'
     distanceOverTime.push(metrics.totalMovingTime, metrics.totalLinearDistance)
     emitMetrics('metricsUpdate')
-    log.error(`Time: ${metrics.totalMovingTime}, Watchdog has forced a hard stop due to exceeding the twice maximumStrokeTimeBeforePause (i.e. ${watchdogTimout} seconds) without drive/recovery change`)
+    log.error(`Time: ${metrics.totalMovingTime}, Watchdog has forced a hard stop due to exceeding the twice maximumStrokeTimeBeforePause (i.e. ${watchdogTimout/1000} seconds) without drive/recovery change`)
   }
 
   return Object.assign(emitter, {
