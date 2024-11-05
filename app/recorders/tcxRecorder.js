@@ -20,10 +20,8 @@ export function createTCXRecorder (config) {
   let heartRate = 0
   let sessionData
   let lapnumber = 0
-  let strokes = []
   let postExerciseHR = []
   let lastMetrics
-  let startTime
   let allDataHasBeenWritten
 
   // This function handles all incomming commands. Here, the recordingmanager will have filtered
@@ -31,8 +29,9 @@ export function createTCXRecorder (config) {
   async function handleCommand (commandName) {
     switch (commandName) {
       case ('reset'):
-        if (lastMetrics.length > 0 && lastMetrics.totalMovingTime > strokes[strokes.length - 1].totalMovingTime) {
-          addMetricsToStrokesArray(lastMetrics)
+        if (lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[strokes.length - 1].totalMovingTime) {
+          updateLapMetrics(metrics)
+          addMetricsToArray(lastMetrics)
         }
         await createTcxFile()
         heartRate = 0
@@ -43,7 +42,8 @@ export function createTCXRecorder (config) {
         startTime = undefined
         break
       case 'shutdown':
-        if (lastMetrics.length > 0 && lastMetrics.totalMovingTime > strokes[strokes.length - 1].totalMovingTime) {
+        if (lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[strokes.length - 1].totalMovingTime) {
+          updateLapMetrics(metrics)
           addMetricsToStrokesArray(lastMetrics)
         }
         await createTcxFile()
@@ -62,10 +62,10 @@ export function createTCXRecorder (config) {
     const currentTime = new Date()
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
-        sessionData = {startTime: currentTime}
+        sessionData = { startTime: currentTime }
         sessionData.lap = []
         lapnumber = 0
-        sessionData.lap[lapnumber] = {startTime: currentTime}
+        sessionData.lap[lapnumber] = { startTime: currentTime }
         sessionData.lap[lapnumber].strokes = []
         updateLapMetrics(metrics)
         addMetricsToStrokesArray(metrics)
@@ -93,14 +93,14 @@ export function createTCXRecorder (config) {
         break
       case (metrics.metricsContext.isPauseEnd):
         lapnumber++
-        sessionData.lap[lapnumber] = {startTime: currentTime}
+        sessionData.lap[lapnumber] = { startTime: currentTime }
         sessionData.lap[lapnumber].strokes = []
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isIntervalStart):
         // Please note: we deliberatly add the metrics twice as it marks both the end of the old interval and the start of a new one
         updateLapMetrics(metrics)
-        let intervalEndMetrics = { ...metrics}
+        const intervalEndMetrics = { ...metrics }
         intervalEndMetrics.intervalAndPauseMovingTime = metrics.totalMovingTime - sessionData.lap[lapnumber].strokes[0].totalMovingTime
         addMetricsToStrokesArray(intervalEndMetrics)
         calculateLapMetrics(metrics)
@@ -110,7 +110,7 @@ export function createTCXRecorder (config) {
         lapnumber++
         // We need to calculate the start time of the interval, as delay in message handling can cause weird effects here
         const startTime = new Date(sessionData.lap[lapnumber - 1].startTime.getTime() + intervalEndMetrics.intervalAndPauseMovingTime * 1000)
-        sessionData.lap[lapnumber] = {startTime: startTime}
+        sessionData.lap[lapnumber] = { startTime: startTime }
         sessionData.lap[lapnumber].strokes = []
         addMetricsToStrokesArray(metrics)
         break
@@ -135,9 +135,9 @@ export function createTCXRecorder (config) {
   }
 
   function updateLapMetrics (metrics) {
-        if (metrics.cyclePower !== undefined && metrics.cyclePower > 0) {powerSeries.push(metrics.cyclePower)}
-        if (metrics.cycleLinearVelocity !== undefined && metrics.cycleLinearVelocity > 0) {speedSeries.push(metrics.cycleLinearVelocity)}
-        if (heartRate !== undefined && heartRate > 0) {heartrateSeries.push(heartRate)}
+    if (metrics.cyclePower !== undefined && metrics.cyclePower > 0) { powerSeries.push(metrics.cyclePower) }
+    if (metrics.cycleLinearVelocity !== undefined && metrics.cycleLinearVelocity > 0) { speedSeries.push(metrics.cycleLinearVelocity) }
+    if (heartRate !== undefined && heartRate > 0) { heartrateSeries.push(heartRate) }
   }
 
   function calculateLapMetrics (metrics) {
@@ -297,7 +297,7 @@ export function createTCXRecorder (config) {
     while (i < workout.lap.length) {
       j = 0
       while (j < workout.lap[i].strokes.length) {
-        if (workout.lap[i].strokes[j].dragFactor !== undefined && workout.lap[i].strokes[j].dragFactor > 0) {drag.push(workout.lap[i].strokes[j].dragFactor)}
+        if (workout.lap[i].strokes[j].dragFactor !== undefined && workout.lap[i].strokes[j].dragFactor > 0) { drag.push(workout.lap[i].strokes[j].dragFactor) }
         j++
       }
       i++
@@ -323,7 +323,7 @@ export function createTCXRecorder (config) {
         hrrAdittion = `, HRR1: ${postExerciseHR[1] - postExerciseHR[0]} (${postExerciseHR[1]} BPM), HRR2: ${postExerciseHR[2] - postExerciseHR[0]} (${postExerciseHR[2]} BPM), HRR3: ${postExerciseHR[3] - postExerciseHR[0]} (${postExerciseHR[3]} BPM)`
       }
     }
-    let tcxData = `      <Notes>Indoor Rowing, Drag factor: ${drag.average().toFixed(1)} 10-6 N*m*s2, Estimated VO2Max: ${VO2maxoutput}${hrrAdittion}</Notes>\n`
+    const tcxData = `      <Notes>Indoor Rowing, Drag factor: ${drag.average().toFixed(1)} 10-6 N*m*s2, Estimated VO2Max: ${VO2maxoutput}${hrrAdittion}</Notes>\n`
     return tcxData
   }
 
@@ -399,7 +399,7 @@ export function createTCXRecorder (config) {
     const minimumNumberOfStrokes = 2
     const noLaps = sessionData.lap.length
     if (sessionData.lap[noLaps - 1].strokes.length > 0) {
-      const noStrokes = sessionData.lap[noLaps - 1].strokes[sessionData.lap[noLaps - 1].strokes.length -1].totalNumberOfStrokes
+      const noStrokes = sessionData.lap[noLaps - 1].strokes[sessionData.lap[noLaps - 1].strokes.length - 1].totalNumberOfStrokes
       return (noStrokes > minimumNumberOfStrokes)
     } else {
       return (false)
