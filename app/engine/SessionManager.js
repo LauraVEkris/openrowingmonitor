@@ -148,7 +148,7 @@ export function createSessionManager (config) {
   }
 
   function handleRotationImpulse (currentDt) {
-    // Clear the watchdog as we got a currentDt, we set it at the end again
+    // Clear the watchdog as we got a currentDt, we'll set it at the end again
     clearTimeout(watchdogTimer)
 
     // Provide the rower with new data
@@ -365,6 +365,7 @@ export function createSessionManager (config) {
   }
 
   function onWatchdogTimeout () {
+    log.error(`Time: ${metrics.totalMovingTime}, Watchdog has forced a hard stop due to an unexpected missing signal for over ${watchdogTimout / 1000} seconds (i.e. maximumStrokeTimeBeforePause)`)
     stopTraining()
     metrics = rowingStatistics.getMetrics()
     resetMetricsContext()
@@ -372,7 +373,6 @@ export function createSessionManager (config) {
     sessionState = 'Stopped'
     distanceOverTime.push(metrics.totalMovingTime, metrics.totalLinearDistance)
     emitMetrics('metricsUpdate')
-    log.error(`Time: ${metrics.totalMovingTime}, Watchdog has forced a hard stop due to exceeding the twice maximumStrokeTimeBeforePause (i.e. ${watchdogTimout / 1000} seconds) without drive/recovery change`)
   }
 
   return Object.assign(emitter, {
