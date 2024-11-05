@@ -29,8 +29,8 @@ export function createTCXRecorder (config) {
   async function handleCommand (commandName) {
     switch (commandName) {
       case ('reset'):
-        if (lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[strokes.length - 1].totalMovingTime) {
-          updateLapMetrics(metrics)
+        if (lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
+          updateLapMetrics(lastMetrics)
           addMetricsToArray(lastMetrics)
         }
         await createTcxFile()
@@ -39,11 +39,13 @@ export function createTCXRecorder (config) {
         lapnumber = 0
         postExerciseHR = null
         postExerciseHR = []
-        startTime = undefined
+        powerSeries.reset()
+        speedSeries.reset()
+        heartrateSeries.reset()
         break
       case 'shutdown':
-        if (lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[strokes.length - 1].totalMovingTime) {
-          updateLapMetrics(metrics)
+        if (lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
+          updateLapMetrics(lastMetrics)
           addMetricsToStrokesArray(lastMetrics)
         }
         await createTcxFile()
@@ -60,6 +62,8 @@ export function createTCXRecorder (config) {
 
   function recordRowingMetrics (metrics) {
     const currentTime = new Date()
+    let startTime
+    let intervalEndMetrics
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
         sessionData = { startTime: currentTime }
@@ -100,7 +104,7 @@ export function createTCXRecorder (config) {
       case (metrics.metricsContext.isIntervalStart):
         // Please note: we deliberatly add the metrics twice as it marks both the end of the old interval and the start of a new one
         updateLapMetrics(metrics)
-        const intervalEndMetrics = { ...metrics }
+        intervalEndMetrics = { ...metrics }
         intervalEndMetrics.intervalAndPauseMovingTime = metrics.totalMovingTime - sessionData.lap[lapnumber].strokes[0].totalMovingTime
         addMetricsToStrokesArray(intervalEndMetrics)
         calculateLapMetrics(metrics)
@@ -109,8 +113,8 @@ export function createTCXRecorder (config) {
         heartrateSeries.reset()
         lapnumber++
         // We need to calculate the start time of the interval, as delay in message handling can cause weird effects here
-        const startTime = new Date(sessionData.lap[lapnumber - 1].startTime.getTime() + intervalEndMetrics.intervalAndPauseMovingTime * 1000)
-        sessionData.lap[lapnumber] = { startTime: startTime }
+        startTime = new Date(sessionData.lap[lapnumber - 1].startTime.getTime() + intervalEndMetrics.intervalAndPauseMovingTime * 1000)
+        sessionData.lap[lapnumber] = { startTime }
         sessionData.lap[lapnumber].strokes = []
         addMetricsToStrokesArray(metrics)
         break
