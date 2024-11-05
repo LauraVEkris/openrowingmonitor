@@ -102,6 +102,8 @@ export function createSessionManager (config) {
 
   function startOrResumeTraining () {
     rowingStatistics.startOrResumeTraining()
+    intervalAndPausePrevAccumulatedTime = metrics.totalMovingTime
+    intervalAndPausePrevAccumulatedDistance = metrics.totalLinearDistance
   }
 
   function allowResumeTraining () {
@@ -119,8 +121,6 @@ export function createSessionManager (config) {
     clearTimeout(watchdogTimer)
     distanceOverTime.push(metrics.totalMovingTime, metrics.totalLinearDistance)
     rowingStatistics.pauseTraining()
-    intervalAndPausePrevAccumulatedTime = metrics.totalMovingTime
-    intervalAndPausePrevAccumulatedDistance = metrics.totalLinearDistance
     noSpontaneousPauses++
   }
 
