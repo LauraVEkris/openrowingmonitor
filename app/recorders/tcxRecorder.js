@@ -31,7 +31,7 @@ export function createTCXRecorder (config) {
       case ('reset'):
         if (lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
           updateLapMetrics(lastMetrics)
-          addMetricsToArray(lastMetrics)
+          addMetricsToStrokesArray(lastMetrics)
         }
         await createTcxFile()
         heartRate = 0
