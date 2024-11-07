@@ -5,12 +5,11 @@
   This Module calculates the training specific VO2Max metrics. It is based on formula's found on the web (see function definitions).
 */
 
-import { createBucketedLinearSeries } from '../engine/utils/BucketedLinearSeries.js'
-
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
+import { createBucketedLinearSeries } from '../engine/utils/BucketedLinearSeries.js'
 
-function createVO2max (config) {
+export function createVO2max (config) {
   const bucketedLinearSeries = createBucketedLinearSeries(config)
   const minimumValidBrackets = 5.0
   const offset = 90
@@ -18,12 +17,16 @@ function createVO2max (config) {
   function calculateVO2max (metrics) {
     let projectedVO2max = 0
     let interpolatedVO2max = 0
+    const lastStroke = metrics.lap[metrics.lap.length - 1].strokes[metrics.lap[metrics.lap.length - 1].strokes.length - 1]
 
-    if (metrics[0].heartrate !== undefined && metrics[metrics.length - 1].heartrate !== undefined && metrics[metrics.length - 1].heartrate >= config.userSettings.restingHR) {
+    if (metrics.lap[0].strokes[0].heartrate !== undefined && lastStroke.heartrate !== undefined && lastStroke.heartrate >= config.userSettings.restingHR) {
       projectedVO2max = extrapolatedVO2max(metrics)
     }
 
-    interpolatedVO2max = calculateInterpolatedVO2max(metrics)
+    if (metrics.lap[0].strokes[0].heartrate !== undefined && lastStroke.heartrate !== undefined && lastStroke.heartrate >= (0.8 * config.userSettings.maxHR)) {
+      // Concept2's formula is only valid when doing a pretty intense session
+      interpolatedVO2max = calculateInterpolatedVO2max(metrics)
+    }
 
     if (projectedVO2max >= 10 && projectedVO2max <= 60 && interpolatedVO2max >= 10 && interpolatedVO2max <= 60) {
       // Both VO2Max calculations have delivered a valid and credible result
@@ -53,23 +56,26 @@ function createVO2max (config) {
   function extrapolatedVO2max (metrics) {
     // This implements the extrapolation-based VO2Max determination
     // Which is based on the extrapolated maximum power output based on the correlation between heartrate and power,
-    // Underlying formula's can be found here: https://sites.udel.edu/coe-engex/2019/03/16/how-accurate-is-your-garmins-vo2max-estimate/
-    // and https://sportcoaching.co.nz/how-does-garmin-calculate-vo2-max/
+    // Underlying formula's can be found here: https://sportcoaching.co.nz/how-does-garmin-calculate-vo2-max/
     let ProjectedVO2max
+    const lastStroke = metrics.lap[metrics.lap.length - 1].strokes[metrics.lap[metrics.lap.length - 1].strokes.length - 1]
+
     let i = 0
-    while (i < metrics.length && metrics[i].totalMovingTime < offset) {
-      // We skip the first timeperiod as it only depicts the change from a resting HR to a working HR
-      i++
-    }
-    while (i < metrics.length) {
-      if (metrics[i].heartrate !== undefined && metrics[i].heartrate >= config.userSettings.restingHR && metrics[i].heartrate <= config.userSettings.maxHR && metrics[i].cyclePower !== undefined && metrics[i].cyclePower >= config.userSettings.minPower && metrics[i].cyclePower <= config.userSettings.maxPower) {
-        // The data looks credible, lets add it
-        bucketedLinearSeries.push(metrics[i].heartrate, metrics[i].cyclePower)
+    let j = 0
+    while (i < metrics.lap.length) {
+      j = 0
+      while (j < metrics.lap[i].strokes.length) {
+        if (metrics.lap[i].strokes[j].totalMovingTime < offset && metrics.lap[i].strokes[j].heartrate !== undefined && metrics.lap[i].strokes[j].heartrate >= config.userSettings.restingHR && metrics.lap[i].strokes[j].heartrate <= config.userSettings.maxHR && metrics.lap[i].strokes[j].cyclePower !== undefined && metrics.lap[i].strokes[j].cyclePower >= config.userSettings.minPower && metrics.lap[i].strokes[j].cyclePower <= config.userSettings.maxPower) {
+          // We skip the first timeperiod as it only depicts the change from a resting HR to a working HR, we also skip inplausible values
+        } else {
+          // We are outside the startup noise
+          bucketedLinearSeries.push(metrics.lap[i].strokes[j].heartrate, metrics.lap[i].strokes[j].cyclePower)
+        }
+        j++
       }
       i++
     }
 
-    // All Datapoints have been added, now we determine the projected power
     if (bucketedLinearSeries.numberOfSamples() >= minimumValidBrackets) {
       const projectedPower = bucketedLinearSeries.projectX(config.userSettings.maxHR)
       if (projectedPower <= config.userSettings.maxPower && projectedPower >= bucketedLinearSeries.maxEncounteredY()) {
@@ -89,8 +95,9 @@ function createVO2max (config) {
   function calculateInterpolatedVO2max (metrics) {
     // This is based on research done by concept2, https://www.concept2.com/indoor-rowers/training/calculators/vo2max-calculator,
     // which determines the VO2Max based on the 2K speed
-    const distance = metrics[metrics.length - 1].totalLinearDistance
-    const time = metrics[metrics.length - 1].totalMovingTime
+    const lastStroke = metrics.lap[metrics.lap.length - 1].strokes[metrics.lap[metrics.lap.length - 1].strokes.length - 1]
+    const distance = lastStroke.totalLinearDistance
+    const time = lastStroke.totalMovingTime
     const projectedTwoKPace = interpolatePace(time, distance, 2000)
     const projectedTwoKTimeInMinutes = (4 * projectedTwoKPace) / 60
     let Y = 0
@@ -157,5 +164,3 @@ function createVO2max (config) {
     reset
   }
 }
-
-export { createVO2max }
