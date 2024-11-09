@@ -4,19 +4,20 @@
 
   This Module captures the metrics of a rowing session and persists them.
 */
-
 import log from 'loglevel'
 import fs from 'fs/promises'
 import { createLogRecorder } from './logRecorder.js'
 import { createRawRecorder } from './rawRecorder.js'
 import { createTCXRecorder } from './tcxRecorder.js'
+import { createFITRecorder } from './fitRecorder.js'
 import { createRowingDataRecorder } from './rowingDataRecorder.js'
 
-function createRecordingManager (config) {
+export function createRecordingManager (config) {
   let startTime
   const logRecorder = createLogRecorder(config)
   const rawRecorder = createRawRecorder(config)
   const tcxRecorder = createTCXRecorder(config)
+  const fitRecorder = createFITRecorder(config)
   const rowingDataRecorder = createRowingDataRecorder(config)
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
@@ -61,25 +62,27 @@ function createRecordingManager (config) {
   }
 
   async function recordRotationImpulse (impulse) {
-    if (startTime === undefined && (config.createRawDataFiles || config.createTcxFiles || config.createRowingDataFiles)) {
+    if (startTime === undefined && (config.createRawDataFiles || config.createTcxFiles || config.createRowingDataFiles || config.createFitFiles)) {
       await nameFilesAndCreateDirectory()
     }
     if (config.createRawDataFiles) { await rawRecorder.recordRotationImpulse(impulse) }
   }
 
   async function recordMetrics (metrics) {
-    if (startTime === undefined && (config.createRawDataFiles || config.createTcxFiles || config.createRowingDataFiles)) {
+    if (startTime === undefined && (config.createRawDataFiles || config.createTcxFiles || config.createRowingDataFiles || config.createFitFiles)) {
       await nameFilesAndCreateDirectory()
     }
     logRecorder.recordRowingMetrics(metrics)
     if (config.createRawDataFiles) { rawRecorder.recordRowingMetrics(metrics) }
     if (config.createTcxFiles) { tcxRecorder.recordRowingMetrics(metrics) }
+    if (config.createFitFiles) { fitRecorder.recordRowingMetrics(metrics) }
     if (config.createRowingDataFiles) { rowingDataRecorder.recordRowingMetrics(metrics) }
   }
 
   async function recordHeartRate (heartRate) {
     logRecorder.recordHeartRate(heartRate)
     if (config.createTcxFiles) { tcxRecorder.recordHeartRate(heartRate) }
+    if (config.createFitFiles) { fitRecorder.recordHeartRate(heartRate) }
     if (config.createRowingDataFiles) { rowingDataRecorder.recordHeartRate(heartRate) }
   }
 
@@ -88,6 +91,7 @@ function createRecordingManager (config) {
     parallelCalls.push(logRecorder.handleCommand(commandName))
     if (config.createRawDataFiles) { parallelCalls.push(rawRecorder.handleCommand(commandName)) }
     if (config.createTcxFiles) { parallelCalls.push(tcxRecorder.handleCommand(commandName)) }
+    if (config.createFitFiles) { parallelCalls.push(fitRecorder.handleCommand(commandName)) }
     if (config.createRowingDataFiles) { parallelCalls.push(rowingDataRecorder.handleCommand(commandName)) }
     await Promise.all(parallelCalls)
   }
@@ -109,12 +113,14 @@ function createRecordingManager (config) {
     const fileBaseName = `${directory}/${stringifiedStartTime}`
     if (config.createRawDataFiles) { rawRecorder.setBaseFileName(fileBaseName) }
     if (config.createTcxFiles) { tcxRecorder.setBaseFileName(fileBaseName) }
+    if (config.createFitFiles) { fitRecorder.setBaseFileName(fileBaseName) }
     if (config.createRowingDataFiles) { rowingDataRecorder.setBaseFileName(fileBaseName) }
   }
 
   async function activeWorkoutToTcx () {
     await tcxRecorder.activeWorkoutToTcx()
   }
+
   return {
     handleCommand,
     recordHeartRate,
@@ -123,5 +129,3 @@ function createRecordingManager (config) {
     activeWorkoutToTcx
   }
 }
-
-export { createRecordingManager }
