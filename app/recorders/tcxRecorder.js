@@ -71,7 +71,6 @@ export function createTCXRecorder (config) {
         lapnumber = 0
         sessionData.lap[lapnumber] = { startTime: currentTime }
         sessionData.lap[lapnumber].strokes = []
-        updateLapMetrics(metrics)
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isSessionStop):
@@ -203,7 +202,7 @@ export function createTCXRecorder (config) {
   }
 
   async function workoutToTcx (workout) {
-    let tcxData = []
+    let tcxData = ''
     tcxData += '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
     tcxData += '<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:ns2="http://www.garmin.com/xmlschemas/ActivityExtension/v2">\n'
     tcxData += await createActivity(sessionData)
@@ -212,7 +211,7 @@ export function createTCXRecorder (config) {
   }
 
   async function createActivity (workout) {
-    let tcxData = []
+    let tcxData = ''
     tcxData += '  <Activities>\n'
     tcxData += '    <Activity Sport="Other">\n'
     tcxData += `      <Id>${workout.startTime.toISOString()}</Id>\n`
@@ -229,7 +228,7 @@ export function createTCXRecorder (config) {
   }
 
   async function createLap (lapdata) {
-    let tcxData = []
+    let tcxData = ''
     tcxData += `      <Lap StartTime="${lapdata.startTime.toISOString()}">\n`
     tcxData += `        <TotalTimeSeconds>${lapdata.totalMovingTime.toFixed(1)}</TotalTimeSeconds>\n`
     tcxData += `        <DistanceMeters>${lapdata.totalLinearDistance.toFixed(1)}</DistanceMeters>\n`
@@ -265,7 +264,7 @@ export function createTCXRecorder (config) {
   async function createTrackPoint (offset, trackpoint) {
     const trackPointTime = new Date(offset.getTime() + trackpoint.intervalAndPauseMovingTime * 1000)
 
-    let tcxData = []
+    let tcxData = ''
     tcxData += '          <Trackpoint>\n'
     tcxData += `            <Time>${trackPointTime.toISOString()}</Time>\n`
     tcxData += `            <DistanceMeters>${trackpoint.totalLinearDistance.toFixed(2)}</DistanceMeters>\n`
@@ -334,7 +333,7 @@ export function createTCXRecorder (config) {
   async function createAuthor () {
     let versionArray = process.env.npm_package_version.split('.')
     if (versionArray.length < 3) versionArray = ['0', '0', '0']
-    let tcxData = []
+    let tcxData = ''
     tcxData += '  <Author xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Application_t">\n'
     tcxData += '    <Name>Open Rowing Monitor</Name>\n'
     tcxData += '    <Build>\n'
