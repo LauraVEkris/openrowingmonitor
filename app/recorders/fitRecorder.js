@@ -8,7 +8,6 @@ import log from 'loglevel'
 import zlib from 'zlib'
 import fs from 'fs/promises'
 import { createSeries } from '../engine/utils/Series.js'
-import { createVO2max } from './VO2max.js'
 import { promisify } from 'util'
 import { FitWriter } from "@markw65/fit-file-writer"
 
@@ -30,7 +29,6 @@ export function createFITRecorder (config) {
   let heartRate = 0
   let sessionData
   let lapnumber = 0
-  let postExerciseHR = []
   let lastMetrics
   let allDataHasBeenWritten
 
@@ -40,15 +38,13 @@ export function createFITRecorder (config) {
     switch (commandName) {
       case ('reset'):
         if (lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
-          updateLapMetrics(lastMetrics)
+          updateLapAndSessionMetrics(lastMetrics)
           addMetricsToStrokesArray(lastMetrics)
         }
         await createFitFile()
         heartRate = 0
         sessionData = null
         lapnumber = 0
-        postExerciseHR = null
-        postExerciseHR = []
         resetLapMetrics
         sessionPowerSeries.reset()
         sessionSpeedSeries.reset()
@@ -60,7 +56,7 @@ export function createFITRecorder (config) {
         break
       case 'shutdown':
         if (lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
-          updateLapMetrics(lastMetrics)
+          updateLapAndSessionMetrics(lastMetrics)
           addMetricsToStrokesArray(lastMetrics)
         }
         await createFitFile()
@@ -92,8 +88,6 @@ export function createFITRecorder (config) {
         addMetricsToStrokesArray(metrics)
         calculateLapMetrics(metrics)
         calculateSessionMetrics(metrics)
-        postExerciseHR = null
-        postExerciseHR = []
         createFitFile()
         break
       case (metrics.metricsContext.isPauseStart):
@@ -102,8 +96,6 @@ export function createFITRecorder (config) {
         calculateLapMetrics(metrics)
         calculateSessionMetrics(metrics)
         resetLapMetrics()
-        postExerciseHR = null
-        postExerciseHR = []
         createFitFile()
         break
       case (metrics.metricsContext.isPauseEnd):
@@ -239,15 +231,15 @@ export function createFITRecorder (config) {
   }
 
   async function workoutToFit (workout) {
-    let versionArray = process.env.npm_package_version.split('.')
+    const versionArray = process.env.npm_package_version.split('.')
     if (versionArray.length < 3) versionArray = ['0', '0', '0']
-    let versionNumber = (versionArray[0] * 100) + (versionArray[1] * 10) + (versionArray[2])
+    const versionNumber = (versionArray[0] * 100) + (versionArray[1] * 10) + (versionArray[2])
 
     fitWriter.writeMessage(
-      "file_id",
+      'file_id',
       {
-        type: "activity",
-        manufacturer: "garmin",
+        type: 'activity',
+        manufacturer: 'garmin',
         product: 3943,
         time_created: fitWriter.time(workout.startTime),
       },
@@ -256,7 +248,7 @@ export function createFITRecorder (config) {
     )
 
     fitWriter.writeMessage(
-      "file_creator",
+      'file_creator',
       {
         software_version: Math.round(versionNumber),
       },
@@ -265,11 +257,11 @@ export function createFITRecorder (config) {
     )
 
     fitWriter.writeMessage(
-      "device_info",
+      'device_info',
       {
         timestamp: fitWriter.time(workout.startTime),
-        device_type: "fitness_equipment",
-        manufacturer: "concept2",
+        device_type: 'fitness_equipment',
+        manufacturer: 'concept2',
         product: 8449,
       },
       null,
@@ -277,11 +269,11 @@ export function createFITRecorder (config) {
     )
 
     fitWriter.writeMessage(
-      "event",
+      'event',
       {
         timestamp: fitWriter.time(workout.startTime),
-        event: "timer",
-        event_type: "start",
+        event: 'timer',
+        event_type: 'start',
         event_group: 0,
       },
       null,
@@ -291,11 +283,11 @@ export function createFITRecorder (config) {
     await createActivity(sessionData)
 
     fitWriter.writeMessage(
-      "event",
+      'event',
       {
         timestamp: fitWriter.time(workout.endTime),
-        event: "timer",
-        event_type: "stop_all",
+        event: 'timer',
+        event_type: 'stop_all',
         event_group: 0,
       },
       null,
@@ -306,31 +298,31 @@ export function createFITRecorder (config) {
 
   async function createActivity (workout) {
     fitWriter.writeMessage(
-      "sport",
+      'sport',
       {
-        sport: "rowing",
-        sub_sport: "indoor_rowing",
-        name: "Row Indoor",
+        sport: 'rowing',
+        sub_sport: 'indoor_rowing',
+        name: 'Row Indoor',
       },
       null,
       true
     )
 
     fitWriter.writeMessage(
-      "activity",
+      'activity',
       {
         timestamp: fitWriter.time(workout.startTime),
         local_timestamp: fitWriter.time(workout.startTime) - workout.startTime.getTimezoneOffset() * 60,
         total_timer_time: workout.totalMovingTime,
         num_sessions: 1,
-        type: "manual",
+        type: 'manual',
       },
       null,
       true
     )
 
     fitWriter.writeMessage(
-      "session",
+      'session',
       {
         timestamp: fitWriter.time(workout.endTime),
         message_index: 0,
@@ -375,7 +367,7 @@ export function createFITRecorder (config) {
     }
 
     fitWriter.writeMessage(
-      "lap",
+      'lap',
       {
         timestamp: fitWriter.time(lapdata.startTime),
         message_index: lapdata.lapNumber - 1,
@@ -404,7 +396,7 @@ export function createFITRecorder (config) {
 
   async function createTrackPoint (offset, trackpoint) {
     fitWriter.writeMessage(
-      "record",
+      'record',
       {
         timestamp: fitWriter.time(offset.getTime() + trackpoint.intervalAndPauseMovingTime * 1000),
         distance: trackpoint.totalLinearDistance,
