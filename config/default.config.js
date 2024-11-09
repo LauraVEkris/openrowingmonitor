@@ -124,8 +124,11 @@ export default {
   // currently this directory holds the recorded training sessions
   dataDirectory: 'data',
 
-  // Stores the training sessions as TCX files
+  // Stores the training sessions as Garmin TCX files
   createTcxFiles: true,
+
+  // Stores the training sessions as Garmin fit files
+  createFitFiles: true,
 
   // Stores the (in-)stroke data in OpenRowingData CSV files
   createRowingDataFiles: true,
@@ -138,6 +141,9 @@ export default {
   // Some training tools can directly work with gzipped tcx file, however for most training websites
   // you will have to unzip the files before uploading
   gzipTcxFiles: false,
+
+  // Apply gzip compression to the recorded fit training sessions file (fit.gz)
+  gzipFitFiles: false,
 
   // Apply gzip compression to the raw sensor data recording files (csv.gz)
   gzipRawDataFiles: true,
