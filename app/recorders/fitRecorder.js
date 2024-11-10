@@ -9,7 +9,7 @@ import zlib from 'zlib'
 import fs from 'fs/promises'
 import { createSeries } from '../engine/utils/Series.js'
 import { promisify } from 'util'
-import { FitWriter } from "@markw65/fit-file-writer"
+import { FitWriter } from '@markw65/fit-file-writer'
 
 const gzip = promisify(zlib.gzip)
 
@@ -45,7 +45,7 @@ export function createFITRecorder (config) {
         heartRate = 0
         sessionData = null
         lapnumber = 0
-        resetLapMetrics
+        resetLapMetrics()
         sessionPowerSeries.reset()
         sessionSpeedSeries.reset()
         sessionStrokerateSeries.reset()
@@ -231,9 +231,7 @@ export function createFITRecorder (config) {
   }
 
   async function workoutToFit (workout) {
-    const versionArray = process.env.npm_package_version.split('.')
-    if (versionArray.length < 3) versionArray = ['0', '0', '0']
-    const versionNumber = (versionArray[0] * 100) + (versionArray[1] * 10) + (versionArray[2])
+    const versionNumber = parseInt(process.env.npm_package_version, 10);
 
     fitWriter.writeMessage(
       'file_id',
@@ -241,7 +239,7 @@ export function createFITRecorder (config) {
         type: 'activity',
         manufacturer: 'garmin',
         product: 3943,
-        time_created: fitWriter.time(workout.startTime),
+        time_created: fitWriter.time(workout.startTime)
       },
       null,
       true
@@ -250,7 +248,7 @@ export function createFITRecorder (config) {
     fitWriter.writeMessage(
       'file_creator',
       {
-        software_version: Math.round(versionNumber),
+        software_version: Math.round(versionNumber)
       },
       null,
       true
@@ -262,7 +260,7 @@ export function createFITRecorder (config) {
         timestamp: fitWriter.time(workout.startTime),
         device_type: 'fitness_equipment',
         manufacturer: 'concept2',
-        product: 8449,
+        product: 8449
       },
       null,
       true
@@ -274,7 +272,7 @@ export function createFITRecorder (config) {
         timestamp: fitWriter.time(workout.startTime),
         event: 'timer',
         event_type: 'start',
-        event_group: 0,
+        event_group: 0
       },
       null,
       true
@@ -288,7 +286,7 @@ export function createFITRecorder (config) {
         timestamp: fitWriter.time(workout.endTime),
         event: 'timer',
         event_type: 'stop_all',
-        event_group: 0,
+        event_group: 0
       },
       null,
       true
@@ -302,7 +300,7 @@ export function createFITRecorder (config) {
       {
         sport: 'rowing',
         sub_sport: 'indoor_rowing',
-        name: 'Row Indoor',
+        name: 'Row Indoor'
       },
       null,
       true
@@ -315,7 +313,7 @@ export function createFITRecorder (config) {
         local_timestamp: fitWriter.time(workout.startTime) - workout.startTime.getTimezoneOffset() * 60,
         total_timer_time: workout.totalMovingTime,
         num_sessions: 1,
-        type: 'manual',
+        type: 'manual'
       },
       null,
       true
@@ -326,9 +324,9 @@ export function createFITRecorder (config) {
       {
         timestamp: fitWriter.time(workout.endTime),
         message_index: 0,
+        sport: 'rowing',
+        sub_sport: 'indoor_rowing',
         start_time: fitWriter.time(workout.startTime),
-        sport: "rowing",
-        sub_sport: "indoor_rowing",
         total_elapsed_time: Math.abs(workout.endTime - workout.startTime) / 1000,
         total_moving_time: workout.totalMovingTime,
         total_distance: workout.totalLinearDistance,
@@ -339,12 +337,12 @@ export function createFITRecorder (config) {
         max_power: sessionPowerSeries.maximum(),
         avg_cadence: sessionStrokerateSeries.average(),
         max_cadence: sessionStrokerateSeries.maximum(),
-        ...(sessionHeartrateSeries.minimum() > 0 ? {min_heart_rate: sessionHeartrateSeries.minimum()} : {}),
-        ...(sessionHeartrateSeries.average() > 0 ? {avg_heart_rate: sessionHeartrateSeries.average()} : {}),
-        ...(sessionHeartrateSeries.maximum() > 0 ? {max_heart_rate: sessionHeartrateSeries.maximum()} : {}),
+        ...(sessionHeartrateSeries.minimum() > 0 ? { min_heart_rate: sessionHeartrateSeries.minimum() } : {}),
+        ...(sessionHeartrateSeries.average() > 0 ? { avg_heart_rate: sessionHeartrateSeries.average() } : {}),
+        ...(sessionHeartrateSeries.maximum() > 0 ? { max_heart_rate: sessionHeartrateSeries.maximum() } : {}),
         avg_stroke_distance: sessionStrokedistanceSeries.average(),
         num_laps: sessionData.totalNoLaps,
-        first_lap_index: 0,
+        first_lap_index: 0
       },
       null,
       true
@@ -371,6 +369,8 @@ export function createFITRecorder (config) {
       {
         timestamp: fitWriter.time(lapdata.startTime),
         message_index: lapdata.lapNumber - 1,
+        sport: "rowing",
+        sub_sport: "indoor_rowing",
         start_time: fitWriter.time(lapdata.startTime),
         total_elapsed_time: lapdata.totalMovingTime,
         total_timer_time: lapdata.totalMovingTime,
@@ -384,10 +384,8 @@ export function createFITRecorder (config) {
         max_speed: lapdata.maximumSpeed,
         avg_power: lapdata.averagePower,
         max_power: lapdata.maximumPower,
-        ...(lapdata.averageHeartrate > 0 ? {avg_heart_rate: lapdata.averageHeartrate} : {}),
-        ...(lapdata.maximumHeartrate > 0 ? {max_heart_rate: lapdata.maximumHeartrate} : {}),
-        sport: "rowing",
-        sub_sport: "indoor_rowing",
+        ...(lapdata.averageHeartrate > 0 ? { avg_heart_rate: lapdata.averageHeartrate } : {}),
+        ...(lapdata.maximumHeartrate > 0 ? { max_heart_rate: lapdata.maximumHeartrate } : {})
       },
       null,
       sessionData.totalNoLaps === lapdata.lapNumber
@@ -400,11 +398,11 @@ export function createFITRecorder (config) {
       {
         timestamp: fitWriter.time(offset.getTime() + trackpoint.intervalAndPauseMovingTime * 1000),
         distance: trackpoint.totalLinearDistance,
-        ...(trackpoint.cycleLinearVelocity > 0 || trackpoint.metricsContext.isPauseStart ? {speed: trackpoint.cycleLinearVelocity} : {}),
-        ...(trackpoint.cyclePower > 0 || trackpoint.metricsContext.isPauseStart ? {power: trackpoint.cyclePower} : {}),
+        ...(trackpoint.cycleLinearVelocity > 0 || trackpoint.metricsContext.isPauseStart ? { speed: trackpoint.cycleLinearVelocity } : {}),
+        ...(trackpoint.cyclePower > 0 || trackpoint.metricsContext.isPauseStart ? { power: trackpoint.cyclePower } : {}),
         cadence: trackpoint.cycleStrokeRate,
-        resistance: trackpoint.dragFactor,
-        ...(trackpoint.heartrate !== undefined && trackpoint.heartrate > 0 ? {heart_rate: trackpoint.heartrate} : {}),
+        ...(trackpoint.dragFactor > 0 || trackpoint.dragFactor < 255 ? { resistance: trackpoint.dragFactor } : {}), // As the data is stored in an int8, we need to guard the maximum
+        ...(trackpoint.heartrate !== undefined && trackpoint.heartrate > 0 ? { heart_rate: trackpoint.heartrate } : {})
       },
     )
   }
