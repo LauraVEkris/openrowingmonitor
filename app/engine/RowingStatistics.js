@@ -245,7 +245,7 @@ function createRowingStatistics (config) {
       driveHandleVelocityCurve: drivePeakHandleForce.clean() > 0 && metricsContext.isMoving === true ? driveHandleVelocityCurve.lastCompleteCurve() : [],
       driveHandlePowerCurve: drivePeakHandleForce.clean() > 0 && metricsContext.isMoving === true ? driveHandlePowerCurve.lastCompleteCurve() : [],
       recoveryDuration: recoveryDuration.reliable() && recoveryDuration.clean() >= config.rowerSettings.minimumRecoveryTime && totalNumberOfStrokes > 0 && totalNumberOfStrokes > 0 && metricsContext.isMoving === true ? recoveryDuration.clean() : undefined, // seconds
-      dragFactor: dragFactor > 0 ? dragFactor : config.rowerSettings.dragFactor, // Dragfactor
+      dragFactor: dragFactor > 0 ? dragFactor : undefined, // Dragfactor
       instantPower: instantPower > 0 && rower.strokeState() === 'Drive' ? instantPower : 0
     }
   }
