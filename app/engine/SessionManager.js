@@ -39,14 +39,14 @@ export function createSessionManager (config) {
   let heartRateBatteryLevel = 0
 
   metrics = rowingStatistics.getMetrics()
-  resetMetricsContext()
-  emitMetrics('metricsUpdate')
+  resetMetricsSessionContext(metrics)
+  emitMetrics(metrics)
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the RowingEngine will react to and what it will ignore
   function handleCommand (commandName) {
     metrics = rowingStatistics.getMetrics()
-    resetMetricsContext()
+    resetMetricsSessionContext(metrics)
     switch (commandName) {
       case ('start'):
         startOrResumeTraining()
@@ -96,7 +96,7 @@ export function createSessionManager (config) {
       default:
         log.error(`Recieved unknown command: ${commandName}`)
     }
-    emitMetrics('metricsUpdate')
+    emitMetrics(metrics)
     lastSessionState = sessionState
   }
 
@@ -142,7 +142,7 @@ export function createSessionManager (config) {
     splitNumber = 0
     splitPrevAccumulatedDistance = 0
     distanceOverTime.reset()
-    resetMetricsContext()
+    resetMetricsSessionContext(metrics)
     sessionState = 'WaitingForStart'
     lastSessionState = 'WaitingForStart'
   }
@@ -153,8 +153,7 @@ export function createSessionManager (config) {
 
     // Provide the rower with new data
     metrics = rowingStatistics.handleRotationImpulse(currentDt)
-
-    resetMetricsContext()
+    resetMetricsSessionContext(metrics)
 
     // ToDo: check if we need to update the projected end time of the interval
     if (metrics.metricsContext.isMoving && (metrics.metricsContext.isDriveStart || metrics.metricsContext.isRecoveryStart)) {
@@ -225,7 +224,7 @@ export function createSessionManager (config) {
       default:
         log.error(`Time: ${metrics.totalMovingTime}, combination of ${sessionState} and state ${metrics.strokeState()} found in the Rowing Statistics, which is not captured by Finite State Machine`)
     }
-    emitMetrics('metricsUpdate')
+    emitMetrics(metrics)
 
     if (sessionState === 'Rowing' && metrics.metricsContext.isMoving) {
       // We have a valid value of currentDt and we are moving, let's reset the watchdog to a new position
@@ -234,14 +233,14 @@ export function createSessionManager (config) {
     lastSessionState = sessionState
   }
 
-  // Basic metricContext structure
-  function resetMetricsContext () {
-    metrics.metricsContext.isSessionStart = false
-    metrics.metricsContext.isIntervalStart = false
-    metrics.metricsContext.isSplitEnd = false
-    metrics.metricsContext.isPauseStart = false
-    metrics.metricsContext.isPauseEnd = false
-    metrics.metricsContext.isSessionStop = false
+  // Basic Session Metric Context structure
+  function resetMetricsSessionContext (metricsToReset) {
+    metricsToReset.metricsContext.isSessionStart = false
+    metricsToReset.metricsContext.isIntervalStart = false
+    metricsToReset.metricsContext.isSplitEnd = false
+    metricsToReset.metricsContext.isPauseStart = false
+    metricsToReset.metricsContext.isPauseEnd = false
+    metricsToReset.metricsContext.isSessionStop = false
   }
 
   function setIntervalParameters (intervalParameters) {
@@ -249,9 +248,10 @@ export function createSessionManager (config) {
     currentIntervalNumber = -1
     if (intervalSettings.length > 0) {
       log.info(`Workout recieved with ${intervalSettings.length} interval(s)`)
+      metrics = rowingStatistics.getMetrics()
       activateNextIntervalParameters()
-      resetMetricsContext()
-      emitMetrics('metricsUpdate')
+      resetMetricsSessionContext(metrics)
+      emitMetrics(metrics)
     } else {
       // intervalParameters were empty, lets log this odd situation
       log.error('Recieved workout containing no intervals')
@@ -335,28 +335,28 @@ export function createSessionManager (config) {
     heartRateBatteryLevel = value.batteryLevel
   }
 
-  function emitMetrics (emitType = 'metricsUpdate') {
-    enrichMetrics()
-    emitter.emit(emitType, metrics)
+  function emitMetrics (metricsToEmit) {
+    enrichMetrics(metricsToEmit)
+    emitter.emit('metricsUpdate', metricsToEmit)
   }
 
-  function enrichMetrics () {
-    metrics.sessiontype = intervalType
-    metrics.sessionStatus = sessionState // ToDo: REMOVE NAME CONVERSION
+ function enrichMetrics (metricsToEnrich) {
+    metricsToEnrich.sessiontype = intervalType
+    metricsToEnrich.sessionStatus = sessionState // ToDo: REMOVE NAME CONVERSION
     // ToDo: Add split number
-    metrics.intervalNumber = Math.max(noSpontaneousPauses + currentIntervalNumber + 1, 0) // Interval number, for both planned and unplanned intervals
-    metrics.intervalMovingTime = metrics.totalMovingTime - intervalPrevAccumulatedTime
-    metrics.intervalAndPauseMovingTime = metrics.totalMovingTime - intervalAndPausePrevAccumulatedTime
-    metrics.intervalTargetTime = intervalTargetTime > intervalPrevAccumulatedTime ? intervalTargetTime - intervalPrevAccumulatedTime : 0
-    metrics.intervalLinearDistance = metrics.totalLinearDistance - intervalPrevAccumulatedDistance
-    metrics.intervalAndPauseLinearDistance = metrics.totalLinearDistance - intervalAndPausePrevAccumulatedDistance
-    metrics.intervalTargetDistance = intervalTargetDistance > intervalPrevAccumulatedDistance ? intervalTargetDistance - intervalPrevAccumulatedDistance : 0
-    metrics.splitNumber = metrics.metricsContext.isSplitEnd ? splitNumber - 1 : splitNumber // This is needed to satisfy the RowingData recorder, it needs the start of the split to mark the end of the previous split
-    metrics.splitLinearDistance = metrics.metricsContext.isSplitEnd ? splitDistance : metrics.totalLinearDistance - splitPrevAccumulatedDistance // This is needed to satisfy the RowingData recorder
-    metrics.cycleProjectedEndTime = intervalTargetDistance > 0 ? distanceOverTime.projectY(intervalTargetDistance) : intervalTargetTime
-    metrics.cycleProjectedEndLinearDistance = intervalTargetTime > 0 ? distanceOverTime.projectX(intervalTargetTime) : intervalTargetDistance
-    metrics.heartrate = heartrate > 30 ? heartrate : 0 // ToDo: REMOVE THIS INJECTION
-    metrics.heartRateBatteryLevel = heartRateBatteryLevel // ToDo: REMOVE THIS INJECTION
+    metricsToEnrich.intervalNumber = Math.max(noSpontaneousPauses + currentIntervalNumber + 1, 0) // Interval number, for both planned and unplanned intervals
+    metricsToEnrich.intervalMovingTime = metrics.totalMovingTime - intervalPrevAccumulatedTime
+    metricsToEnrich.intervalAndPauseMovingTime = metrics.totalMovingTime - intervalAndPausePrevAccumulatedTime
+    metricsToEnrich.intervalTargetTime = intervalTargetTime > intervalPrevAccumulatedTime ? intervalTargetTime - intervalPrevAccumulatedTime : 0
+    metricsToEnrich.intervalLinearDistance = metrics.totalLinearDistance - intervalPrevAccumulatedDistance
+    metricsToEnrich.intervalAndPauseLinearDistance = metrics.totalLinearDistance - intervalAndPausePrevAccumulatedDistance
+    metricsToEnrich.intervalTargetDistance = intervalTargetDistance > intervalPrevAccumulatedDistance ? intervalTargetDistance - intervalPrevAccumulatedDistance : 0
+    metricsToEnrich.splitNumber = metrics.metricsContext.isSplitEnd ? splitNumber - 1 : splitNumber // This is needed to satisfy the RowingData recorder, it needs the start of the split to mark the end of the previous split
+    metricsToEnrich.splitLinearDistance = metrics.metricsContext.isSplitEnd ? splitDistance : metrics.totalLinearDistance - splitPrevAccumulatedDistance // This is needed to satisfy the RowingData recorder
+    metricsToEnrich.cycleProjectedEndTime = intervalTargetDistance > 0 ? distanceOverTime.projectY(intervalTargetDistance) : intervalTargetTime
+    metricsToEnrich.cycleProjectedEndLinearDistance = intervalTargetTime > 0 ? distanceOverTime.projectX(intervalTargetTime) : intervalTargetDistance
+    metricsToEnrich.heartrate = heartrate > 30 ? heartrate : 0 // ToDo: REMOVE THIS INJECTION
+    metricsToEnrich.heartRateBatteryLevel = heartRateBatteryLevel // ToDo: REMOVE THIS INJECTION
   }
 
   function getMetrics () { // TESTING PURPOSSES ONLY!
@@ -368,11 +368,11 @@ export function createSessionManager (config) {
     log.error(`Time: ${metrics.totalMovingTime}, Watchdog has forced a hard stop due to an unexpected missing signal for over ${watchdogTimout / 1000} seconds (i.e. maximumStrokeTimeBeforePause)`)
     stopTraining()
     metrics = rowingStatistics.getMetrics()
-    resetMetricsContext()
+    resetMetricsSessionContext(metrics)
     metrics.metricsContext.isSessionStop = true
     sessionState = 'Stopped'
     distanceOverTime.push(metrics.totalMovingTime, metrics.totalLinearDistance)
-    emitMetrics('metricsUpdate')
+    emitMetrics(metrics)
   }
 
   return Object.assign(emitter, {
