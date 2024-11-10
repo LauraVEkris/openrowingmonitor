@@ -14,7 +14,6 @@ import { FitWriter } from '@markw65/fit-file-writer'
 const gzip = promisify(zlib.gzip)
 
 export function createFITRecorder (config) {
-  let fitWriter = new FitWriter()
   const lapPowerSeries = createSeries()
   const lapSpeedSeries = createSeries()
   const lapStrokerateSeries = createSeries()
@@ -217,9 +216,6 @@ export function createFITRecorder (config) {
       return
     }
 
-    fitWriter = null
-    fitWriter = new FitWriter()
-
     const fitRecord = await workoutToFit(sessionData)
     if (fitRecord === undefined) {
       log.error('error creating fit file')
@@ -231,7 +227,8 @@ export function createFITRecorder (config) {
   }
 
   async function workoutToFit (workout) {
-    const versionNumber = parseInt(process.env.npm_package_version, 10);
+    let fitWriter = new FitWriter()
+    const versionNumber = parseInt(process.env.npm_package_version, 10)
 
     fitWriter.writeMessage(
       'file_id',
@@ -278,7 +275,7 @@ export function createFITRecorder (config) {
       true
     )
 
-    await createActivity(sessionData)
+    await createActivity(fitWriter, workout)
 
     fitWriter.writeMessage(
       'event',
@@ -294,8 +291,8 @@ export function createFITRecorder (config) {
     return fitWriter.finish()
   }
 
-  async function createActivity (workout) {
-    fitWriter.writeMessage(
+  async function createActivity (writer, workout) {
+    writer.writeMessage(
       'sport',
       {
         sport: 'rowing',
@@ -306,11 +303,11 @@ export function createFITRecorder (config) {
       true
     )
 
-    fitWriter.writeMessage(
+    writer.writeMessage(
       'activity',
       {
-        timestamp: fitWriter.time(workout.startTime),
-        local_timestamp: fitWriter.time(workout.startTime) - workout.startTime.getTimezoneOffset() * 60,
+        timestamp: writer.time(workout.startTime),
+        local_timestamp: writer.time(workout.startTime) - workout.startTime.getTimezoneOffset() * 60,
         total_timer_time: workout.totalMovingTime,
         num_sessions: 1,
         type: 'manual'
@@ -319,10 +316,10 @@ export function createFITRecorder (config) {
       true
     )
 
-    fitWriter.writeMessage(
+    writer.writeMessage(
       'session',
       {
-        timestamp: fitWriter.time(workout.endTime),
+        timestamp: writer.time(workout.endTime),
         message_index: 0,
         sport: 'rowing',
         sub_sport: 'indoor_rowing',
@@ -351,27 +348,27 @@ export function createFITRecorder (config) {
     // Write all laps
     let i = 0
     while (i < workout.lap.length) {
-      await createLap(workout.lap[i])
+      await createLap(writer, workout.lap[i])
       i++
     }
   }
 
-  async function createLap (lapdata) {
+  async function createLap (writer, lapdata) {
     // Add the strokes
     let i = 0
     while (i < lapdata.strokes.length) {
-      await createTrackPoint(lapdata.startTime, lapdata.strokes[i])
+      await createTrackPoint(writer, lapdata.startTime, lapdata.strokes[i])
       i++
     }
 
-    fitWriter.writeMessage(
+    writer.writeMessage(
       'lap',
       {
-        timestamp: fitWriter.time(lapdata.startTime),
+        timestamp: writer.time(lapdata.startTime),
         message_index: lapdata.lapNumber - 1,
-        sport: "rowing",
-        sub_sport: "indoor_rowing",
-        start_time: fitWriter.time(lapdata.startTime),
+        sport: 'rowing',
+        sub_sport: 'indoor_rowing',
+        start_time: writer.time(lapdata.startTime),
         total_elapsed_time: lapdata.totalMovingTime,
         total_timer_time: lapdata.totalMovingTime,
         total_distance: lapdata.totalLinearDistance,
@@ -392,18 +389,18 @@ export function createFITRecorder (config) {
     )
   }
 
-  async function createTrackPoint (offset, trackpoint) {
-    fitWriter.writeMessage(
+  async function createTrackPoint (writer, offset, trackpoint) {
+    writer.writeMessage(
       'record',
       {
-        timestamp: fitWriter.time(offset.getTime() + trackpoint.intervalAndPauseMovingTime * 1000),
+        timestamp: writer.time(offset.getTime() + trackpoint.intervalAndPauseMovingTime * 1000),
         distance: trackpoint.totalLinearDistance,
         ...(trackpoint.cycleLinearVelocity > 0 || trackpoint.metricsContext.isPauseStart ? { speed: trackpoint.cycleLinearVelocity } : {}),
         ...(trackpoint.cyclePower > 0 || trackpoint.metricsContext.isPauseStart ? { power: trackpoint.cyclePower } : {}),
         cadence: trackpoint.cycleStrokeRate,
         ...(trackpoint.dragFactor > 0 || trackpoint.dragFactor < 255 ? { resistance: trackpoint.dragFactor } : {}), // As the data is stored in an int8, we need to guard the maximum
         ...(trackpoint.heartrate !== undefined && trackpoint.heartrate > 0 ? { heart_rate: trackpoint.heartrate } : {})
-      },
+      }
     )
   }
 
