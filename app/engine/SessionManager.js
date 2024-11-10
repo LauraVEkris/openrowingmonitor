@@ -359,8 +359,9 @@ export function createSessionManager (config) {
     metricsToEnrich.heartRateBatteryLevel = heartRateBatteryLevel // ToDo: REMOVE THIS INJECTION
   }
 
-  function getMetrics () { // TESTING PURPOSSES ONLY!
-    enrichMetrics()
+  function getMetrics () {
+    // TESTING PURPOSSES ONLY!
+    enrichMetrics(metrics)
     return metrics
   }
 
