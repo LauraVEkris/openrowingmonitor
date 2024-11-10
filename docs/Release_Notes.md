@@ -1,14 +1,14 @@
 # OpenRowingMonitor Release Notes
 
-## From 0.9.0 to 1.0.0 (January 2025)
+## From 0.9.0 to 0.9.5 (January 2025)
 
 Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz](https://github.com/Abasz)
 
-### New functionality in 1.0.0
+### New functionality in 0.9.5
 
-- No new functionality
+- Added **FIT_File support**: you an now automatically generate a FIT-file after a rowing session
 
-### Bugfixes and robustness improvements in 1.0.0
+### Bugfixes and robustness improvements in 0.9.5
 
 - **Improvement of the architecture**: we cleaned up the old architecture and went to a more message bus structure where clients are responsible for their own datatransmissions. See [architecture](Architecture.md) for a deeper implementation
 - **Performance improvement of the TS estimator**, further reducing CPU load
