@@ -340,7 +340,7 @@ export function createSessionManager (config) {
     emitter.emit('metricsUpdate', metricsToEmit)
   }
 
- function enrichMetrics (metricsToEnrich) {
+  function enrichMetrics (metricsToEnrich) {
     metricsToEnrich.sessiontype = intervalType
     metricsToEnrich.sessionStatus = sessionState // ToDo: REMOVE NAME CONVERSION
     // ToDo: Add split number
