@@ -77,13 +77,15 @@ You can add a ANT+ USB-stick to your Raspberry Pi, which allows to to recieve da
 
 Open Rowing Monitor is based on the idea that metrics should be easily accessible for further analysis. Therefore, Open Rowing Monitor can create the following files:
 
+* **Garmin FIT files**: These are binairy files that contain the most interesting metrics of a rowing session. Most modern training analysis tools will accept a FIT-file. You can upload these files to training platforms like [Strava](https://www.strava.com), [Garmin Connect](https://connect.garmin.com), [Intervals.icu](https://intervals.icu/), [RowsAndAll](https://rowsandall.com/) or [Trainingpeaks](https://trainingpeaks.com) to track your training sessions;
+
 * **Training Center XML files (TCX)**: These are XML-files that contain the most essential metrics of a rowing session. Most training analysis tools will accept a tcx-file. You can upload these files to training platforms like [Strava](https://www.strava.com), [Garmin Connect](https://connect.garmin.com), [Intervals.icu](https://intervals.icu/), [RowsAndAll](https://rowsandall.com/) or [Trainingpeaks](https://trainingpeaks.com) to track your training sessions;
 
 * **RowingData** files, which are comma-seperated files with all metrics Open Rowing Monitor can produce. These can be used with [RowingData](https://pypi.org/project/rowingdata/) to display your results locally, or uploaded to [RowsAndAll](https://rowsandall.com/) for a webbased analysis (including dynamic in-stroke metrics). The csv-files can also be processed manually in Excel, allowing your own custom analysis. Please note that for visualising in-stroke metrics in [RowsAndAll](https://rowsandall.com/) (i.e. force, power and handle speed curves), you need their yearly subscription;
 
-* **Raw flywheel measurements of the flywheel**, also in CSV files. These files are great to start to learn about the specifics of your rowing machine (some Excel visualistion can help with this).
+* **Raw flywheel measurements of the flywheel**, also in CSV files. These files are great to analyse and replay the specifics of your rowing machine (some Excel visualistion can help with this).
 
-Uploading your sessions to Strava is an integrated feature, for all other platforms this is currently a manual step. Uploading to [RowsAndAll](https://rowsandall.com/) can be automated through their e-mail interface, see [this description](https://rowsandall.com/rowers/developers/). The Open rowing Monito installer can also set up a network share that contains all training data so it is easy to grab the files from there and manually upload them to the training platform of your choice.
+Uploading your sessions to Strava is an integrated feature, for all other platforms this is currently a manual step. Uploading to [RowsAndAll](https://rowsandall.com/) can be automated through their e-mail interface, see [this description](https://rowsandall.com/rowers/developers/). The Open rowing Monitor installer can also set up a network share that contains all training data so it is easy to grab the files from there and manually upload them to the training platform of your choice.
 
 ## Installation
 
