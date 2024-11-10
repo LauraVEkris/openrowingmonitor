@@ -42,16 +42,10 @@ export function createFITRecorder (config) {
         }
         await createFitFile()
         heartRate = 0
-        sessionData = null
         lapnumber = 0
+        resetSessionMetrics()
         resetLapMetrics()
-        sessionPowerSeries.reset()
-        sessionSpeedSeries.reset()
-        sessionStrokerateSeries.reset()
-        sessionStrokedistanceSeries.reset()
-        sessionHeartrateSeries.reset()
-        fitWriter = null
-        fitWriter = new FitWriter()
+        sessionData = null
         break
       case 'shutdown':
         if (lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
@@ -168,6 +162,14 @@ export function createFITRecorder (config) {
     sessionData.endTime = new Date(sessionData.lap[lapnumber].startTime.getTime() + sessionData.lap[lapnumber].totalMovingTime * 1000)
   }
 
+  function resetSessionMetrics () {
+    sessionPowerSeries.reset()
+    sessionSpeedSeries.reset()
+    sessionStrokerateSeries.reset()
+    sessionStrokedistanceSeries.reset()
+    sessionHeartrateSeries.reset()
+  }
+
   function calculateLapMetrics (metrics) {
     sessionData.lap[lapnumber].totalMovingTime = metrics.totalMovingTime - sessionData.lap[lapnumber].strokes[0].totalMovingTime
     sessionData.lap[lapnumber].totalLinearDistance = metrics.totalLinearDistance - sessionData.lap[lapnumber].strokes[0].totalLinearDistance
@@ -227,7 +229,7 @@ export function createFITRecorder (config) {
   }
 
   async function workoutToFit (workout) {
-    let fitWriter = new FitWriter()
+    const fitWriter = new FitWriter()
     const versionNumber = parseInt(process.env.npm_package_version, 10)
 
     fitWriter.writeMessage(
@@ -323,7 +325,7 @@ export function createFITRecorder (config) {
         message_index: 0,
         sport: 'rowing',
         sub_sport: 'indoor_rowing',
-        start_time: fitWriter.time(workout.startTime),
+        start_time: writer.time(workout.startTime),
         total_elapsed_time: Math.abs(workout.endTime - workout.startTime) / 1000,
         total_moving_time: workout.totalMovingTime,
         total_distance: workout.totalLinearDistance,
