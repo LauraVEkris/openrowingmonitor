@@ -52,11 +52,9 @@ function checkConfig (configToCheck) {
   checkRangeValue(configToCheck, 'gpioTriggeredFlank', ['Up', 'Down', 'Both'], true, 'Up')
   checkIntegerValue(configToCheck, 'appPriority', configToCheck.gpioPriority, 0, true, true, 0)
   checkIntegerValue(configToCheck, 'webUpdateInterval', 80, 1000, false, true, 1000)
-
   checkIntegerValue(configToCheck, 'ftmsUpdateInterval', 150, 1000, false, true, 1000) // Please note: the minimum update interval for iOS is 30ms, for android 7.5ms (see https://stackoverflow.com/questions/37776536/bluetooth-low-energy-on-different-platforms), and some PM5 messages send 5 telegrams
   checkIntegerValue(configToCheck, 'pm5UpdateInterval', 150, 1000, false, true, 1000) // Please note: the minimum update interval for iOS is 30ms, for android 7.5ms (see https://stackoverflow.com/questions/37776536/bluetooth-low-energy-on-different-platforms), and some PM5 messages send 5 telegrams
   checkRangeValue(configToCheck, 'bluetoothMode', ['OFF', 'PM5', 'FTMS', 'FTMSBIKE', 'CPS', 'CSC'], true, 'OFF')
-
   checkRangeValue(configToCheck, 'antPlusMode', ['OFF', 'FE'], true, 'OFF')
   checkRangeValue(configToCheck, 'heartRateMode', ['OFF', 'ANT', 'BLE'], true, 'OFF')
   checkIntegerValue(configToCheck, 'numOfPhasesForAveragingScreenData', 2, null, false, true, 4)
@@ -65,6 +63,8 @@ function checkConfig (configToCheck) {
   checkBooleanValue(configToCheck, 'gzipRawDataFiles', true, false)
   checkBooleanValue(configToCheck, 'createTcxFiles', true, true)
   checkBooleanValue(configToCheck, 'gzipTcxFiles', true, false)
+  checkBooleanValue(configToCheck, 'createFitFiles', true, true)
+  checkBooleanValue(configToCheck, 'gzipFitFiles', true, false)
   checkFloatValue(configToCheck.userSettings, 'restingHR', 30, 220, false, true, 40)
   checkFloatValue(configToCheck.userSettings, 'maxHR', configToCheck.userSettings.restingHR, 220, false, true, 220)
   if (configToCheck.createTcxFiles) {
