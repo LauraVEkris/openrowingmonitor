@@ -247,7 +247,7 @@ export function createFITRecorder (config) {
     fitWriter.writeMessage(
       'file_creator',
       {
-        software_version: Math.round(versionNumber)
+        software_version: versionNumber
       },
       null,
       true
@@ -399,7 +399,8 @@ export function createFITRecorder (config) {
         distance: trackpoint.totalLinearDistance,
         ...(trackpoint.cycleLinearVelocity > 0 || trackpoint.metricsContext.isPauseStart ? { speed: trackpoint.cycleLinearVelocity } : {}),
         ...(trackpoint.cyclePower > 0 || trackpoint.metricsContext.isPauseStart ? { power: trackpoint.cyclePower } : {}),
-        cadence: trackpoint.cycleStrokeRate,
+        ...(trackpoint.cycleStrokeRate > 0 ? {  cadence: trackpoint.cycleStrokeRate } : {}),
+        ...(trackpoint.cycleDistance > 0 ? {cycle_length16: trackpoint.cycleDistance } : {}),
         ...(trackpoint.dragFactor > 0 || trackpoint.dragFactor < 255 ? { resistance: trackpoint.dragFactor } : {}), // As the data is stored in an int8, we need to guard the maximum
         ...(trackpoint.heartrate !== undefined && trackpoint.heartrate > 0 ? { heart_rate: trackpoint.heartrate } : {})
       }
