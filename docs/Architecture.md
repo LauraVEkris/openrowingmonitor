@@ -92,6 +92,8 @@ Part of the metrics is the metricsContext object, which provides an insight in t
 
 State driven clients, like the PM5 interface and the file recorders, will react to these flags by recording or broadcasting when these flags are seen. Please note that several flags can be raised at the same time (for example isDriveStart, isSessionStart and isIntervalStart, but also isIntervalStart and isDriveStart), requiring the consumers to handle these overlapping situations.
 
+A key thing to realize is that `SessionManager.js` will process *currentDt* values and it will transform them into one or more *metricsUpdate* messages. Especially near the end of a lap or split, a single value can result in multiple messages as the `SessionManager.js` will interpolate between distance/time to exactly hit the lap/split end. Also when the pause timer is running, or the that `SessionManager.js`'s watchdog acts, spontanuous messages will appear to signal those events.
+
 ### Heartrate data flow
 
 Secondly, the heartrate data follows the same path, but requires significantly less processing:
