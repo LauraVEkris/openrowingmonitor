@@ -77,7 +77,7 @@ export function createFITRecorder (config) {
 
     let i = 0
     while (i < intervalParameters.length) {
-      sessionData.workoutplan[i] = { intervalnumber : i }
+      sessionData.workoutplan[i] = { intervalnumber: i }
       switch (true) {
         case (intervalParameters[i].targetDistance > 0):
           // A target distance is set
@@ -97,20 +97,16 @@ export function createFITRecorder (config) {
           sessionData.workoutplan[i].targetDistance = 0
       }
       i++
-    } //
+    }
   }
 
   function recordRowingMetrics (metrics) {
     const currentTime = new Date()
     let startTime
-    let intervalEndMetrics
 
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
         sessionData.startTime = currentTime
-//        sessionData = { startTime: currentTime }
-//        sessionData.strokes = []
-//        sessionData.lap = []
         lapnumber = 0
         startLap(lapnumber, metrics, currentTime)
         addMetricsToStrokesArray(metrics)
@@ -166,7 +162,7 @@ export function createFITRecorder (config) {
   }
 
   function startLap (lapnumber, metrics, startTime) {
-    sessionData.lap[lapnumber] = { totalMovingTimeAtStart : metrics.totalMovingTime }
+    sessionData.lap[lapnumber] = { totalMovingTimeAtStart: metrics.totalMovingTime }
     sessionData.lap[lapnumber].totalLinearDistanceAtStart = metrics.totalLinearDistance
     sessionData.lap[lapnumber].totalCaloriesAtStart = metrics.totalCalories
     sessionData.lap[lapnumber].totalNumberOfStrokesAtStart = metrics.totalNumberOfStrokes
@@ -406,7 +402,6 @@ export function createFITRecorder (config) {
       await createTrackPoint(writer, workout.strokes[i])
       i++
     }
-
   }
 
   async function createLap (writer, lapdata) {
@@ -452,8 +447,8 @@ export function createFITRecorder (config) {
         activity_type: 'fitness_equipment',
         ...(trackpoint.cycleLinearVelocity > 0 || trackpoint.metricsContext.isPauseStart ? { speed: trackpoint.cycleLinearVelocity } : {}),
         ...(trackpoint.cyclePower > 0 || trackpoint.metricsContext.isPauseStart ? { power: trackpoint.cyclePower } : {}),
-        ...(trackpoint.cycleStrokeRate > 0 ? {  cadence: trackpoint.cycleStrokeRate } : {}),
-        ...(trackpoint.cycleDistance > 0 ? {cycle_length16: trackpoint.cycleDistance } : {}),
+        ...(trackpoint.cycleStrokeRate > 0 ? { cadence: trackpoint.cycleStrokeRate } : {}),
+        ...(trackpoint.cycleDistance > 0 ? { cycle_length16: trackpoint.cycleDistance } : {}),
         ...(trackpoint.dragFactor > 0 || trackpoint.dragFactor < 255 ? { resistance: trackpoint.dragFactor } : {}), // As the data is stored in an int8, we need to guard the maximum
         ...(trackpoint.heartrate !== undefined && trackpoint.heartrate > 0 ? { heart_rate: trackpoint.heartrate } : {})
       }
@@ -467,7 +462,7 @@ export function createFITRecorder (config) {
         sport: 'rowing',
         capabilities: 'fitness_equipment',
         num_valid_steps: workout.workoutplan.length,
-        wkt_name: `Indoor rowing ${workout.totalLinearDistance/1000}K`
+        wkt_name: `Indoor rowing ${workout.totalLinearDistance / 1000}K`
       },
       null,
       true
@@ -520,7 +515,7 @@ export function createFITRecorder (config) {
         default:
           // Nothing to do here
         }
-      i++
+    i++
     }
   }
 
