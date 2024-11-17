@@ -514,8 +514,8 @@ export function createFITRecorder (config) {
           break
         default:
           // Nothing to do here
-        }
-    i++
+      }
+      i++
     }
   }
 
