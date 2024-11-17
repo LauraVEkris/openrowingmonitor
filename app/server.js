@@ -127,7 +127,7 @@ webServer.on('messageReceived', async (message, client) => {
     case 'stravaAuthorizationCode':
       // ToDo: generalize this approach and let every command have a payload
       workoutUploader.stravaAuthorizationCode(message.data)
-      break=
+      break
     case 'updateIntervalSettings':
       // ToDo: Move this and all other commands to the general form of xxx.handleCommand(message.command, message.data)
       sessionManager.setIntervalParameters(message.data)
