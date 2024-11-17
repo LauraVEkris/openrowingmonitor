@@ -7,7 +7,7 @@
 import log from 'loglevel'
 import { secondsToTimeString } from '../tools/Helper.js'
 
-function createLogRecorder (config) {
+export function createLogRecorder (config) {
   let heartRate = 0
   let lastMetrics
 
@@ -48,6 +48,9 @@ function createLogRecorder (config) {
       case (metrics.metricsContext.isIntervalStart):
         log.info(`New interval started at ${metrics.totalMovingTime.toFixed(5)} seconds, distance ${metrics.totalLinearDistance.toFixed(1)}m`)
         break
+      case (metrics.metricsContext.isSplitEnd):
+        log.info(`New split started at ${metrics.totalMovingTime.toFixed(5)} seconds, distance ${metrics.totalLinearDistance.toFixed(1)}m`)
+        break
       case (metrics.metricsContext.isPauseStart):
         logMetrics(metrics)
         log.info(`Rowing stopped/paused at ${currentdate.getHours()}:${currentdate.getMinutes()}:${currentdate.getSeconds()}, at ${metrics.totalMovingTime.toFixed(5)} seconds,distance ${metrics.totalLinearDistance.toFixed(1)}m`)
@@ -63,7 +66,7 @@ function createLogRecorder (config) {
   }
 
   function logMetrics (metrics) {
-    if (heartRate !== undefined && config.userSettings.restingHR <= heartRate && heartRate <= config.userSettings.maxHR) {
+    if (heartRate !== undefined && heartRate > 0) {
       log.info(`stroke: ${metrics.totalNumberOfStrokes}, dist: ${metrics.totalLinearDistance.toFixed(1)}m, heartrate ${heartRate} BPM` +
         `, pace: ${metrics.cyclePace > 0 ? secondsToTimeString(metrics.cyclePace) : NaN}/500m, stroke dist: ${metrics.cycleDistance > 0 ? metrics.cycleDistance.toFixed(1) : NaN}m, strokerate: ${metrics.cycleStrokeRate > 0 ? metrics.cycleStrokeRate.toFixed(1) : NaN} SPM` +
         `, drive dur: ${metrics.driveDuration > 0 ? metrics.driveDuration.toFixed(2) : NaN}s, rec. dur: ${metrics.recoveryDuration > 0 ? metrics.recoveryDuration.toFixed(2) : NaN}s, stroke dur: ${metrics.cycleDuration ? metrics.cycleDuration.toFixed(2) : NaN}s`)
@@ -81,5 +84,3 @@ function createLogRecorder (config) {
     recordHeartRate
   }
 }
-
-export { createLogRecorder }
