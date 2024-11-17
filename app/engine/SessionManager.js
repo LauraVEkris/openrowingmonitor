@@ -351,10 +351,17 @@ export function createSessionManager (config) {
     emitMetrics(metrics)
   }
 
+  function getMetrics () {
+    // TESTING PURPOSSES ONLY!
+    enrichMetrics(metrics)
+    return metrics
+  }
+
   return Object.assign(emitter, {
     handleCommand,
     handleHeartRateMeasurement,
     handleRotationImpulse,
-    setIntervalParameters
+    setIntervalParameters,
+    getMetrics
   })
 }
