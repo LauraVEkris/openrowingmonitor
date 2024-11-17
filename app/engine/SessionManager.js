@@ -6,7 +6,7 @@
 */
 import { EventEmitter } from 'events'
 import { createRowingStatistics } from './RowingStatistics.js'
-import { createWorkoutSegment }  from './utils/workoutSegment.js'
+import { createWorkoutSegment } from './utils/workoutSegment.js'
 import { createOLSLinearSeries } from './utils/OLSLinearSeries.js'
 import { secondsToTimeString } from '../tools/Helper.js'
 
@@ -25,10 +25,10 @@ export function createSessionManager (config) {
   let lastSessionState = 'WaitingForStart'
   let intervalSettings = []
   let currentIntervalNumber = -1
-  let interval = createWorkoutSegment()
+  const interval = createWorkoutSegment()
   let noSpontaneousPauses = 0
-  let intervalAndPause = createWorkoutSegment()
-  let split = createWorkoutSegment()
+  const intervalAndPause = createWorkoutSegment()
+  const split = createWorkoutSegment()
   let splitNumber = 0
   const distanceOverTime = createOLSLinearSeries(Math.min(4, numOfDataPointsForAveraging))
   let heartrate = 0
@@ -254,7 +254,7 @@ export function createSessionManager (config) {
       watchdogTimer = setTimeout(onWatchdogTimeout, watchdogTimout)
     }
     lastSessionState = sessionState
-    lastBroadcastedMetrics = {...metrics}
+    lastBroadcastedMetrics = { ...metrics }
   }
 
   // Basic metricContext structure
