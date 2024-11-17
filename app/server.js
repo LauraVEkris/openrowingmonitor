@@ -116,7 +116,8 @@ webServer.on('messageReceived', async (message, client) => {
   switch (message.command) {
     case 'shutdown':
       if (shutdownEnabled) {
-        await shutdown()
+        await shutdownApp()
+        await shutdownPi()
       } else {
         log.error('Shutdown requested, but shutdown is disabled')
       }
@@ -153,45 +154,44 @@ if (intervalSettings.length > 0) {
   log.info('Starting a just row session, no time or distance target set')
 }
 
-// This shuts down the pi, use with caution!
-async function shutdown () {
-  if (shutdownEnabled) {
-    // As we are shutting down, we need to make sure things are closed down nicely
-    await recordingManager.handleCommand('shutdown')
-    await peripheralManager.handleCommand('shutdown')
-    console.info('shutting down device...')
-    try {
-      const { stdout, stderr } = await exec(config.shutdownCommand)
-      if (stderr) {
-        log.error('can not shutdown: ', stderr)
-      }
-      log.info(stdout)
-    } catch (error) {
-      log.error('can not shutdown: ', error)
+// This shuts down the pi hardware, use with caution!
+async function shutdownPi () {
+  console.info('shutting down device...')
+  try {
+    const { stdout, stderr } = await exec(config.shutdownCommand)
+    if (stderr) {
+      log.error('can not shutdown: ', stderr)
     }
+    log.info(stdout)
+  } catch (error) {
+    log.error('can not shutdown: ', error)
   }
 }
 
 process.once('SIGINT', async (signal) => {
   log.debug(`${signal} signal was received, shutting down gracefully`)
-  await recordingManager.handleCommand('shutdown')
-  await peripheralManager.handleCommand('shutdown')
+  await shutdownApp()
   process.exit(0)
 })
 
 process.once('SIGTERM', async (signal) => {
   log.debug(`${signal} signal was received, shutting down gracefully`)
-  await recordingManager.handleCommand('shutdown')
-  await peripheralManager.handleCommand('shutdown')
+  await shutdownApp()
   process.exit(0)
 })
 
 process.once('uncaughtException', async (error) => {
   log.error('Uncaught Exception:', error)
-  await recordingManager.handleCommand('shutdown')
-  await peripheralManager.handleCommand('shutdown')
+  await shutdownApp()
   process.exit(1)
 })
+
+// This shuts down the pi, use with caution!
+async function shutdownApp () {
+  // As we are shutting down, we need to make sure things are closed down nicely and save what we can
+  await recordingManager.handleCommand('shutdown')
+  await peripheralManager.handleCommand('shutdown')
+}
 
 /* Uncomment the following lines to simulate a session
 replayRowingSession(handleRotationImpulse, {
