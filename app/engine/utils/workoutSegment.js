@@ -41,11 +41,11 @@ export function createWorkoutSegment () {
         _type = 'Time'
         _targetTime = targetTime
         _targetDistance = 0
-        _endTime = startTime + targetTime
+        _endTime = _startTime + targetTime
         _endDistance = 0
         break
       default:
-        type = 'JustRow'
+        _type = 'JustRow'
         _targetTime = 0
         _targetDistance = 0
         _endTime = 0
@@ -60,7 +60,7 @@ export function createWorkoutSegment () {
         _splitTime = 0
         _splitDistance = splitDistance
         break
-      case (spltTime > 0):
+      case (splitTime > 0):
         // A target time is set
         _splitTime = splitTime
         _splitDistance = 0
@@ -122,7 +122,7 @@ export function createWorkoutSegment () {
   }
 
   function interpolateEnd (prevMetrics, currMetrics) {
-    const projectedMetrics = {...prevMetrics}
+    const projectedMetrics = { ...prevMetrics }
     let modified = false
     switch (true) {
       case (_endDistance > 0 && currMetrics.totalLinearDistance > _endDistance):
@@ -150,7 +150,7 @@ export function createWorkoutSegment () {
   function interpolatedTime (prevMetrics, currMetrics, targetDistance) {
     if (prevMetrics.totalLinearDistance < targetDistance && targetDistance < currMetrics.totalLinearDistance) {
       // See https://en.wikipedia.org/wiki/Linear_interpolation
-      return (prevMetrics.totalMovingTime + ((currMetrics.totalMovingTime - prevMetrics.totalMovingTime) * ((targetDistance - prevMetrics.totalLinearDistance)/(currMetrics.totalLinearDistance - prevMetrics.totalLinearDistance))))
+      return (prevMetrics.totalMovingTime + ((currMetrics.totalMovingTime - prevMetrics.totalMovingTime) * ((targetDistance - prevMetrics.totalLinearDistance) / (currMetrics.totalLinearDistance - prevMetrics.totalLinearDistance))))
     } else {
       return currMetrics.totalMovingTime
     }
@@ -159,7 +159,7 @@ export function createWorkoutSegment () {
   function interpolatedDistance (prevMetrics, currMetrics, targetTime) {
     if (prevMetrics.totalMovingTime < targetTime && targetTime < currMetrics.totalMovingTime) {
       // See https://en.wikipedia.org/wiki/Linear_interpolation
-      return (prevMetrics.totalLinearDistance + ((currMetrics.totalLinearDistance - prevMetrics.totalLinearDistance) * ((targetTime - prevMetrics.totalMovingTime)/(currMetrics.totalMovingTime - prevMetrics.totalMovingTime))))
+      return (prevMetrics.totalLinearDistance + ((currMetrics.totalLinearDistance - prevMetrics.totalLinearDistance) * ((targetTime - prevMetrics.totalMovingTime) / (currMetrics.totalMovingTime - prevMetrics.totalMovingTime))))
     } else {
       return currMetrics.totalLinearDistance
     }
