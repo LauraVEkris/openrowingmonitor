@@ -29,9 +29,11 @@ export function createTCXRecorder (config) {
   async function handleCommand (commandName) {
     switch (commandName) {
       case ('reset'):
-        if (lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
+        if (lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
+          // We apperantly get a reset during session
           updateLapMetrics(lastMetrics)
           addMetricsToStrokesArray(lastMetrics)
+          calculateLapMetrics(metrics)
         }
         await createTcxFile()
         heartRate = 0
@@ -44,9 +46,11 @@ export function createTCXRecorder (config) {
         heartrateSeries.reset()
         break
       case 'shutdown':
-        if (lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
+        if (lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
+          // We apperantly get a shutdown/crash during session
           updateLapMetrics(lastMetrics)
           addMetricsToStrokesArray(lastMetrics)
+          calculateLapMetrics(lastMetrics)
         }
         await createTcxFile()
         break
@@ -121,12 +125,9 @@ export function createTCXRecorder (config) {
         updateLapMetrics(metrics)
         addMetricsToStrokesArray(metrics)
         break
-//      ToDo: Resolve rounding issue, resolve interval counting
-//      Additional issue: shouldn't we mark interval ends instead of starts (symmetric to splits)
-//      Perhaps manage the conversion to interval numbering and workout distance here
-//      case (metrics.metricsContext.isSplitEnd):
-//        addMetricsToStrokesArray(metrics)
-//        break
+      case (metrics.metricsContext.isSplitEnd):
+        addMetricsToStrokesArray(metrics)
+        break
     }
     lastMetrics = metrics
   }
@@ -159,7 +160,7 @@ export function createTCXRecorder (config) {
   }
 
   function addHeartRateToMetrics (metrics) {
-    if (heartRate !== undefined) {
+    if (heartRate !== undefined && heartRate > 0) {
       metrics.heartrate = heartRate
     } else {
       metrics.heartrate = undefined
@@ -234,7 +235,7 @@ export function createTCXRecorder (config) {
     tcxData += `        <DistanceMeters>${lapdata.totalLinearDistance.toFixed(1)}</DistanceMeters>\n`
     tcxData += `        <MaximumSpeed>${lapdata.maximumSpeed.toFixed(2)}</MaximumSpeed>\n`
     tcxData += `        <Calories>${Math.round(lapdata.totalCalories)}</Calories>\n`
-    if (lapdata.averageHeartrate > 0 && lapdata.maximumHeartrate > 0) {
+    if (lapdata.averageHeartrate !== undefined && lapdata.averageHeartrate > 0 && lapdata.maximumHeartrate !== undefined && lapdata.maximumHeartrate > 0) {
       tcxData += `        <AverageHeartRateBpm>${Math.round(lapdata.averageHeartrate.toFixed(0))}</AverageHeartRateBpm>\n`
       tcxData += `        <MaximumHeartRateBpm>${Math.round(lapdata.maximumHeartrate.toFixed(0))}</MaximumHeartRateBpm>\n`
     }
@@ -281,7 +282,7 @@ export function createTCXRecorder (config) {
       tcxData += '              </ns2:TPX>\n'
       tcxData += '            </Extensions>\n'
     }
-    if (trackpoint.heartrate !== undefined) {
+    if (trackpoint.heartrate !== undefined && trackpoint.heartrate > 0) {
       tcxData += '            <HeartRateBpm>\n'
       tcxData += `              <Value>${trackpoint.heartrate}</Value>\n`
       tcxData += '            </HeartRateBpm>\n'
