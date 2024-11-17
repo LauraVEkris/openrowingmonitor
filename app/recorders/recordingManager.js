@@ -79,11 +79,15 @@ export function createRecordingManager (config) {
     if (config.createRowingDataFiles) { rowingDataRecorder.recordRowingMetrics(metrics) }
   }
 
-  async function recordHeartRate (heartRate) {
-    logRecorder.recordHeartRate(heartRate)
-    if (config.createTcxFiles) { tcxRecorder.recordHeartRate(heartRate) }
-    if (config.createFitFiles) { fitRecorder.recordHeartRate(heartRate) }
-    if (config.createRowingDataFiles) { rowingDataRecorder.recordHeartRate(heartRate) }
+  async function recordHeartRate (hrmData) {
+    logRecorder.recordHeartRate(hrmData)
+    if (config.createTcxFiles) { tcxRecorder.recordHeartRate(hrmData) }
+    if (config.createFitFiles) { fitRecorder.recordHeartRate(hrmData) }
+    if (config.createRowingDataFiles) { rowingDataRecorder.recordHeartRate(hrmData) }
+  }
+
+  async function setIntervalParameters (intervalParameters) {
+    if (config.createFitFiles) { fitRecorder.setIntervalParameters(intervalParameters) }
   }
 
   async function executeCommandsInParralel (commandName) {
@@ -123,6 +127,7 @@ export function createRecordingManager (config) {
 
   return {
     handleCommand,
+    setIntervalParameters,
     recordHeartRate,
     recordRotationImpulse,
     recordMetrics,
