@@ -33,7 +33,7 @@ export function createTCXRecorder (config) {
           // We apperantly get a reset during session
           updateLapMetrics(lastMetrics)
           addMetricsToStrokesArray(lastMetrics)
-          calculateLapMetrics(metrics)
+          calculateLapMetrics(lastmetrics)
         }
         await createTcxFile()
         heartRate = 0
