@@ -26,7 +26,10 @@ export function createFITRecorder (config) {
   const sessionHeartrateSeries = createSeries()
   let filename
   let heartRate = 0
-  let sessionData
+  let sessionData = {}
+  sessionData.workoutplan = []
+  sessionData.strokes = []
+  sessionData.lap = []
   let lapnumber = 0
   let lastMetrics
   let allDataHasBeenWritten
@@ -36,8 +39,10 @@ export function createFITRecorder (config) {
   async function handleCommand (commandName) {
     switch (commandName) {
       case ('reset'):
-        if (lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
-          updateLapAndSessionMetrics(lastMetrics)
+        if (lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.strokes[sessionData.strokes.length - 1].totalMovingTime) {
+          // We apperantly get a reset during session
+          updateLapMetrics(lastMetrics)
+          updateSessionMetrics(lastMetrics)
           addMetricsToStrokesArray(lastMetrics)
         }
         await createFitFile()
@@ -46,10 +51,13 @@ export function createFITRecorder (config) {
         resetSessionMetrics()
         resetLapMetrics()
         sessionData = null
+        sessionData = {}
         break
       case 'shutdown':
-        if (lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
-          updateLapAndSessionMetrics(lastMetrics)
+        if (lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.strokes[sessionData.strokes.length - 1].totalMovingTime) {
+          // We apperantly get a shutdown/crash during session
+          updateLapMetrics(lastMetrics)
+          updateSessionMetrics(lastMetrics)
           addMetricsToStrokesArray(lastMetrics)
         }
         await createFitFile()
@@ -64,27 +72,60 @@ export function createFITRecorder (config) {
     log.info(`Garmin fit-file will be saved as ${filename} (after the session)`)
   }
 
+  function setIntervalParameters (intervalParameters) {
+    if (intervalParameters === undefined || intervalParameters.length === 0) { return }
+
+    let i = 0
+    while (i < intervalParameters.length) {
+      sessionData.workoutplan[i] = { intervalnumber : i }
+      switch (true) {
+        case (intervalParameters[i].targetDistance > 0):
+          // A target distance is set
+          sessionData.workoutplan[i].type = 'distance'
+          sessionData.workoutplan[i].targetTime = 0
+          sessionData.workoutplan[i].targetDistance = intervalParameters[i].targetDistance
+          break
+        case (intervalParameters[i].targetTime > 0):
+          // A target time is set
+          sessionData.workoutplan[i].type = 'time'
+          sessionData.workoutplan[i].targetTime = intervalParameters[i].targetTime
+          sessionData.workoutplan[i].targetDistance = 0
+          break
+        default:
+          sessionData.workoutplan[i].type = 'open'
+          sessionData.workoutplan[i].targetTime = 0
+          sessionData.workoutplan[i].targetDistance = 0
+      }
+      i++
+    } //
+  }
+
   function recordRowingMetrics (metrics) {
     const currentTime = new Date()
     let startTime
     let intervalEndMetrics
+
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
-        sessionData = { startTime: currentTime }
-        sessionData.lap = []
+        sessionData.startTime = currentTime
+//        sessionData = { startTime: currentTime }
+//        sessionData.strokes = []
+//        sessionData.lap = []
         lapnumber = 0
-        startLap(lapnumber, currentTime)
+        startLap(lapnumber, metrics, currentTime)
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isSessionStop):
-        updateLapAndSessionMetrics(metrics)
+        updateLapMetrics(metrics)
+        updateSessionMetrics(metrics)
         addMetricsToStrokesArray(metrics)
         calculateLapMetrics(metrics)
         calculateSessionMetrics(metrics)
         createFitFile()
         break
       case (metrics.metricsContext.isPauseStart):
-        updateLapAndSessionMetrics(metrics)
+        updateLapMetrics(metrics)
+        updateSessionMetrics(metrics)
         addMetricsToStrokesArray(metrics)
         calculateLapMetrics(metrics)
         calculateSessionMetrics(metrics)
@@ -93,88 +134,61 @@ export function createFITRecorder (config) {
         break
       case (metrics.metricsContext.isPauseEnd):
         lapnumber++
-        startLap(lapnumber, currentTime)
+        startLap(lapnumber, metrics, currentTime)
         addMetricsToStrokesArray(metrics)
         break
-      case (metrics.metricsContext.isIntervalStart):
-        // Please note: we deliberatly add the metrics twice as it marks both the end of the old interval and the start of a new one
-        updateLapAndSessionMetrics(metrics)
-        intervalEndMetrics = { ...metrics }
-        intervalEndMetrics.intervalAndPauseMovingTime = metrics.totalMovingTime - sessionData.lap[lapnumber].strokes[0].totalMovingTime
-        addMetricsToStrokesArray(intervalEndMetrics)
+      case (metrics.metricsContext.isIntervalStart || metrics.metricsContext.isSplitEnd):
+        if (metrics.metricsContext.isDriveStart) { addMetricsToStrokesArray(metrics) }
+        updateLapMetrics(metrics)
+        updateSessionMetrics(metrics)
         calculateLapMetrics(metrics)
         calculateSessionMetrics(metrics)
         resetLapMetrics()
         lapnumber++
-        // We need to calculate the start time of the interval, as delay in message handling can cause weird effects here
-        startTime = new Date(sessionData.lap[lapnumber - 1].startTime.getTime() + intervalEndMetrics.intervalAndPauseMovingTime * 1000)
-        startLap(lapnumber, startTime)
-        addMetricsToStrokesArray(metrics)
+        startTime = sessionData.lap[lapnumber - 1].endTime
+        startLap(lapnumber, metrics, startTime)
+        updateLapMetrics(metrics)
         break
       case (metrics.metricsContext.isDriveStart):
-        updateLapAndSessionMetrics(metrics)
+        updateLapMetrics(metrics)
+        updateSessionMetrics(metrics)
         addMetricsToStrokesArray(metrics)
         break
     }
     lastMetrics = metrics
   }
 
-  function startLap (lapnumber, startTime) {
-    sessionData.lap[lapnumber] = { startTime }
-    sessionData.lap[lapnumber].lapNumber = lapnumber + 1
-    sessionData.lap[lapnumber].strokes = []
-  }
-
   function addMetricsToStrokesArray (metrics) {
     addHeartRateToMetrics(metrics)
-    sessionData.lap[lapnumber].strokes.push(metrics)
+    metrics.timeStamp = new Date(sessionData.lap[lapnumber].startTime.getTime() + (metrics.totalMovingTime - sessionData.lap[lapnumber].totalMovingTimeAtStart) * 1000)
+    sessionData.strokes.push(metrics)
     allDataHasBeenWritten = false
   }
 
-  function updateLapAndSessionMetrics (metrics) {
-    if (metrics.cyclePower !== undefined && metrics.cyclePower > 0) {
-      lapPowerSeries.push(metrics.cyclePower)
-      sessionPowerSeries.push(metrics.cyclePower)
-    }
-    if (metrics.cycleLinearVelocity !== undefined && metrics.cycleLinearVelocity > 0) {
-      lapSpeedSeries.push(metrics.cycleLinearVelocity)
-      sessionSpeedSeries.push(metrics.cycleLinearVelocity)
-    }
-    if (metrics.cycleStrokeRate !== undefined && metrics.cycleStrokeRate > 0) {
-      lapStrokerateSeries.push(metrics.cycleStrokeRate)
-      sessionStrokerateSeries.push(metrics.cycleStrokeRate)
-    }
-    if (metrics.cycleDistance !== undefined && metrics.cycleDistance > 0) {
-      lapStrokedistanceSeries.push(metrics.cycleDistance)
-      sessionStrokedistanceSeries.push(metrics.cycleDistance)
-    }
-    if (heartRate !== undefined && heartRate > 0) {
-      lapHeartrateSeries.push(heartRate)
-      sessionHeartrateSeries.push(heartRate)
-    }
+  function startLap (lapnumber, metrics, startTime) {
+    sessionData.lap[lapnumber] = { totalMovingTimeAtStart : metrics.totalMovingTime }
+    sessionData.lap[lapnumber].totalLinearDistanceAtStart = metrics.totalLinearDistance
+    sessionData.lap[lapnumber].totalCaloriesAtStart = metrics.totalCalories
+    sessionData.lap[lapnumber].totalNumberOfStrokesAtStart = metrics.totalNumberOfStrokes
+    sessionData.lap[lapnumber].startTime = startTime
+    sessionData.lap[lapnumber].lapNumber = lapnumber + 1
   }
 
-  function calculateSessionMetrics (metrics) {
-    sessionData.totalNoLaps = lapnumber + 1
-    sessionData.totalMovingTime = metrics.totalMovingTime
-    sessionData.totalLinearDistance = metrics.totalLinearDistance
-    sessionData.totalNumberOfStrokes = metrics.totalNumberOfStrokes
-    sessionData.endTime = new Date(sessionData.lap[lapnumber].startTime.getTime() + sessionData.lap[lapnumber].totalMovingTime * 1000)
-  }
-
-  function resetSessionMetrics () {
-    sessionPowerSeries.reset()
-    sessionSpeedSeries.reset()
-    sessionStrokerateSeries.reset()
-    sessionStrokedistanceSeries.reset()
-    sessionHeartrateSeries.reset()
+  function updateLapMetrics (metrics) {
+    if (metrics.cyclePower !== undefined && metrics.cyclePower > 0) { lapPowerSeries.push(metrics.cyclePower) }
+    if (metrics.cycleLinearVelocity !== undefined && metrics.cycleLinearVelocity > 0) { lapSpeedSeries.push(metrics.cycleLinearVelocity) }
+    if (metrics.cycleStrokeRate !== undefined && metrics.cycleStrokeRate > 0) { lapStrokerateSeries.push(metrics.cycleStrokeRate) }
+    if (metrics.cycleDistance !== undefined && metrics.cycleDistance > 0) { lapStrokedistanceSeries.push(metrics.cycleDistance) }
+    if (heartRate !== undefined && heartRate > 0) { lapHeartrateSeries.push(heartRate) }
   }
 
   function calculateLapMetrics (metrics) {
-    sessionData.lap[lapnumber].totalMovingTime = metrics.totalMovingTime - sessionData.lap[lapnumber].strokes[0].totalMovingTime
-    sessionData.lap[lapnumber].totalLinearDistance = metrics.totalLinearDistance - sessionData.lap[lapnumber].strokes[0].totalLinearDistance
-    sessionData.lap[lapnumber].totalCalories = metrics.totalCalories - sessionData.lap[lapnumber].strokes[0].totalCalories
-    sessionData.lap[lapnumber].numberOfStrokes = sessionData.lap[lapnumber].strokes.length
+    // We need to calculate the end time of the interval based on the time passed in the interval, as delay in message handling can cause weird effects here
+    sessionData.lap[lapnumber].totalMovingTime = metrics.totalMovingTime - sessionData.lap[lapnumber].totalMovingTimeAtStart
+    sessionData.lap[lapnumber].endTime = new Date(sessionData.lap[lapnumber].startTime.getTime() + sessionData.lap[lapnumber].totalMovingTime * 1000)
+    sessionData.lap[lapnumber].totalLinearDistance = metrics.totalLinearDistance - sessionData.lap[lapnumber].totalLinearDistanceAtStart
+    sessionData.lap[lapnumber].totalCalories = metrics.totalCalories - sessionData.lap[lapnumber].totalCaloriesAtStart
+    sessionData.lap[lapnumber].numberOfStrokes = metrics.totalNumberOfStrokes - sessionData.lap[lapnumber].totalNumberOfStrokesAtStart
     sessionData.lap[lapnumber].averageStrokeRate = lapStrokerateSeries.average()
     sessionData.lap[lapnumber].maximumStrokeRate = lapStrokerateSeries.maximum()
     sessionData.lap[lapnumber].averageStrokeDistance = lapStrokedistanceSeries.average()
@@ -195,17 +209,41 @@ export function createFITRecorder (config) {
     lapHeartrateSeries.reset()
   }
 
-  function addHeartRateToMetrics (metrics) {
-    if (heartRate !== undefined) {
-      metrics.heartrate = heartRate
-    } else {
-      metrics.heartrate = undefined
-    }
+  function updateSessionMetrics (metrics) {
+    if (metrics.cyclePower !== undefined && metrics.cyclePower > 0) { sessionPowerSeries.push(metrics.cyclePower) }
+    if (metrics.cycleLinearVelocity !== undefined && metrics.cycleLinearVelocity > 0) { sessionSpeedSeries.push(metrics.cycleLinearVelocity) }
+    if (metrics.cycleStrokeRate !== undefined && metrics.cycleStrokeRate > 0) { sessionStrokerateSeries.push(metrics.cycleStrokeRate) }
+    if (metrics.cycleDistance !== undefined && metrics.cycleDistance > 0) { sessionStrokedistanceSeries.push(metrics.cycleDistance) }
+    if (heartRate !== undefined && heartRate > 0) { sessionHeartrateSeries.push(heartRate) }
+  }
+
+  function calculateSessionMetrics (metrics) {
+    sessionData.totalNoLaps = lapnumber + 1
+    sessionData.totalMovingTime = metrics.totalMovingTime
+    sessionData.totalLinearDistance = metrics.totalLinearDistance
+    sessionData.totalNumberOfStrokes = metrics.totalNumberOfStrokes
+    sessionData.endTime = sessionData.lap[lapnumber].endTime
+  }
+
+  function resetSessionMetrics () {
+    sessionPowerSeries.reset()
+    sessionSpeedSeries.reset()
+    sessionStrokerateSeries.reset()
+    sessionStrokedistanceSeries.reset()
+    sessionHeartrateSeries.reset()
   }
 
   // initiated when a new heart rate value is received from heart rate sensor
   async function recordHeartRate (value) {
     heartRate = value.heartrate
+  }
+
+  function addHeartRateToMetrics (metrics) {
+    if (heartRate !== undefined && heartRate > 0) {
+      metrics.heartrate = heartRate
+    } else {
+      metrics.heartrate = undefined
+    }
   }
 
   async function createFitFile () {
@@ -235,10 +273,11 @@ export function createFITRecorder (config) {
     fitWriter.writeMessage(
       'file_id',
       {
+        time_created: fitWriter.time(workout.startTime),
         type: 'activity',
-        manufacturer: 'garmin',
-        product: 3943,
-        time_created: fitWriter.time(workout.startTime)
+        manufacturer: 'concept2',
+        product: 0,
+        number: 0
       },
       null,
       true
@@ -257,9 +296,9 @@ export function createFITRecorder (config) {
       'device_info',
       {
         timestamp: fitWriter.time(workout.startTime),
+        device_index: 0,
         device_type: 'fitness_equipment',
-        manufacturer: 'concept2',
-        product: 8449
+        manufacturer: 'concept2'
       },
       null,
       true
@@ -278,6 +317,8 @@ export function createFITRecorder (config) {
     )
 
     await createActivity(fitWriter, workout)
+
+    await createWorkoutSteps(fitWriter, workout)
 
     fitWriter.writeMessage(
       'event',
@@ -312,6 +353,8 @@ export function createFITRecorder (config) {
         local_timestamp: writer.time(workout.startTime) - workout.startTime.getTimezoneOffset() * 60,
         total_timer_time: workout.totalMovingTime,
         num_sessions: 1,
+        event: 'activity',
+        event_type: 'stop',
         type: 'manual'
       },
       null,
@@ -325,11 +368,14 @@ export function createFITRecorder (config) {
         message_index: 0,
         sport: 'rowing',
         sub_sport: 'indoor_rowing',
+        event: 'session',
+        event_type: 'stop',
+        trigger: 'activity_end',
         start_time: writer.time(workout.startTime),
         total_elapsed_time: Math.abs(workout.endTime - workout.startTime) / 1000,
         total_moving_time: workout.totalMovingTime,
         total_distance: workout.totalLinearDistance,
-        stroke_count: workout.totalNumberOfStrokes,
+        total_cycles: workout.totalNumberOfStrokes,
         avg_speed: sessionSpeedSeries.average(),
         max_speed: sessionSpeedSeries.maximum(),
         avg_power: sessionPowerSeries.average(),
@@ -353,16 +399,17 @@ export function createFITRecorder (config) {
       await createLap(writer, workout.lap[i])
       i++
     }
-  }
 
-  async function createLap (writer, lapdata) {
-    // Add the strokes
-    let i = 0
-    while (i < lapdata.strokes.length) {
-      await createTrackPoint(writer, lapdata.startTime, lapdata.strokes[i])
+    // Write all records
+    i = 0
+    while (i < workout.strokes.length) {
+      await createTrackPoint(writer, workout.strokes[i])
       i++
     }
 
+  }
+
+  async function createLap (writer, lapdata) {
     writer.writeMessage(
       'lap',
       {
@@ -370,6 +417,10 @@ export function createFITRecorder (config) {
         message_index: lapdata.lapNumber - 1,
         sport: 'rowing',
         sub_sport: 'indoor_rowing',
+        event: 'lap',
+        event_type: 'stop',
+        intensity: 'active',
+        ...(sessionData.totalNoLaps === lapdata.lapNumber ? { lap_trigger: 'session_end' } : { lap_trigger: 'fitness_equipment' }),
         start_time: writer.time(lapdata.startTime),
         total_elapsed_time: lapdata.totalMovingTime,
         total_timer_time: lapdata.totalMovingTime,
@@ -391,20 +442,86 @@ export function createFITRecorder (config) {
     )
   }
 
-  async function createTrackPoint (writer, offset, trackpoint) {
+  async function createTrackPoint (writer, trackpoint) {
     writer.writeMessage(
       'record',
       {
-        timestamp: writer.time(offset.getTime() + trackpoint.intervalAndPauseMovingTime * 1000),
+        timestamp: writer.time(trackpoint.timeStamp),
         distance: trackpoint.totalLinearDistance,
+        total_cycles: trackpoint.totalNumberOfStrokes,
+        activity_type: 'fitness_equipment',
         ...(trackpoint.cycleLinearVelocity > 0 || trackpoint.metricsContext.isPauseStart ? { speed: trackpoint.cycleLinearVelocity } : {}),
         ...(trackpoint.cyclePower > 0 || trackpoint.metricsContext.isPauseStart ? { power: trackpoint.cyclePower } : {}),
-        ...(trackpoint.cycleStrokeRate > 0 ? { cadence: trackpoint.cycleStrokeRate } : {}),
-        ...(trackpoint.cycleDistance > 0 ? { cycle_length16: trackpoint.cycleDistance } : {}),
+        ...(trackpoint.cycleStrokeRate > 0 ? {  cadence: trackpoint.cycleStrokeRate } : {}),
+        ...(trackpoint.cycleDistance > 0 ? {cycle_length16: trackpoint.cycleDistance } : {}),
         ...(trackpoint.dragFactor > 0 || trackpoint.dragFactor < 255 ? { resistance: trackpoint.dragFactor } : {}), // As the data is stored in an int8, we need to guard the maximum
         ...(trackpoint.heartrate !== undefined && trackpoint.heartrate > 0 ? { heart_rate: trackpoint.heartrate } : {})
       }
     )
+  }
+
+  async function createWorkoutSteps (writer, workout) {
+    writer.writeMessage(
+      'workout',
+      {
+        sport: 'rowing',
+        capabilities: 'fitness_equipment',
+        num_valid_steps: workout.workoutplan.length,
+        wkt_name: `Indoor rowing ${workout.totalLinearDistance/1000}K`
+      },
+      null,
+      true
+    )
+
+    let i = 0
+    while (i < workout.workoutplan.length) {
+      switch (workout.workoutplan[i].type) {
+        case ('distance'):
+          // A target distance is set
+          writer.writeMessage(
+            'workout_step',
+            {
+              message_index: i,
+              duration_type: 'distance',
+              duration_value: workout.workoutplan[i].targetDistance,
+              intensity: 'active'
+            },
+            null,
+            true
+          )
+          break
+        case ('time'):
+          // A target time is set
+          writer.writeMessage(
+            'workout_step',
+            {
+              message_index: i,
+              duration_type: 'time',
+              duration_value: workout.workoutplan[i].targetTime,
+              intensity: 'active'
+            },
+            null,
+            true
+          )
+          break
+        case ('open'):
+          // A target time is set
+          writer.writeMessage(
+            'workout_step',
+            {
+              message_index: i,
+              duration_type: 'open',
+              intensity: 'active'
+            },
+            null,
+            true
+          )
+          break
+        default:
+          // Nothing to do here
+        }
+      i++
+    }
   }
 
   async function createFile (content, filename, compress = false) {
@@ -426,29 +543,20 @@ export function createFITRecorder (config) {
 
   function minimumRecordingTimeHasPassed () {
     const minimumRecordingTimeInSeconds = 10
-    const noLaps = sessionData.lap.length
-    if (sessionData.lap[noLaps - 1].strokes.length > 0) {
-      const strokeTimeTotal = sessionData.lap[noLaps - 1].strokes[sessionData.lap[noLaps - 1].strokes.length - 1].totalMovingTime
-      return (strokeTimeTotal > minimumRecordingTimeInSeconds)
-    } else {
-      return (false)
-    }
+    const strokeTimeTotal = sessionData.strokes[sessionData.strokes.length - 1].totalMovingTime
+    return (strokeTimeTotal > minimumRecordingTimeInSeconds)
   }
 
   function minimumNumberOfStrokesHaveCompleted () {
     const minimumNumberOfStrokes = 2
-    const noLaps = sessionData.lap.length
-    if (sessionData.lap[noLaps - 1].strokes.length > 0) {
-      const noStrokes = sessionData.lap[noLaps - 1].strokes[sessionData.lap[noLaps - 1].strokes.length - 1].totalNumberOfStrokes
-      return (noStrokes > minimumNumberOfStrokes)
-    } else {
-      return (false)
-    }
+    const noStrokes = sessionData.strokes.length
+    return (noStrokes > minimumNumberOfStrokes)
   }
 
   return {
     handleCommand,
     setBaseFileName,
+    setIntervalParameters,
     recordRowingMetrics,
     recordHeartRate
   }
