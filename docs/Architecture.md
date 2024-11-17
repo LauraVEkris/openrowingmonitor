@@ -76,6 +76,8 @@ sequenceDiagram
 
 The clients (both the webserver and periphal bluetooth devices) are updated based on the updates of metrics. OpenRowingMonitor therefore consists out of two subsystems: an solely interruptdriven part that processes flywheel and heartrate interrupts, and the time/state based needs of the clients. It is the responsibility of `SessionManager.js` to provide a steady stream of updated metrics as it monitors the timers, session state and guarantees that it can present the clients with the freshest data available. It is the responsibility of the clients themselves to act based on the metric updates, and guard against their internal timers. If a broadcast has to be made periodically, say ANT+ updates every 400ms, the ANT+-peripheral should buffer metrics and determine when the broadcast is due. This is needed as more complex broadcast patterns, like the PM5 which mixes time and event based updates, are too complex to manage from a single point.
 
+A key thing to realize is that `SessionManager.js` will process *currentDt* values and it will transform them into one or more *metricsUpdate* messages. Especially at the end of a lap or split, a single *currentDt* value can result in multiple *metricsUpdate* messages as the `SessionManager.js` will interpolate between distances/times to exactly hit the lap/split end, generating an extra message. Also, when the pause timer is running, a message will be broadcast every second to signal this. When the `SessionManager.js`'s watchdog acts upon an unexpected stop of the *currentDt* flow, spontanuous messages will appear to signal this as well. To enable this behaviour, the message based structure used by `SessionManager.js` is needed.
+
 Part of the metrics is the metricsContext object, which provides an insight in the state of both stroke (determined in `RowingStatistics.js`) and session (determined in `SessionManager.js`), allowing the clients to trigger on these flags. The following flags are recognised:
 
 | Flag | Meaning |
@@ -91,8 +93,6 @@ Part of the metrics is the metricsContext object, which provides an insight in t
 | isSessionStop | Current metrics are related to the stop of a session. |
 
 State driven clients, like the PM5 interface and the file recorders, will react to these flags by recording or broadcasting when these flags are seen. Please note that several flags can be raised at the same time (for example isDriveStart, isSessionStart and isIntervalStart, but also isIntervalStart and isDriveStart), requiring the consumers to handle these overlapping situations.
-
-A key thing to realize is that `SessionManager.js` will process *currentDt* values and it will transform them into one or more *metricsUpdate* messages. Especially near the end of a lap or split, a single value can result in multiple messages as the `SessionManager.js` will interpolate between distance/time to exactly hit the lap/split end. Also when the pause timer is running, or the that `SessionManager.js`'s watchdog acts, spontanuous messages will appear to signal those events.
 
 ### Heartrate data flow
 
