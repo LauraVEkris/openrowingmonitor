@@ -70,6 +70,7 @@ const peripheralManager = createPeripheralManager(config)
 
 peripheralManager.on('control', (event) => {
   log.debug(`peripheral requested ${event?.req?.name}`)
+  // ToDo: Optimize below code as it should share a lot with the peripheral commands, turn it into a shared function
   sessionManager.handleCommand(event?.req?.name)
   recordingManager.handleCommand(event?.req?.name)
   peripheralManager.handleCommand(event?.req?.name)
@@ -103,6 +104,7 @@ sessionManager.on('metricsUpdate', (metrics) => {
   peripheralManager.notifyMetrics(metrics)
 })
 
+// ToDo: move this to the handleCommand structure
 workoutUploader.on('authorizeStrava', (data, client) => {
   webServer.notifyClient(client, 'authorizeStrava', data)
 })
@@ -110,6 +112,7 @@ workoutUploader.on('authorizeStrava', (data, client) => {
 const webServer = createWebServer(config)
 webServer.on('messageReceived', async (message, client) => {
   log.debug(`webclient requested ${message.command}`)
+  // ToDo: Optimize below code as it should share a lot with the peripheral commands, turn it into a shared function
   switch (message.command) {
     case 'shutdown':
       if (shutdownEnabled) {
@@ -122,11 +125,13 @@ webServer.on('messageReceived', async (message, client) => {
       workoutUploader.upload(client)
       break
     case 'stravaAuthorizationCode':
+      // ToDo: generalize this approach and let every command have a payload
       workoutUploader.stravaAuthorizationCode(message.data)
-      break
+      break=
     case 'updateIntervalSettings':
-      // ToDo? Do some preprocessing from the data element to intervalsettings????
+      // ToDo: Move this and all other commands to the general form of xxx.handleCommand(message.command, message.data)
       sessionManager.setIntervalParameters(message.data)
+      recordingManager.setIntervalParameters(message.data)
       break
     default:
       sessionManager.handleCommand(message.command)
@@ -137,10 +142,13 @@ webServer.on('messageReceived', async (message, client) => {
   }
 })
 
+// Be Aware, this is a temporary workaround to activate the hardcoded settings at application start
+// ToDo: move this to the handlecommand structure as soon as the PM5/web-interface can do this
 if (intervalSettings.length > 0) {
   // There is an interval defined at startup, let's inform the sessionManager
-  // ToDo: update these settings when the PM5 or webinterface tells us to
+  // ToDo: update these settings when the PM5 or webinterface tells us to via the handleCommand structures
   sessionManager.setIntervalParameters(intervalSettings)
+  recordingManager.setIntervalParameters(intervalSettings)
 } else {
   log.info('Starting a just row session, no time or distance target set')
 }
