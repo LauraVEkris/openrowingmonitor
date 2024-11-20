@@ -6,7 +6,8 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 
 ### New functionality in 0.9.5
 
-- Added **FIT_File support**: you an now automatically generate a FIT-file after a rowing session
+- Added **FIT-File support**: you an now automatically generate a FIT-file after a rowing session
+- Support for intervals, splits and spontanuous pauses in the session and the FIT, tcx and RowingData files (setting intervals and splits in a user friendly way is still a ToDo).
 
 ### Bugfixes and robustness improvements in 0.9.5
 
