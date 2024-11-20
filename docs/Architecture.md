@@ -134,7 +134,7 @@ Both the `webServer.js` and `PeripheralManager.js` can trigger a command. Server
 
 | command | description |
 |---|---|
-| updateIntervalSettings | An update in the interval settings has to be processed | 
+| updateIntervalSettings | An update in the interval settings has to be processed |
 | start | start of a session initiated by the user (start of a session triggered from the flywheel will always be triggered via the metrics) |
 | startOrResume | User forced (re)start of a session (restart of a session triggered from the flywheel will always be triggered via the metrics) |
 | pause | User forced pause of a session (pause of a session triggered from the flywheel will always be triggered via the metrics) |
