@@ -134,17 +134,16 @@ Both the `webServer.js` and `PeripheralManager.js` can trigger a command. Server
 
 | command | description |
 |---|---|
+| updateIntervalSettings | An update in the interval settings has to be processed | 
 | start | start of a session initiated by the user (start of a session triggered from the flywheel will always be triggered via the metrics) |
 | startOrResume | User forced (re)start of a session (restart of a session triggered from the flywheel will always be triggered via the metrics) |
 | pause | User forced pause of a session (pause of a session triggered from the flywheel will always be triggered via the metrics) |
 | stop | User forced stop of a session (stop of a session triggered from the flywheel will always be triggered via the metrics) |
 | reset | User has reset the session |
-| blePeripheralMode | A change in BLE device has been detected (triggers a refresh of the current config from the GUI) |
 | switchBlePeripheralMode | User has selected another BLE device from the GUI, the peripheralmanager needs to effectuate this |
-| antPeripheralMode | A change in ANT+ device has been detected (triggers a refresh of the current config from the GUI) |
 | switchAntPeripheralMode | User has selected another ANT+ device from the GUI, the peripheralmanager needs to effectuate this |
-| hrmPeripheralMode | A change in heartrate device has been detected (triggers a refresh of the current config from the GUI) |
 | switchHrmMode | User has selected another heartrate device |
+| refreshPeripheralConfig | A change in heartrate, BLE or ANT+ device has been triggered (this triggers a refresh of the current config from the GUI) |
 | uploadTraining | A request is made to upload a training to Strava |
 | stravaAuthorizationCode | An authorization code is provided to upload a training to Strava |
 | shutdown | A shutdown is requested, also used when a part of the application crashes or the application recieves a 'SIGINT' |
