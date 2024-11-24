@@ -12,15 +12,15 @@ import { createCurveAligner } from './utils/CurveAligner.js'
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
-function createRowingStatistics (config) {
+export function createRowingStatistics (config) {
   const numOfDataPointsForAveraging = config.numOfPhasesForAveragingScreenData
   const rower = createRower(config.rowerSettings)
   const minimumStrokeTime = config.rowerSettings.minimumRecoveryTime + config.rowerSettings.minimumDriveTime
   const maximumStrokeTime = config.rowerSettings.maximumStrokeTimeBeforePause
-  const cycleDuration = createStreamFilter(numOfDataPointsForAveraging, (minimumStrokeTime + maximumStrokeTime) / 2)
-  const cycleDistance = createStreamFilter(numOfDataPointsForAveraging, 0)
-  const cyclePower = createStreamFilter(numOfDataPointsForAveraging, 0)
-  const cycleLinearVelocity = createStreamFilter(numOfDataPointsForAveraging, 0)
+  const cycleDuration = createStreamFilter(numOfDataPointsForAveraging, undefined)
+  const cycleDistance = createStreamFilter(numOfDataPointsForAveraging, undefined)
+  const cyclePower = createStreamFilter(numOfDataPointsForAveraging, undefined)
+  const cycleLinearVelocity = createStreamFilter(numOfDataPointsForAveraging, undefined)
   let metricsContext
   let totalLinearDistance = 0.0
   let totalMovingTime = 0
@@ -29,16 +29,16 @@ function createRowingStatistics (config) {
   let strokeCalories = 0
   let strokeWork = 0
   const calories = createOLSLinearSeries()
-  const driveDuration = createStreamFilter(numOfDataPointsForAveraging, config.rowerSettings.minimumDriveTime)
-  const driveLength = createStreamFilter(numOfDataPointsForAveraging, 1.1)
-  const driveDistance = createStreamFilter(numOfDataPointsForAveraging, 3)
-  const recoveryDuration = createStreamFilter(numOfDataPointsForAveraging, config.rowerSettings.minimumRecoveryTime)
-  const driveAverageHandleForce = createStreamFilter(numOfDataPointsForAveraging, 0.0)
-  const drivePeakHandleForce = createStreamFilter(numOfDataPointsForAveraging, 0.0)
+  const driveDuration = createStreamFilter(numOfDataPointsForAveraging, undefined)
+  const driveLength = createStreamFilter(numOfDataPointsForAveraging, undefined)
+  const driveDistance = createStreamFilter(numOfDataPointsForAveraging, undefined)
+  const recoveryDuration = createStreamFilter(numOfDataPointsForAveraging, undefined)
+  const driveAverageHandleForce = createStreamFilter(numOfDataPointsForAveraging, undefined)
+  const drivePeakHandleForce = createStreamFilter(numOfDataPointsForAveraging, undefined)
   const driveHandleForceCurve = createCurveAligner(config.rowerSettings.minimumForceBeforeStroke)
   const driveHandleVelocityCurve = createCurveAligner(1.0)
   const driveHandlePowerCurve = createCurveAligner(50)
-  let dragFactor = config.rowerSettings.dragFactor
+  let dragFactor
   let instantPower = 0.0
   let lastStrokeState = 'WaitingForDrive'
 
@@ -230,7 +230,7 @@ function createRowingStatistics (config) {
       totalCaloriesPerMinute: totalMovingTime > 60 ? caloriesPerPeriod(totalMovingTime - 60, totalMovingTime) : caloriesPerPeriod(0, 60),
       totalCaloriesPerHour: totalMovingTime > 3600 ? caloriesPerPeriod(totalMovingTime - 3600, totalMovingTime) : caloriesPerPeriod(0, 3600),
       cycleDuration: cycleDuration.reliable() && cycleDuration.clean() > minimumStrokeTime && cycleDuration.clean() < maximumStrokeTime && cycleLinearVelocity.raw() > 0 && totalNumberOfStrokes > 0 && metricsContext.isMoving === true ? cycleDuration.clean() : undefined, // seconds
-      cycleStrokeRate: cycleDuration.reliable() && cycleDuration.clean() > minimumStrokeTime && cycleLinearVelocity.raw() > 0 && totalNumberOfStrokes > 0 && metricsContext.isMoving === true ? (60.0 / cycleDuration.clean()) : 0, // strokeRate in SPM
+      cycleStrokeRate: cycleDuration.reliable() && cycleDuration.clean() > minimumStrokeTime && cycleDuration.clean() < maximumStrokeTime && cycleLinearVelocity.raw() > 0 && totalNumberOfStrokes > 0 && metricsContext.isMoving === true ? (60.0 / cycleDuration.clean()) : undefined, // strokeRate in SPM
       cycleDistance: cycleDistance.reliable() && cycleDistance.raw() > 0 && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? cycleDistance.clean() : undefined, // meters
       cycleLinearVelocity: cycleLinearVelocity.reliable() && cycleLinearVelocity.clean() > 0 && cycleLinearVelocity.raw() > 0 && metricsContext.isMoving === true ? cycleLinearVelocity.clean() : undefined, // m/s
       cyclePace: cycleLinearVelocity.reliable() && cycleLinearVelocity.clean() > 0 && metricsContext.isMoving === true ? cyclePace : Infinity, // seconds/500m
@@ -244,7 +244,7 @@ function createRowingStatistics (config) {
       driveHandleForceCurve: drivePeakHandleForce.clean() > 0 && metricsContext.isMoving === true ? driveHandleForceCurve.lastCompleteCurve() : [],
       driveHandleVelocityCurve: drivePeakHandleForce.clean() > 0 && metricsContext.isMoving === true ? driveHandleVelocityCurve.lastCompleteCurve() : [],
       driveHandlePowerCurve: drivePeakHandleForce.clean() > 0 && metricsContext.isMoving === true ? driveHandlePowerCurve.lastCompleteCurve() : [],
-      recoveryDuration: recoveryDuration.reliable() && recoveryDuration.clean() >= config.rowerSettings.minimumRecoveryTime && totalNumberOfStrokes > 0 && totalNumberOfStrokes > 0 && metricsContext.isMoving === true ? recoveryDuration.clean() : undefined, // seconds
+      recoveryDuration: recoveryDuration.reliable() && recoveryDuration.clean() >= config.rowerSettings.minimumRecoveryTime && totalNumberOfStrokes > 0 && metricsContext.isMoving === true ? recoveryDuration.clean() : undefined, // seconds
       dragFactor: dragFactor > 0 ? dragFactor : undefined, // Dragfactor
       instantPower: instantPower > 0 && rower.strokeState() === 'Drive' ? instantPower : 0
     }
@@ -266,5 +266,3 @@ function createRowingStatistics (config) {
     getMetrics: allMetrics
   }
 }
-
-export { createRowingStatistics }
