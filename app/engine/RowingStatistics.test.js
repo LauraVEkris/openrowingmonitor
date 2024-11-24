@@ -361,7 +361,7 @@ test('sample data for Sportstech WRX700 should produce plausible results', async
   testTotalMovingTime(rowingStatistics, 0)
   testTotalLinearDistance(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
-  testDragFactor(rowingStatistics, rowerProfiles.Sportstech_WRX700.dragFactor)
+  testDragFactor(rowingStatistics, undefined)
 
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets.csv', realtime: false, loop: false })
 
@@ -386,7 +386,7 @@ test('sample data for DKN R-320 should produce plausible results', async () => {
   testTotalMovingTime(rowingStatistics, 0)
   testTotalLinearDistance(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
-  testDragFactor(rowingStatistics, rowerProfiles.DKN_R320.dragFactor)
+  testDragFactor(rowingStatistics, undefined)
 
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/DKNR320.csv', realtime: false, loop: false })
 
@@ -411,7 +411,7 @@ test('sample data for NordicTrack RX800 should produce plausible results', async
   testTotalMovingTime(rowingStatistics, 0)
   testTotalLinearDistance(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
-  testDragFactor(rowingStatistics, rowerProfiles.NordicTrack_RX800.dragFactor)
+  testDragFactor(rowingStatistics, undefined)
 
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/RX800.csv', realtime: false, loop: false })
 
@@ -436,7 +436,7 @@ test('A full session for SportsTech WRX700 should produce plausible results', as
   testTotalMovingTime(rowingStatistics, 0)
   testTotalLinearDistance(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
-  testDragFactor(rowingStatistics, rowerProfiles.Sportstech_WRX700.dragFactor)
+  testDragFactor(rowingStatistics, undefined)
 
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/WRX700_2magnets_session.csv', realtime: false, loop: false })
 
@@ -461,7 +461,7 @@ test('A full session for a Concept2 Model C should produce plausible results', a
   testTotalMovingTime(rowingStatistics, 0)
   testTotalLinearDistance(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
-  testDragFactor(rowingStatistics, (rowerProfiles.Concept2_Model_C.dragFactor))
+  testDragFactor(rowingStatistics, undefined)
 
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/Concept2_Model_C.csv', realtime: false, loop: false })
 
@@ -486,7 +486,7 @@ test('A full session for a Concept2 RowErg should produce plausible results', as
   testTotalMovingTime(rowingStatistics, 0)
   testTotalLinearDistance(rowingStatistics, 0)
   testTotalNumberOfStrokes(rowingStatistics, 0)
-  testDragFactor(rowingStatistics, rowerProfiles.Concept2_RowErg.dragFactor)
+  testDragFactor(rowingStatistics, undefined)
 
   await replayRowingSession(rowingStatistics.handleRotationImpulse, { filename: 'recordings/Concept2_RowErg_Session_2000meters.csv', realtime: false, loop: false })
 
