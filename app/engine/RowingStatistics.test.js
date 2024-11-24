@@ -155,7 +155,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveAverageHandleForce(rowingStatistics, 276.20193475035796)
   testDrivePeakHandleForce(rowingStatistics, 325.1619554833936)
   testRecoveryDuration(rowingStatistics, undefined)
-  testDragFactor(rowingStatistics, 110)
+  testDragFactor(rowingStatistics, undefined)
   testInstantHandlePower(rowingStatistics, undefined)
   // Drive second stroke starts here
   rowingStatistics.handleRotationImpulse(0.011221636)
