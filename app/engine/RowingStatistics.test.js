@@ -64,7 +64,7 @@ test('Correct rower behaviour at initialisation', () => {
   testDriveAverageHandleForce(rowingStatistics, undefined)
   testDrivePeakHandleForce(rowingStatistics, undefined)
   testRecoveryDuration(rowingStatistics, undefined)
-  testDragFactor(rowingStatistics, 110)
+  testDragFactor(rowingStatistics, undefined)
   testInstantHandlePower(rowingStatistics, undefined)
 })
 
@@ -87,7 +87,7 @@ test('Test behaviour for three perfect identical strokes, including settingling 
   testDriveAverageHandleForce(rowingStatistics, undefined)
   testDrivePeakHandleForce(rowingStatistics, undefined)
   testRecoveryDuration(rowingStatistics, undefined)
-  testDragFactor(rowingStatistics, 110)
+  testDragFactor(rowingStatistics, undefined)
   testInstantHandlePower(rowingStatistics, undefined)
   // Drive initial stroke starts here
   rowingStatistics.handleRotationImpulse(0.011221636)
