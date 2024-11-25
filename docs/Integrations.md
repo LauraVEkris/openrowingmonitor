@@ -2,19 +2,19 @@
 
 For services we distinguish between two types of functionality:
 
-* **Upload results**: here OpenRowingMonitor uploads the result of your rowing session (i.e. total time rowed, pace, stroke rate, etc.) to the service
+*  **Download workout**: here OpenRowingMonitor will fetch the planned workout parameters (target distance, intervals, etc.) from the service before the session and will program the monitor accordingly
 
-*  **Download workout**: here OpenRowingMonitor will fetch the planned workout parameters (target distance, intervals, etc.) from the service and will program the monitor accordingly
+* **Upload results**: here OpenRowingMonitor uploads the result of your rowing session (i.e. total time rowed, pace, stroke rate, etc.) to the service after your session has completed
 
 Looking at the individual services, we see the following:
 
-| Service | Upload results | Download workout | Remarks |
+| Service | Download workout | Upload results | Remarks |
 |---|---|---|---|
-| File system | Yes | No | |
-| Strava | Yes | No | |
-| RowsAndAll.com | Yes | No | Currently requires batch script |
-| Rowingdata | Yes | No | |
-| Intervals.icu | Yes | No | Currently requires batch script |
+| File system | No | Yes | |
+| Strava | No | Yes | |
+| RowsAndAll.com | No | Yes | Upoad currently requires batch script |
+| Rowingdata | No | Yes | Upoad currently requires batch script |
+| Intervals.icu | No | Yes | Currently requires batch script |
 
 In the following sections we describe their pro's and con's, as well as their current limitations with OpenRowingMonitor, and how to set it up.
 
