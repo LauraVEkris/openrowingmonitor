@@ -85,7 +85,7 @@ Open Rowing Monitor is based on the idea that metrics should be easily accessibl
 
 * **Raw flywheel measurements of the flywheel**, also in CSV files. These files are great to analyse and replay the specifics of your rowing machine (some Excel visualistion can help with this).
 
-Uploading your sessions to Strava is an integrated feature, for all other platforms this is currently a manual step. Uploading to [RowsAndAll](https://rowsandall.com/) can be automated through their e-mail interface, see [this description](https://rowsandall.com/rowers/developers/). The Open rowing Monitor installer can also set up a network share that contains all training data so it is easy to grab the files from there and manually upload them to the training platform of your choice.
+Uploading your sessions to Strava is an integrated feature, for all other platforms this is currently a manual step, see [the integration manual](Integrations.md). The Open rowing Monitor installer can also set up a network share that contains all training data so it is easy to grab the files from there and manually upload them to the training platform of your choice.
 
 ## Installation
 
