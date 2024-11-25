@@ -12,9 +12,9 @@ Looking at the individual services, we see the following:
 |---|---|---|---|
 | File system | No | Yes | |
 | Strava | No | Yes | |
-| RowsAndAll.com | No | Yes | Upoad currently requires batch script |
-| Rowingdata | No | Yes | Upoad currently requires batch script |
-| Intervals.icu | No | Yes | Currently requires batch script |
+| RowsAndAll.com | No | Yes | Upoad only, currently requires batch script |
+| Rowingdata | No | Yes | Upoad only, currently requires batch script |
+| Intervals.icu | No | Yes | Upoad only, currently requires batch script |
 
 In the following sections we describe their pro's and con's, as well as their current limitations with OpenRowingMonitor, and how to set it up.
 
