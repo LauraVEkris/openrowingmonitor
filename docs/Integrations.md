@@ -1,5 +1,13 @@
 # Intergations with other services
 
+For services we distinguish between two types of functionality:
+
+* **Upload results**: here OpenRowingMonitor uploads the result of your rowing session (i.e. total time rowed, pace, stroke rate, etc.) to the service
+
+*  **Download workout**: here OpenRowingMonitor will fetch the planned workout parameters (target distance, intervals, etc.) from the service and will program the monitor accordingly
+
+Looking at the individual services, we see the following:
+
 | Service | Upload results | Download workout | Remarks |
 |---|---|---|---|
 | File system | Yes | No | |
