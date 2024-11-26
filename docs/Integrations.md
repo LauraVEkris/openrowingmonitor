@@ -15,6 +15,7 @@ Looking at the individual services, we see the following:
 | RowsAndAll.com | No | Yes | Upoad only, currently requires batch script |
 | Rowingdata | No | Yes | Upoad only, currently requires batch script |
 | Intervals.icu | No | Yes | Upoad only, currently requires batch script |
+| Garmin Connect | No | Yes | Upoad only, currently requires batch script |
 
 In the following sections we describe their pro's and con's, as well as their current limitations with OpenRowingMonitor, and how to set it up.
 
@@ -36,7 +37,13 @@ Uploading your sessions to [Strava](https://www.strava.com) is an integrated fea
 
 ## RowsAndAll.com
 
-Uploading to [RowsAndAll](https://rowsandall.com/) can be automated through their e-mail interface, see [this description](https://rowsandall.com/rowers/developers/).
+Uploading to [RowsAndAll](https://rowsandall.com/) can be automated through their e-mail interface, see [this description](https://rowsandall.com/rowers/developers/). Once you setup of your mail sending client has been done on the Raspberry Pi, you can do the following
+
+```sh
+echo -e "workouttype rower (Indoor rower)\nnote ${note}" | mail -r YOUR@EMAIL.com -s "${descriptor}" --content-type=text/csv --content-filename "Workout.csv" -A ${fileName} workouts@rowsandall.com --content-type=text/plain
+```
+
+Please note your batch script has to identify the file name, add a note and description. Your originating email adress should match the email used for RowsAndAll.
 
 ## Rowingdata
 
@@ -44,4 +51,15 @@ Uploading to [RowsAndAll](https://rowsandall.com/) can be automated through thei
 
 ## Intervals.icu
 
-[Intervals.icu](https://intervals.icu/)
+Uploading of tcx- and fit-files to [Intervals.icu](https://intervals.icu/) can be done by the following commands
+
+```sh
+activityNumber=`curl -u API_KEY:yOURaPIkEY -X POST https://intervals.icu/api/v1/athlete/yOURaTHELEnUMBER/activities -H 'content-type: multipart/form-data' -F name="${descriptor}" -F file=@${fileName} | cut -d "," -f 2 | cut -d '"' -f 4`
+curl -u API_KEY:yOURaPIkEY -X PUT https://intervals.icu/api/v1/activity/${activityNumber} -H "Content-Type: application/json" -d '{"type":"Rowing", "total_elevation_gain":"0", "trainer": true}'
+```
+
+Here, you need to replace yOURaPIkEY and yOURaTHELEnUMBER with the data from intervals.icu. The first line actually uploads the tcx- or fit-file, the second modifies the standard parameters from the activity to make it a rowing activity and removes any elevation gain.
+
+## Garmin Connect
+
+Uploading to [Garmin Connect](https://connect.garmin.com) can be done by uploading the fit-file via [python-garminconnect](https://github.com/cyberjunky/python-garminconnect/tree/master) and a batch script.
