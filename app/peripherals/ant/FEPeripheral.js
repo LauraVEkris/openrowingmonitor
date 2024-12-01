@@ -52,7 +52,7 @@ function createFEPeripheral (antManager) {
       antStick.write(message)
     }
 
-    timer = setInterval(onBroadcastInterval, broadcastInterval)
+    timer = setTimeout(onBroadcastInterval, broadcastInterval)
   }
 
   function destroy () {
@@ -159,6 +159,7 @@ function createFEPeripheral (antManager) {
 
     const message = Messages.broadcastData(data)
     antStick.write(message)
+    timer = setTimeout(onBroadcastInterval, broadcastInterval)
   }
 
   function notifyData (data) {
