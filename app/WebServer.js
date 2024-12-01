@@ -65,6 +65,8 @@ function createWebServer (config) {
         break
       case ('stop'):
         break
+      case ('requestControl'):
+        break
       case ('reset'):
         break
       case 'blePeripheralMode':
