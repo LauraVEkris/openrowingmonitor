@@ -33,6 +33,8 @@ export function createRecordingManager (config) {
         break
       case ('stop'):
         break
+      case ('requestControl'):
+        break
       case ('reset'):
         startTime = undefined
         executeCommandsInParralel(commandName)
