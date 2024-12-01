@@ -1,6 +1,6 @@
 'use strict'
 /*
-  Open Rowing Monitor, https://github.com/laberning/openrowingmonitor
+  Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
 
   The connected Central can remotly control some parameters or our rowing monitor via this Control Point
 
@@ -60,7 +60,7 @@ export default class FitnessMachineControlPointCharacteristic extends bleno.Char
       case ControlPointOpCode.requestControl:
         if (!this.controlled) {
           if (this.controlPointCallback({ name: 'requestControl' })) {
-            log.debug('requestControl sucessful')
+            log.debug('FitnessMachineControlPointCharacteristic: requestControl successful')
             this.controlled = true
             callback(this.buildResponse(opCode, ResultOpCode.success))
           } else {
@@ -88,7 +88,7 @@ export default class FitnessMachineControlPointCharacteristic extends bleno.Char
         } else if (controlParameter === 2) {
           this.handleSimpleCommand(ControlPointOpCode.stopOrPause, 'pause', callback)
         } else {
-          log.error(`stopOrPause with invalid controlParameter: ${controlParameter}`)
+          log.error(`FitnessMachineControlPointCharacteristic: stopOrPause with invalid controlParameter: ${controlParameter}`)
         }
         break
       }
@@ -109,7 +109,7 @@ export default class FitnessMachineControlPointCharacteristic extends bleno.Char
       }
 
       default:
-        log.info(`opCode ${opCode} is not supported`)
+        log.info(`FitnessMachineControlPointCharacteristic: opCode ${opCode} is not supported`)
         callback(this.buildResponse(opCode, ResultOpCode.opCodeNotSupported))
     }
   }
@@ -123,7 +123,7 @@ export default class FitnessMachineControlPointCharacteristic extends bleno.Char
         callback(this.buildResponse(opCode, ResultOpCode.operationFailed))
       }
     } else {
-      log.info(`initating command '${opName}' requires 'requestControl'`)
+      log.info(`FitnessMachineControlPointCharacteristic: initating command '${opName}' requires 'requestControl'`)
       callback(this.buildResponse(opCode, ResultOpCode.controlNotPermitted))
     }
   }
