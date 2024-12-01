@@ -59,7 +59,7 @@ export function createRecordingManager (config) {
         await executeCommandsInParralel(commandName)
         break
       default:
-        log.error(`recordingMnager: Recieved unknown command: ${commandName}`)
+        log.error(`recordingManager: Recieved unknown command: ${commandName}`)
     }
   }
 
