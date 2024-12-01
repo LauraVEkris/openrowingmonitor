@@ -66,6 +66,8 @@ export function createSessionManager (config) {
         metrics.metricsContext.isSessionStop = true
         sessionState = 'Stopped'
         break
+      case ('requestControl'):
+        break
       case ('reset'):
         resetTraining()
         metrics.metricsContext.isPauseStart = true
