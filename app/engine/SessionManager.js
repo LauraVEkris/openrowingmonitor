@@ -43,17 +43,24 @@ export function createSessionManager (config) {
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the RowingEngine will react to and what it will ignore
-  function handleCommand (commandName) {
+  function handleCommand (commandName, data, client) {
     metrics = rowingStatistics.getMetrics()
     resetMetricsSessionContext(metrics)
     switch (commandName) {
+      case ('updateIntervalSettings'):
+        setIntervalParameters(data)
+        break
       case ('start'):
-        startOrResumeTraining(metrics)
-        sessionState = 'WaitingForStart'
+        if (sessionState !== 'Rowing') {
+          allowStartOrResumeTraining(metrics)
+          sessionState = 'WaitingForStart'
+        }
         break
       case ('startOrResume'):
-        allowResumeTraining()
-        sessionState = 'WaitingForStart'
+        if (sessionState !== 'Rowing') {
+          allowStartOrResumeTraining(metrics)
+          sessionState = 'WaitingForStart'
+        }
         break
       case ('pause'):
         pauseTraining()
@@ -73,17 +80,15 @@ export function createSessionManager (config) {
         metrics.metricsContext.isPauseStart = true
         sessionState = 'WaitingForStart'
         break
-      case 'blePeripheralMode':
-        break
       case 'switchBlePeripheralMode':
-        break
-      case 'antPeripheralMode':
         break
       case 'switchAntPeripheralMode':
         break
-      case 'hrmPeripheralMode':
-        break
       case 'switchHrmMode':
+        break
+      case 'refreshPeripheralConfig':
+        break
+      case 'authorizeStrava':
         break
       case 'uploadTraining':
         break
@@ -101,15 +106,11 @@ export function createSessionManager (config) {
     lastSessionState = sessionState
   }
 
-  function startOrResumeTraining (metrics) {
-    rowingStatistics.startOrResumeTraining()
+  function allowStartOrResumeTraining (metrics) {
+    rowingStatistics.allowStartOrResumeTraining()
     intervalAndPause.setStart(metrics)
     split.setStart(metrics)
     split.setEnd(interval.splitDistance(), 0)
-  }
-
-  function allowResumeTraining () {
-    rowingStatistics.allowResumeTraining()
   }
 
   function stopTraining () {
@@ -363,7 +364,6 @@ export function createSessionManager (config) {
     handleCommand,
     handleHeartRateMeasurement,
     handleRotationImpulse,
-    setIntervalParameters,
     getMetrics
   })
 }
