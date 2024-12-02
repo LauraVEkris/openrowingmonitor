@@ -54,11 +54,10 @@ All major elements (i.e the 'managers') in the application expose a `handleComma
 ```mermaid
 sequenceDiagram
   participant webServer.js
-  participant clients
+  participant PeripheralManager.js
   participant server.js
   participant SessionManager.js
   participant RecordingManager.js
-  participant PeripheralManager.js
   PeripheralManager.js-)server.js: command<br>(interrupt based)
   webServer.js-)server.js: command<br>(interrupt based)
   server.js-)SessionManager.js: command<br>(interrupt based)
