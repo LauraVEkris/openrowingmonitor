@@ -12,7 +12,7 @@ import DeviceInformationService from './common/DeviceInformationService.js'
 import AdvertisingDataBuilder from './common/AdvertisingDataBuilder.js'
 import { bleBroadcastInterval, bleMinimumKnowDataUpdateInterval } from '../PeripheralConstants.js'
 
-function createCpsPeripheral (config) {
+export function createCpsPeripheral (config) {
   const peripheralName = `${config.ftmsRowerPeripheralName} (CPS)`
   const cyclingPowerService = new CyclingPowerService((event) => log.debug('CPS Control Point', event))
   let lastKnownMetrics = {
@@ -147,5 +147,3 @@ function createCpsPeripheral (config) {
     destroy
   }
 }
-
-export { createCpsPeripheral }
