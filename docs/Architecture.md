@@ -74,9 +74,9 @@ Both the `webServer.js` and `PeripheralManager.js` can trigger a command. Server
 
 | command | description |
 |---|---|
-| requestControl | A peripheral has requested control of the connection (currently nothing happens internally in ORM with this). This command is routinely sent at the start of a ANT+ FE-CE communication. |
+| requestControl | A peripheral has requested control of the connection (currently nothing happens internally in ORM with this). This command is routinely sent at the start of a ANT+ FE-C communication. |
 | updateIntervalSettings | An update in the interval settings has to be processed |
-| start | start of a session initiated by the user. As the true start of a session is actually triggered by the flywheel, which will always be communicated via the metrics, its only purpose is to make sure that the flywheel is allowed to move. This command is routinely sent at the start of a ANT+ FE-CE communication. |
+| start | start of a session initiated by the user. As the true start of a session is actually triggered by the flywheel, which will always be communicated via the metrics, its only purpose is to make sure that the flywheel is allowed to move. This command is routinely sent at the start of a ANT+ FE-C communication. |
 | startOrResume | User forced (re)start of a session. As the true start of a session is actually triggered by the flywheel, which will always be communicated via the metrics, its only purpose is to clear the flywheel for further movement. This is not used in normal operation, but can functionally change a 'stopped' session into a 'paused' one. Intended use is to allow a user to continue beyond pre-programmed interval parameters as reaching them results in a session being 'stopped'. |
 | pause | User/device forced pause of a session (pause of a session triggered from the flywheel will always be triggered via the metrics) |
 | stop | User/device forced stop of a session (stop of a session triggered from the flywheel will always be triggered via the metrics) |
@@ -144,12 +144,19 @@ Secondly, the heartrate data follows the same path, but requires significantly l
 
 ```mermaid
 sequenceDiagram
-  participant clients
   participant heartrateMonitor
+  participant PeripheralManager.js
   participant server.js
-  heartrateMonitor-)server.js: heartrate data<br>(interrupt based)
-  server.js-)clients: Metrics Updates<br>(interrupt based)
+  participant webServer.js
+  participant RecordingManager.js
+  heartrateMonitor-)PeripheralManager.js: heartrate data<br>(interrupt based)
+  PeripheralManager.js-)PeripheralManager.js: heartrate data<br>(interrupt based)
+  PeripheralManager.js-)server.js: heartrate data<br>(interrupt based)
+  server.js-)webServer.js: heartrate data<br>(interrupt based)
+  server.js-)RecordingManager.js: heartrate data<br>(interrupt based)
 ```
+
+Please note: the `PeripheralManager.js` will internally also distribute heartrate updats to data consuming ANT+ and BLE peripherals.
 
 ### Key components
 
