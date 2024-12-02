@@ -314,12 +314,6 @@ export function createSessionManager (config) {
     }
   }
 
-  // ToDo: REMOVE THIS INJECTION WHEN POSSIBLE! Currently, the peripherals still depend on this!!!
-  function handleHeartRateMeasurement (value) {
-    heartrate = value.heartrate
-    heartRateBatteryLevel = value.batteryLevel
-  }
-
   function emitMetrics (metricsToEmit) {
     enrichMetrics(metricsToEmit)
     emitter.emit('metricsUpdate', metricsToEmit)
@@ -327,7 +321,7 @@ export function createSessionManager (config) {
 
   function enrichMetrics (metricsToEnrich) {
     metricsToEnrich.sessiontype = interval.type()
-    metricsToEnrich.sessionStatus = sessionState // OPRUIMEN VAN NAAMCONVERSIE
+    metricsToEnrich.sessionStatus = sessionState // ToDo: remove this naming change by changing the consumers
     metricsToEnrich.intervalNumber = Math.max(noSpontaneousPauses + currentIntervalNumber + 1, 0) // Interval number, for both planned and unplanned intervals
     metricsToEnrich.intervalMovingTime = interval.timeSinceStart(metricsToEnrich)
     metricsToEnrich.intervalTargetTime = interval.targetTime()
@@ -339,8 +333,6 @@ export function createSessionManager (config) {
     metricsToEnrich.splitLinearDistance = metrics.metricsContext.isSplitEnd ? interval.splitDistance() : split.distanceFromStart(metricsToEnrich) // This is needed to satisfy the RowingData recorder
     metricsToEnrich.cycleProjectedEndTime = interval.endDistance() > 0 ? distanceOverTime.projectY(interval.endDistance()) : interval.endTime()
     metricsToEnrich.cycleProjectedEndLinearDistance = interval.endTime() > 0 ? distanceOverTime.projectX(interval.endTime()) : interval.endDistance()
-    metricsToEnrich.heartrate = heartrate > 30 ? heartrate : 0 // ToDo: REMOVE THIS INJECTION
-    metricsToEnrich.heartRateBatteryLevel = heartRateBatteryLevel // ToDo: REMOVE THIS INJECTION
   }
 
   function onWatchdogTimeout () {
