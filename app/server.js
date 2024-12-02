@@ -72,7 +72,7 @@ peripheralManager.on('control', (event) => {
   log.debug(`Server: peripheral requested ${event?.req?.name}`)
   handleCommand(event?.req?.name, event?.req?.data, event?.req?.client)
   event.res = true
-}
+})
 
 peripheralManager.on('heartRateMeasurement', (heartRateMeasurement) => {
   recordingManager.recordHeartRate(heartRateMeasurement)
