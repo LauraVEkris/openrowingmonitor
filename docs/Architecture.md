@@ -21,7 +21,7 @@ At the highest level, we recognise the following functional components, with the
 flowchart LR
 A(GpioTimerService.js) -->|currentDt| B(server.js)
 B(server.js) -->|currentDt| D(SessionManager.js)
-subgraph RowingEngine TD
+subgraph RowingEngine
   D(SessionManager.js) -->|currentDt| N(RowingStatistics.js)
   N(RowingStatistics.js) -->|currentDt| O(Rower.js)
   O(Rower.js) -->|currentDt| P(Flywheel.js)
@@ -33,21 +33,27 @@ D(SessionManager.js) -->|Rowing metrics| B(server.js)
 B(server.js) -->|Rowing metrics| E(PeripheralManager.js)
 C(PeripheralManager.js) -->|Heart rate data| B(server.js)
 E(PeripheralManager.js) -->|Heart rate data| E(PeripheralManager.js)
-E(PeripheralManager.js) -->|Rowing metrics + HR Data| F(ANT+ clients)
-E(PeripheralManager.js) -->|Rowing metrics + HR Data| G(BLE clients)
+subgraph peripherals
+  E(PeripheralManager.js) -->|Rowing metrics + HR Data| F(ANT+ clients)
+  E(PeripheralManager.js) -->|Rowing metrics + HR Data| G(BLE clients)
+end
 B(server.js) -->|currentDt| H(RecordingManager.js)
 B(server.js) -->|Rowing metrics| H(RecordingManager.js)
 B(server.js) -->|Heart rate data| H(RecordingManager.js)
-H(RecordingManager.js) -->|currentDt| I(raw recorder)
-H(RecordingManager.js) -->|Rowing metrics| J(tcx-recorder)
-H(RecordingManager.js) -->|Heart rate data| J(tcx-recorder)
-H(RecordingManager.js) -->|Rowing metrics| K(FIT-recorder)
-H(RecordingManager.js) -->|Heart rate data| K(FIT-recorder)
-H(RecordingManager.js) -->|Rowing metrics| L(RowingData recorder)
-H(RecordingManager.js) -->|Heart rate data| L(RowingData recorder)
+subgraph Recorders
+  H(RecordingManager.js) -->|currentDt| I(raw recorder)
+  H(RecordingManager.js) -->|Rowing metrics| J(tcx-recorder)
+  H(RecordingManager.js) -->|Heart rate data| J(tcx-recorder)
+  H(RecordingManager.js) -->|Rowing metrics| K(FIT-recorder)
+  H(RecordingManager.js) -->|Heart rate data| K(FIT-recorder)
+  H(RecordingManager.js) -->|Rowing metrics| L(RowingData recorder)
+  H(RecordingManager.js) -->|Heart rate data| L(RowingData recorder)
+end
 B(server.js) -->|Rowing metrics| M(WebServer.js)
 B(server.js) -->|Heart rate data| M(WebServer.js)
-L(WebServer.js) -->|Rowing metrics + HR Data| Q(Client.js)
+subgraph clients
+  L(WebServer.js) -->|Rowing metrics + HR Data| Q(Client.js)
+end
 ```
 
 Here, *currentDt* stands for the time between the impulses of the sensor, as measured by the pigpio in 'ticks' (i.e. microseconds sinds OS start).
