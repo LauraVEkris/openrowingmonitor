@@ -44,7 +44,7 @@ export function createPeripheralManager (config) {
     await createAntPeripheral(config.antPlusMode)
   }
 
- // This function handles all incomming commands. As all commands are broadasted to all application parts,
+  // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the PeripheralManager will react to and what it will ignore
   async function handleCommand (commandName, data, client) {
     switch (commandName) {
