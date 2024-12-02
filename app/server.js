@@ -75,8 +75,8 @@ peripheralManager.on('control', (event) => {
 })
 
 peripheralManager.on('heartRateMeasurement', (heartRateMeasurement) => {
+  // As the peripheralManager already has this info, it will enrich metrics based on the data internally
   recordingManager.recordHeartRate(heartRateMeasurement)
-  sessionManager.handleHeartRateMeasurement(heartRateMeasurement)
   webServer.presentHeartRate(heartRateMeasurement)
 })
 
