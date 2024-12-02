@@ -32,7 +32,10 @@ export function createPeripheralManager (config) {
   let hrmPeripheral
   let hrmMode
   let hrmWatchdogTimer
-  let lastHrmData
+  let lastHrmData  {
+    heartrate: undefined,
+    heartRateBatteryLevel: undefined
+  }
 
   let isPeripheralChangeInProgress = false
 
