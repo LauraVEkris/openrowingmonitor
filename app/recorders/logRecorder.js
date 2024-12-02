@@ -13,7 +13,7 @@ export function createLogRecorder (config) {
 
   // This function handles all incomming commands. Here, the recordingmanager will have filtered
   // all unneccessary commands for us, so we only need to react to 'updateIntervalSettings', 'reset' and 'shutdown'
-    async function handleCommand (commandName, data, client) {
+  async function handleCommand (commandName, data, client) {
     const currentdate = new Date()
     switch (commandName) {
       case ('updateIntervalSettings'):
