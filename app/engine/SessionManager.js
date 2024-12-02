@@ -31,8 +31,6 @@ export function createSessionManager (config) {
   const split = createWorkoutSegment()
   let splitNumber = 0
   const distanceOverTime = createOLSLinearSeries(Math.min(4, numOfDataPointsForAveraging))
-  let heartrate = 0
-  let heartRateBatteryLevel = 0
 
   metrics = rowingStatistics.getMetrics()
   resetMetricsSessionContext(metrics)
@@ -354,7 +352,6 @@ export function createSessionManager (config) {
 
   return Object.assign(emitter, {
     handleCommand,
-    handleHeartRateMeasurement,
     handleRotationImpulse,
     getMetrics
   })
