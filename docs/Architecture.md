@@ -280,7 +280,7 @@ Adittional benefit of this approach is that it makes transitions in intervals mo
 
 OpenRowingMonitor allows setting the NICE-level of both the `GpioTimerService.js` worker thread and the main application. We have seen that setting the NICE-level too agressive on a Raspberry Pi 4B (i.e. -7 for `GpioTimerService.js`, and -5 for the main application) results in very decent results (for example, an average GoodnessOfFit of 0.9837 for the recovery slope on a Concept2 RowErg) without any reported issues anywhere and enough CPU cycles to handle the load.
 
-HOWEVER, when compared to an oracle system (the Concept2 PM5), we see quite a variation in deviation with that result. 
+HOWEVER, when compared to an oracle system (the Concept2 PM5), we see quite a variation in deviation with that result.
 
 | Distance | Minimal deviation |  Average deviation | Maximal deviation | Deviation Spread |
 |---|---|---|---|---|
