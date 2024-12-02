@@ -95,16 +95,10 @@ Please observe that active support for the Raspberry Pi Zero W has been dropped 
 
 ## How it all started
 
-[Lars Berning](https://github.com/laberning) originally started this project, because his rowing machine (Sportstech WRX700) had a very simple monitor and he wanted to build something with a clean interface that calculates more realistic metrics. Also, this was a good reason to learn a bit more about Bluetooth and all its specifics.
-
-The original proof of concept version started as a sketch on an Arduino, but the web frontend and BLE needed the much more powerful Raspberry Pi. Maybe using a Raspberry Pi for this small IoT-project was a bit of an overkill, but it has the capacity for more complex math and features such as syncing training data. There is a much appreciated sister project that ported [Open Rowing Monitor for the ESP32](https://github.com/Abasz/ESPRowingMonitor).
+[Lars Berning](https://github.com/laberning) originally started this project, because his rowing machine (Sportstech WRX700) had a very simple monitor and he wanted to build something with a clean interface that calculates more realistic metrics. He laid the foundation of this project. [Jaap van Ekris](https://github.com/JaapvanEkris) joined this project, adding many improvements to the [Physics engine that powers OpenRowingMonitor](physics_openrowingmonitor.md), making it more applicable. [Abasz](https://github.com/Abasz) joined as well, adding many improvements to the ANT+ and BLE functionality. He also maintains a much appreciated sister project that ported [Open Rowing Monitor for the ESP32](https://github.com/Abasz/ESPRowingMonitor). But, this project has direct and indirect support by many others, see the [Attribution here](attribution.md).
 
 ## Further information
 
-This project is already in a very stable stage, as it is used daily by many rowers. You can see its development [here in the Release notes](Release_Notes.md). However, being open source, it might contain some things that are still a bit rough on the edges. More functionality will be added in the future, so check the [Development Roadmap](backlog.md) if you are curious. Contributions are welcome, please read the [Contributing Guidelines](CONTRIBUTING.md) first.
+This project is already in a very stable stage, as it is used daily by many rowers. You can see its development [here in the Release notes](Release_Notes.md). More functionality will be added in the future, so check the [Development Roadmap](backlog.md) if you are curious. However, being open source, it might contain some things that are still a bit rough on the edges. Contributions are welcome! To get an idea how this all works, you can read the [Archtecture description](Architecture.md), the [Physics of OpenRowingMonitor (for advanced readers)](physics_openrowingmonitor.md) and [Contributing Guidelines](CONTRIBUTING.md) how you can help us improve this project.
 
 Feel free to leave a message in the [GitHub Discussions](https://github.com/JaapvanEkris/openrowingmonitor/discussions) if you have any questions or ideas related to this project.
-
-Check the advanced information on the [Physics behind Open Rowing Monitor](physics_openrowingmonitor.md).
-
-This project uses some great work by others, see the [Attribution here](attribution.md).
