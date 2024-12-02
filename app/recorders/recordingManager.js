@@ -61,7 +61,7 @@ export function createRecordingManager (config) {
         log.error(`recordingManager: Recieved unknown command: ${commandName}`)
     }
   }
-  
+
   async function recordRotationImpulse (impulse) {
     if (startTime === undefined && (config.createRawDataFiles || config.createTcxFiles || config.createRowingDataFiles || config.createFitFiles)) {
       await nameFilesAndCreateDirectory()
@@ -87,10 +87,6 @@ export function createRecordingManager (config) {
     if (config.createRowingDataFiles) { rowingDataRecorder.recordHeartRate(hrmData) }
   }
 
-  async function setIntervalParameters (intervalParameters) {
-    if (config.createFitFiles) { fitRecorder.setIntervalParameters(intervalParameters) }
-  }
-
   async function executeCommandsInParralel (commandName, data, client) {
     const parallelCalls = []
     parallelCalls.push(logRecorder.handleCommand(commandName, data, client))
@@ -100,7 +96,7 @@ export function createRecordingManager (config) {
     if (config.createRowingDataFiles) { parallelCalls.push(rowingDataRecorder.handleCommand(commandName, data, client)) }
     await Promise.all(parallelCalls)
   }
-  
+
   async function nameFilesAndCreateDirectory () {
     startTime = new Date()
     // Calculate the directory name and create it if needed
