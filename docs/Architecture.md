@@ -60,9 +60,10 @@ sequenceDiagram
   participant RecordingManager.js
   PeripheralManager.js-)server.js: command<br>(interrupt based)
   webServer.js-)server.js: command<br>(interrupt based)
-  server.js-)SessionManager.js: command<br>(interrupt based)
   server.js-)RecordingManager.js: command<br>(interrupt based)
   server.js-)PeripheralManager.js: command<br>(interrupt based)
+  server.js-)webServer.js: command<br>(interrupt based)
+  server.js-)SessionManager.js: command<br>(interrupt based)
   SessionManager.js-)server.js: Metrics Update<br>(interrupt based)
   server.js-)RecordingManager.js: Metrics Update<br>(interrupt based)
   server.js-)PeripheralManager.js: Metrics Update<br>(interrupt based)
