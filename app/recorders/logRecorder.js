@@ -12,10 +12,13 @@ export function createLogRecorder (config) {
   let lastMetrics
 
   // This function handles all incomming commands. Here, the recordingmanager will have filtered
-  // all unneccessary commands for us, so we only need to react to 'reset' and 'shutdown'
-  async function handleCommand (commandName) {
+  // all unneccessary commands for us, so we only need to react to 'updateIntervalSettings', 'reset' and 'shutdown'
+    async function handleCommand (commandName, data, client) {
     const currentdate = new Date()
     switch (commandName) {
+      case ('updateIntervalSettings'):
+        log.info(`Recieved new Intervalsettings at ${currentdate.getHours()}:${currentdate.getMinutes()}`)
+        break
       case ('reset'):
         log.info(`OpenRowingMonitor reset at ${currentdate.getHours()}:${currentdate.getMinutes()}, at ${lastMetrics.totalMovingTime.toFixed(5)} seconds,distance ${lastMetrics.totalLinearDistance.toFixed(1)}m`)
         break
