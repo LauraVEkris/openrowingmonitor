@@ -87,7 +87,7 @@ export function createPeripheralManager (config) {
         await shutdownAllPeripherals()
         break
       default:
-        log.error(`Recieved unknown command: ${commandName}`)
+        log.error(`PeripheralManager: Recieved unknown command: ${commandName}`)
     }
   }
 
@@ -269,10 +269,8 @@ export function createPeripheralManager (config) {
 
     if (hrmMode.toLocaleLowerCase() !== 'OFF'.toLocaleLowerCase()) {
       hrmPeripheral.on('heartRateMeasurement', (heartRateMeasurement) => {
-        if (hrmResetTimer) {
-          // Clear the HRM watchdog as new HRM data has been recieved
-          clearTimeout(hrmWatchdogTimer)
-        }
+        // Clear the HRM watchdog as new HRM data has been recieved
+        clearTimeout(hrmWatchdogTimer)
         // Make sure we check the HRM validity here, so the rest of the app doesn't have to
         if (heartRateMeasurement.heartrate !== undefined && config.userSettings.restingHR <= heartRateMeasurement.heartrate && heartRateMeasurement.heartrate <= config.userSettings.maxHR) {
           lastHrmData = { ...heartRateMeasurement }
