@@ -69,14 +69,10 @@ intervalSettings[2] = {
 const peripheralManager = createPeripheralManager(config)
 
 peripheralManager.on('control', (event) => {
-  log.debug(`peripheral requested ${event?.req?.name}`)
-  // ToDo: Optimize below code as it should share a lot with the peripheral commands, turn it into a shared function
-  sessionManager.handleCommand(event?.req?.name)
-  recordingManager.handleCommand(event?.req?.name)
-  peripheralManager.handleCommand(event?.req?.name)
-  webServer.handleCommand(event?.req?.name)
+  log.debug(`Server: peripheral requested ${event?.req?.name}`)
+  handleCommand(event?.req?.name, event?.req?.data, event?.req?.client)
   event.res = true
-})
+}
 
 peripheralManager.on('heartRateMeasurement', (heartRateMeasurement) => {
   recordingManager.recordHeartRate(heartRateMeasurement)
@@ -104,16 +100,19 @@ sessionManager.on('metricsUpdate', (metrics) => {
   peripheralManager.notifyMetrics(metrics)
 })
 
-// ToDo: move this to the handleCommand structure
 workoutUploader.on('authorizeStrava', (data, client) => {
-  webServer.notifyClient(client, 'authorizeStrava', data)
-})
+  // ToDo: bring further in line with command handler structure to allow workoutUploader to send more commands
+  handleCommand ('authorizeStrava', data, client)
+}
 
 const webServer = createWebServer(config)
 webServer.on('messageReceived', async (message, client) => {
-  log.debug(`webclient requested ${message.command}`)
-  // ToDo: Optimize below code as it should share a lot with the peripheral commands, turn it into a shared function
-  switch (message.command) {
+  log.debug(`server: webclient requested ${message.command}`)
+  await handleCommand(message.command, message.data, client)
+})
+
+async function handleCommand (command, data, client) {
+  switch (command) {
     case 'shutdown':
       if (shutdownEnabled) {
         await shutdownApp()
@@ -123,25 +122,21 @@ webServer.on('messageReceived', async (message, client) => {
       }
       break
     case 'uploadTraining':
+      // ToDo: move this into the recordingmanager commandhandler
       workoutUploader.upload(client)
       break
     case 'stravaAuthorizationCode':
-      // ToDo: generalize this approach and let every command have a payload
-      workoutUploader.stravaAuthorizationCode(message.data)
-      break
-    case 'updateIntervalSettings':
-      // ToDo: Move this and all other commands to the general form of xxx.handleCommand(message.command, message.data)
-      sessionManager.setIntervalParameters(message.data)
-      recordingManager.setIntervalParameters(message.data)
+      // ToDo: move this into the recordingmanager commandhandler
+      workoutUploader.stravaAuthorizationCode(data)
       break
     default:
-      sessionManager.handleCommand(message.command)
-      recordingManager.handleCommand(message.command)
-      peripheralManager.handleCommand(message.command)
-      webServer.handleCommand(message.command)
+      sessionManager.handleCommand(command, data, client)
+      recordingManager.handleCommand(command, data, client)
+      peripheralManager.handleCommand(command, data, client)
+      webServer.handleCommand(command, data, client)
       break
   }
-})
+}
 
 // Be Aware, this is a temporary workaround to activate the hardcoded settings at application start
 // ToDo: move this to the handlecommand structure as soon as the PM5/web-interface can do this
