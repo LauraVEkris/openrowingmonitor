@@ -103,7 +103,7 @@ sessionManager.on('metricsUpdate', (metrics) => {
 workoutUploader.on('authorizeStrava', (data, client) => {
   // ToDo: bring further in line with command handler structure to allow workoutUploader to send more commands
   handleCommand ('authorizeStrava', data, client)
-}
+})
 
 const webServer = createWebServer(config)
 webServer.on('messageReceived', async (message, client) => {
