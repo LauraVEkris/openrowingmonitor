@@ -15,7 +15,7 @@ import log from 'loglevel'
 import Pm5ControlService from './pm5/Pm5ControlService.js'
 import Pm5RowingService from './pm5/Pm5RowingService.js'
 
-function createPm5Peripheral (config) {
+export function createPm5Peripheral (config) {
   const peripheralName = pm5Constants.name
   const deviceInformationService = new DeviceInformationService()
   const gapService = new GapService()
@@ -103,5 +103,3 @@ function createPm5Peripheral (config) {
     destroy
   }
 }
-
-export { createPm5Peripheral }
