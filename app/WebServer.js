@@ -12,7 +12,7 @@ import serveStatic from 'serve-static'
 import log from 'loglevel'
 import EventEmitter from 'events'
 
-function createWebServer (config) {
+export function createWebServer (config) {
   const emitter = new EventEmitter()
   const port = process.env.PORT || 80
   const serve = serveStatic('./build', { index: ['index.html'] })
@@ -55,8 +55,10 @@ function createWebServer (config) {
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the webserver will react to and what it will ignore
   // The start...reset commands are handled by the RowingEngine and the result will be reported by the metrics update, so we ignore them here
-  function handleCommand (commandName) {
+  function handleCommand (commandName, data, client) {
     switch (commandName) {
+      case ('updateIntervalSettings'):
+        break
       case ('start'):
         break
       case ('startOrResume'):
@@ -69,20 +71,17 @@ function createWebServer (config) {
         break
       case ('reset'):
         break
-      case 'blePeripheralMode':
-        notifyClients('config', getConfig())
-        break
       case 'switchBlePeripheralMode':
-        break
-      case 'antPeripheralMode':
-        notifyClients('config', getConfig())
         break
       case 'switchAntPeripheralMode':
         break
-      case 'hrmPeripheralMode':
+      case 'switchHrmMode':
+        break
+      case 'refreshPeripheralConfig':
         notifyClients('config', getConfig())
         break
-      case 'switchHrmMode':
+      case 'authorizeStrava':
+        notifyClient(client, 'authorizeStrava', data)
         break
       case 'uploadTraining':
         break
@@ -160,7 +159,7 @@ function createWebServer (config) {
 
   function notifyClients (type, data) {
     clearTimeout(timer)
-    addHeartRateToMetrics(data)
+    if (type === 'metrics' ) { addHeartRateToMetrics(data) }
     const messageString = JSON.stringify({ type, data })
     wss.clients.forEach(function each (client) {
       if (client.readyState === WebSocket.OPEN) {
@@ -187,5 +186,3 @@ function createWebServer (config) {
     handleCommand
   })
 }
-
-export { createWebServer }
