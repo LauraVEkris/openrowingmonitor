@@ -12,7 +12,7 @@ import CyclingSpeedCadenceService from './csc/CyclingSpeedCadenceService.js'
 import AdvertisingDataBuilder from './common/AdvertisingDataBuilder.js'
 import { bleBroadcastInterval, bleMinimumKnowDataUpdateInterval } from '../PeripheralConstants.js'
 
-function createCscPeripheral (config) {
+export function createCscPeripheral (config) {
   const peripheralName = `${config.ftmsRowerPeripheralName} (CSC)`
   const cyclingSpeedCadenceService = new CyclingSpeedCadenceService((event) => log.debug('CSC Control Point', event))
 
@@ -148,5 +148,3 @@ function createCscPeripheral (config) {
     destroy
   }
 }
-
-export { createCscPeripheral }
