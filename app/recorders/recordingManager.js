@@ -23,8 +23,11 @@ export function createRecordingManager (config) {
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the WorkoutRecorder will react to and what it will ignore
   // For the 'start', 'startOrResume', 'pause' and 'stop' commands, we await the official rowingengine reaction
-  async function handleCommand (commandName) {
+  async function handleCommand (commandName, data, client) {
     switch (commandName) {
+      case ('updateIntervalSettings'):
+        executeCommandsInParralel(commandName, data, client)
+        break
       case ('start'):
         break
       case ('startOrResume'):
@@ -33,36 +36,32 @@ export function createRecordingManager (config) {
         break
       case ('stop'):
         break
-      case ('requestControl'):
-        break
       case ('reset'):
         startTime = undefined
-        executeCommandsInParralel(commandName)
-        break
-      case 'blePeripheralMode':
+        executeCommandsInParralel(commandName, data, client)
         break
       case 'switchBlePeripheralMode':
         break
-      case 'antPeripheralMode':
-        break
       case 'switchAntPeripheralMode':
         break
-      case 'hrmPeripheralMode':
-        break
       case 'switchHrmMode':
+        break
+      case 'refreshPeripheralConfig':
+        break
+      case 'authorizeStrava':
         break
       case 'uploadTraining':
         break
       case 'stravaAuthorizationCode':
         break
       case 'shutdown':
-        await executeCommandsInParralel(commandName)
+        await executeCommandsInParralel(commandName, data, client)
         break
       default:
         log.error(`recordingManager: Recieved unknown command: ${commandName}`)
     }
   }
-
+  
   async function recordRotationImpulse (impulse) {
     if (startTime === undefined && (config.createRawDataFiles || config.createTcxFiles || config.createRowingDataFiles || config.createFitFiles)) {
       await nameFilesAndCreateDirectory()
@@ -92,16 +91,16 @@ export function createRecordingManager (config) {
     if (config.createFitFiles) { fitRecorder.setIntervalParameters(intervalParameters) }
   }
 
-  async function executeCommandsInParralel (commandName) {
+  async function executeCommandsInParralel (commandName, data, client) {
     const parallelCalls = []
-    parallelCalls.push(logRecorder.handleCommand(commandName))
-    if (config.createRawDataFiles) { parallelCalls.push(rawRecorder.handleCommand(commandName)) }
-    if (config.createTcxFiles) { parallelCalls.push(tcxRecorder.handleCommand(commandName)) }
-    if (config.createFitFiles) { parallelCalls.push(fitRecorder.handleCommand(commandName)) }
-    if (config.createRowingDataFiles) { parallelCalls.push(rowingDataRecorder.handleCommand(commandName)) }
+    parallelCalls.push(logRecorder.handleCommand(commandName, data, client))
+    if (config.createRawDataFiles) { parallelCalls.push(rawRecorder.handleCommand(commandName, data, client)) }
+    if (config.createTcxFiles) { parallelCalls.push(tcxRecorder.handleCommand(commandName, data, client)) }
+    if (config.createFitFiles) { parallelCalls.push(fitRecorder.handleCommand(commandName, data, client)) }
+    if (config.createRowingDataFiles) { parallelCalls.push(rowingDataRecorder.handleCommand(commandName, data, client)) }
     await Promise.all(parallelCalls)
   }
-
+  
   async function nameFilesAndCreateDirectory () {
     startTime = new Date()
     // Calculate the directory name and create it if needed
@@ -129,7 +128,6 @@ export function createRecordingManager (config) {
 
   return {
     handleCommand,
-    setIntervalParameters,
     recordHeartRate,
     recordRotationImpulse,
     recordMetrics,
