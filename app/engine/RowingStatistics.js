@@ -44,11 +44,7 @@ export function createRowingStatistics (config) {
 
   resetMetricsContext()
 
-  function startOrResumeTraining () {
-    rower.allowMovement()
-  }
-
-  function allowResumeTraining () {
+  function allowStartOrResumeTraining () {
     rower.allowMovement()
   }
 
@@ -258,8 +254,7 @@ export function createRowingStatistics (config) {
 
   return {
     handleRotationImpulse,
-    startOrResumeTraining,
-    allowResumeTraining,
+    allowStartOrResumeTraining,
     stopTraining,
     pauseTraining,
     resetTraining,
