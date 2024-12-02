@@ -159,7 +159,7 @@ export function createWebServer (config) {
 
   function notifyClients (type, data) {
     clearTimeout(timer)
-    if (type === 'metrics' ) { addHeartRateToMetrics(data) }
+    if (type === 'metrics') { addHeartRateToMetrics(data) }
     const messageString = JSON.stringify({ type, data })
     wss.clients.forEach(function each (client) {
       if (client.readyState === WebSocket.OPEN) {
