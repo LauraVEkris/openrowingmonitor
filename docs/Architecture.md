@@ -21,7 +21,6 @@ At the highest level, we recognise the following functional components, with the
 flowchart LR
 A(GpioTimerService.js) -->|currentDt| B(server.js)
 subgraph RowingEngine
-  direction TD
   B(server.js) -->|currentDt| D(SessionManager.js)
   D(SessionManager.js) -->|currentDt| N(RowingStatistics.js)
   N(RowingStatistics.js) -->|currentDt| O(Rower.js)
