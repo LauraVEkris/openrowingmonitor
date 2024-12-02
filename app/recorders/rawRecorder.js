@@ -10,15 +10,17 @@ import fs from 'fs/promises'
 import { promisify } from 'util'
 const gzip = promisify(zlib.gzip)
 
-function createRawRecorder (config) {
+export function createRawRecorder (config) {
   let rotationImpulses = []
   let filename
   let allDataHasBeenWritten
 
   // This function handles all incomming commands. Here, the recordingmanager will have filtered
-  // all unneccessary commands for us, so we only need to react to 'reset' and 'shutdown'
-  async function handleCommand (commandName) {
+  // all unneccessary commands for us, so we only need to react to 'updateIntervalSettings', 'reset' and 'shutdown'
+  async function handleCommand (commandName, data, client) {
     switch (commandName) {
+      case ('updateIntervalSettings'):
+        break
       case ('reset'):
         await createRawDataFile()
         rotationImpulses = null
@@ -115,5 +117,3 @@ function createRawRecorder (config) {
     handleCommand
   }
 }
-
-export { createRawRecorder }
