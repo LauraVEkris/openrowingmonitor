@@ -20,16 +20,16 @@ At the highest level, we recognise the following functional components, with the
 ```mermaid
 flowchart LR
 A(GpioTimerService.js) -->|currentDt| B(server.js)
+B(server.js) -->|currentDt| D(SessionManager.js)
 subgraph RowingEngine
-  B(server.js) -->|currentDt| D(SessionManager.js)
   D(SessionManager.js) -->|currentDt| N(RowingStatistics.js)
   N(RowingStatistics.js) -->|currentDt| O(Rower.js)
   O(Rower.js) -->|currentDt| P(Flywheel.js)
   P(Flywheel.js) -->|Flywheel metrics| O(Rower.js)
   O(Rower.js) -->|Rowing metrics| N(RowingStatistics.js)
   N(RowingStatistics.js) -->|Rowing metrics| D(SessionManager.js)
-  D(SessionManager.js) -->|Rowing metrics| B(server.js)
 end
+D(SessionManager.js) -->|Rowing metrics| B(server.js)
 C(PeripheralManager.js) -->|Heart rate data| B(server.js)
 B(server.js) -->|Rowing metrics| E(PeripheralManager.js)
 E(PeripheralManager.js) -->|Heart rate data| E(PeripheralManager.js)
@@ -47,7 +47,7 @@ H(RecordingManager.js) -->|Rowing metrics| L(RowingData recorder)
 H(RecordingManager.js) -->|Heart rate data| L(RowingData recorder)
 B(server.js) -->|Rowing metrics| M(WebServer.js)
 B(server.js) -->|Heart rate data| M(WebServer.js)
-L(WebServer.js) -->|Rowing metrics + HR Data| N(Client.js)
+L(WebServer.js) -->|Rowing metrics + HR Data| Q(Client.js)
 ```
 
 Here, *currentDt* stands for the time between the impulses of the sensor, as measured by the pigpio in 'ticks' (i.e. microseconds sinds OS start).
