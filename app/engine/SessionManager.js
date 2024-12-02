@@ -165,7 +165,7 @@ export function createSessionManager (config) {
     // This is the core of the finite state machine that defines all state transitions
     switch (true) {
       case (lastSessionState === 'WaitingForStart' && metrics.strokeState === 'Drive'):
-        startOrResumeTraining(metrics)
+        allowStartOrResumeTraining(metrics)
         sessionState = 'Rowing'
         metrics.metricsContext.isIntervalStart = true
         metrics.metricsContext.isSessionStart = true
@@ -174,7 +174,7 @@ export function createSessionManager (config) {
         // We can't change into the "Rowing" state since we are waiting for a drive phase that didn't come
         break
       case (lastSessionState === 'Paused' && metrics.strokeState === 'Drive'):
-        startOrResumeTraining(metrics)
+        allowStartOrResumeTraining(metrics)
         sessionState = 'Rowing'
         metrics.metricsContext.isIntervalStart = true
         metrics.metricsContext.isPauseEnd = true
