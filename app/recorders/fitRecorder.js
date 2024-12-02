@@ -35,9 +35,12 @@ export function createFITRecorder (config) {
   let allDataHasBeenWritten
 
   // This function handles all incomming commands. Here, the recordingmanager will have filtered
-  // all unneccessary commands for us, so we only need to react to 'reset' and 'shutdown'
-  async function handleCommand (commandName) {
+  // all unneccessary commands for us, so we only need to react to 'updateIntervalSettings', 'reset' and 'shutdown'
+  async function handleCommand (commandName, data, client) {
     switch (commandName) {
+      case ('updateIntervalSettings'):
+        setIntervalParameters(data)
+        break
       case ('reset'):
         if (lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.strokes[sessionData.strokes.length - 1].totalMovingTime) {
           // We apperantly get a reset during session
@@ -551,7 +554,6 @@ export function createFITRecorder (config) {
   return {
     handleCommand,
     setBaseFileName,
-    setIntervalParameters,
     recordRowingMetrics,
     recordHeartRate
   }
