@@ -159,7 +159,7 @@ sequenceDiagram
 
 #### GpioTimerService.js
 
-`GpioTimerService.js` is a small independent process, acting as a data handler to the signals from `pigpio`. It translates the *Alerts* with their `tick` into a stream of times between these *Alerts* (which we call *CurrentDt*). The interrupthandler is still triggered to run with extreme low latency as the called `gpio` process will inherit its nice-level, which is extremely time critical. To OpenRowingMonitor it provides a stream of measurements that needed to be handled.
+`GpioTimerService.js` is a small independent worker thread, acting as a data handler to the signals from `pigpio`. It translates the *Alerts* with their `tick` into a stream of times between these *Alerts* (which we call *CurrentDt*). The interrupthandler is still triggered to run with extreme low latency as the called `gpio` process will inherit its nice-level, which is extremely time critical. To OpenRowingMonitor it provides a stream of measurements that needed to be handled.
 
 #### Server.js
 
@@ -275,6 +275,20 @@ Working with small numbers, and using the impulse time to calculate the angular 
 Adittional benefit of this approach is that it makes transitions in intervals more smooth: `SessionManager.js` can intersect stroke without causing any pause in metrics (as `Rower.js` and `RowingStatistics.js` keep reporting absolutes, intervals and laps become a view on the same data).
 
 ## Open issues, Known problems and Regrettable design decissions
+
+### Limits to CPU use
+
+OpenRowingMonitor allows setting the NICE-level of both the `GpioTimerService.js` worker thread and the main application. We have seen that setting the NICE-level too agressive on a Raspberry Pi 4B (i.e. -7 for `GpioTimerService.js`, and -5 for the main application) results in very decent results (for example, an average GoodnessOfFit of 0.9837 for the recovery slope on a Concept2 RowErg) without any reported issues anywhere and enough CPU cycles to handle the load.
+
+HOWEVER, when compared to an oracle system (the Concept2 PM5), we see quite a variation in deviation with that result. 
+
+| Distance | Minimal deviation |  Average deviation | Maximal deviation | Deviation Spread |
+|---|---|---|---|---|
+| 5000 meters | 0.70 sec | 1.08 sec | 1.40 sec | 0.70 sec |
+| 10000 meters | 0.70 sec | 1.05 sec | 1.40 sec | 0.80 sec |
+| 21097 meters | 0.70 sec | 1.08 sec | 1.30 sec | 0.60 sec |
+
+The deviation spread over 0.8 seconds suggests that measurement is unstable. Reducing the NICE-level too a little less agressive on a Raspberry Pi 4B (i.e. -6 for `GpioTimerService.js`, and -3 for the main application) seems to yield better results.
 
 ### Lack of support for the Raspberry Pi 5
 
