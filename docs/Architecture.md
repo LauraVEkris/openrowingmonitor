@@ -47,6 +47,50 @@ Key element is that clients always will filter for themselves: the rowing engine
 
 We first describe the relation between these main functional components by describing the flow of the key pieces of information in more detail: the flywheel and heartrate measurements, as well as the command structure.
 
+### Command flow
+
+All major elements (i.e the 'managers') in the application expose a `handleCommand()` function, which respond to a defined set of commands. These commands are explicitly restricted to user actions via the web-interface or a peripheral. In essence, this is a user of external session control (via Bluetooth or ANT+) dictating behaviour of OpenRowingMonitor as an external trigger. Effects of a session-state (i.e. session start or end based on a predefined session end) should be handled via the metrics updates. Adittionally, effects upon a session state as a result of a comand (i.e. session ends because of a command) should also be handled via the metrics updates whenever possible. These manual commands are connected as follows:
+
+```mermaid
+sequenceDiagram
+  participant webServer.js
+  participant clients
+  participant server.js
+  participant SessionManager.js
+  participant RecordingManager.js
+  participant PeripheralManager.js
+  PeripheralManager.js-)server.js: command<br>(interrupt based)
+  webServer.js-)server.js: command<br>(interrupt based)
+  server.js-)SessionManager.js: command<br>(interrupt based)
+  server.js-)RecordingManager.js: command<br>(interrupt based)
+  server.js-)PeripheralManager.js: command<br>(interrupt based)
+  SessionManager.js-)server.js: Metrics Update<br>(interrupt based)
+  server.js-)RecordingManager.js: Metrics Update<br>(interrupt based)
+  server.js-)PeripheralManager.js: Metrics Update<br>(interrupt based)
+  server.js-)webServer.js: Metrics Update<br>(interrupt based)
+```
+
+Both the `webServer.js` and `PeripheralManager.js` can trigger a command. Server.js will communicate this command to all managers, where they will handle this as they see fit. Several commands are defined:
+
+| command | description |
+|---|---|
+| requestControl | A peripheral has requested control of the connection (currently nothing happens internally in ORM with this). This command is routinely sent at the start of a ANT+ FE-CE communication. |
+| updateIntervalSettings | An update in the interval settings has to be processed |
+| start | start of a session initiated by the user. As the true start of a session is actually triggered by the flywheel, which will always be communicated via the metrics, its only purpose is to make sure that the flywheel is allowed to move. This command is routinely sent at the start of a ANT+ FE-CE communication. |
+| startOrResume | User forced (re)start of a session. As the true start of a session is actually triggered by the flywheel, which will always be communicated via the metrics, its only purpose is to clear the flywheel for further movement. This is not used in normal operation, but can functionally change a 'stopped' session into a 'paused' one. Intended use is to allow a user to continue beyond pre-programmed interval parameters as reaching them results in a session being 'stopped'. |
+| pause | User/device forced pause of a session (pause of a session triggered from the flywheel will always be triggered via the metrics) |
+| stop | User/device forced stop of a session (stop of a session triggered from the flywheel will always be triggered via the metrics) |
+| reset | User/device has reset the session |
+| switchBlePeripheralMode | User has selected another BLE device from the GUI, the peripheralmanager needs to effectuate this |
+| switchAntPeripheralMode | User has selected another ANT+ device from the GUI, the peripheralmanager needs to effectuate this |
+| switchHrmMode | User has selected another heartrate device |
+| refreshPeripheralConfig | A change in heartrate, BLE or ANT+ device has been triggered (this triggers a refresh of the current config from the GUI) |
+| uploadTraining | A request is made to upload a training to Strava |
+| stravaAuthorizationCode | An authorization code is provided to upload a training to Strava |
+| shutdown | A shutdown is requested, also used when a part of the application crashes or the application recieves a 'SIGINT' |
+
+Please note, to guarantee a decent closure of data, a 'stop' command from the user will be ignored by `RecordingManager.js` and `PeripheralManager.js`, as the `SessionManager.js` will respond with a new set of metrics, with the 'isSessionStop' flag embedded. On a 'shutdown' command, `RecordingManager.js` and `PeripheralManager.js` do respond by closing their datastreams as if a session-stop was given, to ensure a decent closure.
+
 ### Rowing metrics flow
 
 We first follow the flow of the flywheel data, which is provided by the interrupt driven `GpioTimerService.js`. The only information retrieved by OpenRowingMonitor is *CurrentDt*: the time between impulses. This data element is transformed in meaningful metrics in the following manner:
@@ -107,49 +151,6 @@ sequenceDiagram
   server.js-)clients: Metrics Updates<br>(interrupt based)
 ```
 
-### Command flow
-
-All major elements (i.e the 'managers') in the application expose a `handleCommand()` function, which respond to a defined set of commands. These commands are explicitly restricted to user actions via the web-interface or a peripheral. In essence, this is a user of external session control (via Bluetooth or ANT+) dictating behaviour of OpenRowingMonitor as an external trigger. Effects of a session-state (i.e. session start or end based on a predefined session end) should be handled via the metrics updates. Adittionally, effects upon a session state as a result of a comand (i.e. session ends because of a command) should also be handled via the metrics updates whenever possible. These manual commands are connected as follows:
-
-```mermaid
-sequenceDiagram
-  participant webServer.js
-  participant clients
-  participant server.js
-  participant SessionManager.js
-  participant RecordingManager.js
-  participant PeripheralManager.js
-  webServer.js-)server.js: command<br>(interrupt based)
-  PeripheralManager.js-)server.js: command<br>(interrupt based)
-  server.js-)SessionManager.js: command<br>(interrupt based)
-  server.js-)RecordingManager.js: command<br>(interrupt based)
-  server.js-)PeripheralManager.js: command<br>(interrupt based)
-  SessionManager.js-)server.js: Metrics Update<br>(interrupt based)
-  server.js-)RecordingManager.js: Metrics Update<br>(interrupt based)
-  server.js-)PeripheralManager.js: Metrics Update<br>(interrupt based)
-  server.js-)webServer.js: Metrics Update<br>(interrupt based)
-```
-
-Both the `webServer.js` and `PeripheralManager.js` can trigger a command. Server.js will communicate this command to all managers, where they will handle this as they see fit. Several commands are defined:
-
-| command | description |
-|---|---|
-| updateIntervalSettings | An update in the interval settings has to be processed |
-| start | start of a session initiated by the user (start of a session triggered from the flywheel will always be triggered via the metrics) |
-| startOrResume | User forced (re)start of a session (restart of a session triggered from the flywheel will always be triggered via the metrics) |
-| pause | User forced pause of a session (pause of a session triggered from the flywheel will always be triggered via the metrics) |
-| stop | User forced stop of a session (stop of a session triggered from the flywheel will always be triggered via the metrics) |
-| reset | User has reset the session |
-| switchBlePeripheralMode | User has selected another BLE device from the GUI, the peripheralmanager needs to effectuate this |
-| switchAntPeripheralMode | User has selected another ANT+ device from the GUI, the peripheralmanager needs to effectuate this |
-| switchHrmMode | User has selected another heartrate device |
-| refreshPeripheralConfig | A change in heartrate, BLE or ANT+ device has been triggered (this triggers a refresh of the current config from the GUI) |
-| uploadTraining | A request is made to upload a training to Strava |
-| stravaAuthorizationCode | An authorization code is provided to upload a training to Strava |
-| shutdown | A shutdown is requested, also used when a part of the application crashes or the application recieves a 'SIGINT' |
-
-Please note, to guarantee a decent closure of data, a 'stop' command from the user will be ignored by `RecordingManager.js` and `PeripheralManager.js`, as the `SessionManager.js` will respond with a new set of metrics, with the 'isSessionStop' flag embedded. On a 'shutdown' command, `RecordingManager.js` and `PeripheralManager.js` do respond by closing their datastreams as if a session-stop was given, to ensure a decent closure.
-
 ### Key components
 
 #### pigpio
@@ -193,7 +194,10 @@ stateDiagram-v2
     Stopped --> [*]
 ```
 
-Please note: `handleRotationImpulse` implements all these state transitions, where the state transitions for the end of an interval and the end of a session are handled individually as the metrics updates differ slightly.
+Please note:
+
+* `handleRotationImpulse` implements all these state transitions, where the state transitions for the end of an interval and the end of a session are handled individually as the metrics updates differ slightly.
+* A session being 'stopped' can technically be turned into a 'Paused' by sending the 'startOrResume' command to the `handleCommand` function of `SessionManager.js`.
 
 In a nutshell:
 
