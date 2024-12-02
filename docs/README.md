@@ -1,4 +1,4 @@
-# Open Rowing Monitor
+# OpenRowingMonitor
 
 [![Node.js CI](https://github.com/JaapvanEkris/openrowingmonitor/actions/workflows/node.js.yml/badge.svg)](https://github.com/JaapvanEkris/openrowingmonitor/actions/workflows/node.js.yml)
 [![CodeQL](https://github.com/JaapvanEkris/openrowingmonitor/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/JaapvanEkris/openrowingmonitor/actions/workflows/codeql-analysis.yml)
@@ -6,11 +6,11 @@
 <!-- markdownlint-disable-next-line no-inline-html -->
 <img width="200" height="200" align="left" src="img/openrowingmonitor_icon.png" alt="Open Rowing Monitor logo" class="dropcap">
 
-Open Rowing Monitor is a free and open source performance monitor for rowing machines. It upgrades almost any rowing machine into a smart trainer that can be used with training applications and games.
+OpenRowingMonitor is a free and open source performance monitor for rowing machines. We want to upgrades any rowing machine into a smart trainer that can be used with training applications and games, making rowing much more accessible and more fun!
 
-It is a Node.js application that runs on a Raspberry Pi and measures the rotation of the rower's flywheel (or similar) to calculate rowing specific metrics, such as power, split time, speed, stroke rate, distance and calories. It can share these metrics for controling games and record these metrics for further analysis.
+It is an application that runs on relatively cheap hardware (a Raspberry Pi) and measures the rowing machine's flywheel (or similar) speed to calculate rowing specific metrics, such as power, split time, speed, stroke rate, distance and calories. We like this data to be easily accessible, so you can share these metrics for controling games and record these metrics for further analysis to improve your rowing (or bragging rights :)).
 
-Open Rowing Monitor should run fine with any rowing machine that uses some kind of damping mechanism, as long as you can add something to measure the speed of the flywheel. It has shown to work well with DIY rowing machines like the [Openergo](https://openergo.webs.com), providing the construction is decent. [You can find a full list of known and supported rowers here](Supported_Rowers.md). If your machine isn't listed, don't worry, it just means that you need to adjust the software settings following the [settings adjustment guide](rower_settings.md) yourself. And there is no reason to be anxious, in the [GitHub Discussions](https://github.com/laberning/openrowingmonitor/discussions) there always are friendly people to help you set up your machine and the settings.
+OpenRowingMonitor should run fine with any rowing machine that uses some kind of damping mechanism, as long as you can add something to measure the speed of the flywheel, like magnets. It has already shown to work well with many DIY rowing machines like the [Openergo](https://openergo.webs.com), providing the construction is decent. But OpenRowingMonitor can easily be fitted onto existing machines that lack a decent monitor: [you can find a full list of known and supported rowers here](Supported_Rowers.md). If your machine isn't listed, don't worry, it just means that you need to adjust the settings following the [settings adjustment help guide](rower_settings.md) yourself. There is no reason to be anxious, in the [GitHub Discussions](https://github.com/laberning/openrowingmonitor/discussions) there always are friendly people to help you set up your machine and the settings.
 
 ## Features
 
