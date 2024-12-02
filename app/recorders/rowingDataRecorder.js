@@ -10,9 +10,10 @@ import fs from 'fs/promises'
 import { promisify } from 'util'
 const gzip = promisify(zlib.gzip)
 
-function createRowingDataRecorder (config) {
+export function createRowingDataRecorder (config) {
   let filename
   let startTime
+  let splitNumber = 0
   let heartRate = 0
   let strokes = []
   let lastMetrics
@@ -20,10 +21,12 @@ function createRowingDataRecorder (config) {
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
   // we need to filter here what the WorkoutRecorder will react to and what it will ignore
-  async function handleCommand (commandName) {
+  async function handleCommand (commandName, data, client) {
     switch (commandName) {
+      case ('updateIntervalSettings'):
+        break
       case ('reset'):
-        if (lastMetrics.length > 0 && lastMetrics.totalMovingTime > strokes[strokes.length - 1].totalMovingTime) {
+        if (lastMetrics.metricsContext.isMoving && lastMetrics.length > 0 && lastMetrics.totalMovingTime > strokes[strokes.length - 1].totalMovingTime) {
           addMetricsToStrokesArray(lastMetrics)
         }
         await createRowingDataFile()
@@ -36,7 +39,7 @@ function createRowingDataRecorder (config) {
         allDataHasBeenWritten = true
         break
       case 'shutdown':
-        if (lastMetrics.length > 0 && lastMetrics.totalMovingTime > strokes[strokes.length - 1].totalMovingTime) {
+        if (lastMetrics.metricsContext.isMoving && lastMetrics.length > 0 && lastMetrics.totalMovingTime > strokes[strokes.length - 1].totalMovingTime) {
           addMetricsToStrokesArray(lastMetrics)
         }
         await createRowingDataFile()
@@ -70,20 +73,23 @@ function createRowingDataRecorder (config) {
         break
       case (metrics.metricsContext.isIntervalStart):
         addMetricsToStrokesArray(metrics)
+        splitNumber++
         break
       case (metrics.metricsContext.isPauseStart):
         addMetricsToStrokesArray(metrics)
         createRowingDataFile()
         break
+      case (metrics.metricsContext.isPauseEnd):
+        splitNumber++
+        addMetricsToStrokesArray(metrics)
+        break
+      case (metrics.metricsContext.isSplitEnd):
+        addMetricsToStrokesArray(metrics)
+        splitNumber++
+        break
       case (metrics.metricsContext.isDriveStart):
         addMetricsToStrokesArray(metrics)
         break
-//      ToDo: Resolve rounding issue, resolve interval counting
-//      Additional issue: shouldn't we mark interval ends instead of starts (symmetric to splits)
-//      Perhaps manage the conversion to interval numbering and workout distance here
-//      case (metrics.metricsContext.isSplitEnd):
-//        addMetricsToStrokesArray(metrics)
-//        break
     }
     lastMetrics = metrics
   }
@@ -91,12 +97,13 @@ function createRowingDataRecorder (config) {
   function addMetricsToStrokesArray (metrics) {
     addHeartRateToMetrics(metrics)
     addTimestampToMetrics(metrics)
+    addSplitnumberToMetrics(metrics)
     strokes.push(metrics)
     allDataHasBeenWritten = false
   }
 
   function addHeartRateToMetrics (metrics) {
-    if (heartRate !== undefined && heartRate > 30) {
+    if (heartRate !== undefined && heartRate > 0) {
       metrics.heartrate = heartRate
     } else {
       metrics.heartrate = undefined
@@ -111,6 +118,10 @@ function createRowingDataRecorder (config) {
       const currentTime = new Date()
       metrics.timestamp = currentTime.getTime() / 1000
     }
+  }
+
+  function addSplitnumberToMetrics (metrics) {
+    metrics.rowingDataSplitNumber = splitNumber
   }
 
   async function createRowingDataFile () {
@@ -135,14 +146,14 @@ function createRowingDataRecorder (config) {
     i = 0
     while (i < strokes.length) {
       currentstroke = strokes[i]
-      // ToDo: Add splits in such a way that RowingData's presentation is perfect
-      RowingData += `${currentstroke.totalNumberOfStrokes.toFixed(0)},${currentstroke.totalNumberOfStrokes.toFixed(0)},${currentstroke.totalNumberOfStrokes.toFixed(0)},${currentstroke.intervalNumber.toFixed(0)},${currentstroke.timestamp.toFixed(5)},` +
-        `${currentstroke.totalMovingTime.toFixed(5)},${(currentstroke.heartrate !== undefined ? currentstroke.heartrate.toFixed(0) : NaN)},${currentstroke.totalLinearDistance.toFixed(1)},` +
-        `${currentstroke.cycleStrokeRate > 0 ? currentstroke.cycleStrokeRate.toFixed(1) : NaN},${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.cyclePace > 0 ? currentstroke.cyclePace.toFixed(2) : NaN)},${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.cyclePower > 0 ? currentstroke.cyclePower.toFixed(0) : NaN)},` +
-        `${currentstroke.cycleDistance > 0 ? currentstroke.cycleDistance.toFixed(2) : NaN},${currentstroke.driveDuration > 0 ? (currentstroke.driveDuration * 1000).toFixed(0) : NaN},${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.driveLength ? currentstroke.driveLength.toFixed(2) : NaN)},${currentstroke.recoveryDuration > 0 ? (currentstroke.recoveryDuration * 1000).toFixed(0) : NaN},` +
-        `${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.cycleLinearVelocity > 0 ? currentstroke.cycleLinearVelocity.toFixed(2) : 0)},${currentstroke.totalLinearDistance.toFixed(1)},${currentstroke.totalCalories.toFixed(1)},${currentstroke.dragFactor > 0 ? currentstroke.dragFactor.toFixed(1) : NaN},` +
-        `${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.drivePeakHandleForce > 0 ? currentstroke.drivePeakHandleForce.toFixed(1) : NaN)},${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.driveAverageHandleForce > 0 ? currentstroke.driveAverageHandleForce.toFixed(1) : 0)},"${currentstroke.driveAverageHandleForce > 0 ? currentstroke.driveHandleForceCurve.map(value => value.toFixed(2)) : NaN}",` +
-        `"${currentstroke.driveAverageHandleForce > 0 ? currentstroke.driveHandleVelocityCurve.map(value => value.toFixed(3)) : NaN}","${currentstroke.driveAverageHandleForce > 0 ? currentstroke.driveHandlePowerCurve.map(value => value.toFixed(1)) : NaN}"\n`
+      // Add the strokes
+      RowingData += `${(i+1).toFixed(0)},${(i+1).toFixed(0)},${currentstroke.totalNumberOfStrokes.toFixed(0)},${currentstroke.rowingDataSplitNumber.toFixed(0)},${currentstroke.timestamp.toFixed(5)},` +
+      `${currentstroke.totalMovingTime.toFixed(5)},${(currentstroke.heartrate !== undefined ? currentstroke.heartrate.toFixed(0) : NaN)},${currentstroke.totalLinearDistance.toFixed(1)},` +
+      `${currentstroke.cycleStrokeRate > 0 ? currentstroke.cycleStrokeRate.toFixed(1) : NaN},${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.cyclePace > 0 ? currentstroke.cyclePace.toFixed(2) : NaN)},${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.cyclePower > 0 ? currentstroke.cyclePower.toFixed(0) : NaN)},` +
+      `${currentstroke.cycleDistance > 0 ? currentstroke.cycleDistance.toFixed(2) : NaN},${currentstroke.driveDuration > 0 ? (currentstroke.driveDuration * 1000).toFixed(0) : NaN},${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.driveLength ? currentstroke.driveLength.toFixed(2) : NaN)},${currentstroke.recoveryDuration > 0 ? (currentstroke.recoveryDuration * 1000).toFixed(0) : NaN},` +
+      `${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.cycleLinearVelocity > 0 ? currentstroke.cycleLinearVelocity.toFixed(2) : NaN)},${currentstroke.totalLinearDistance.toFixed(1)},${currentstroke.totalCalories.toFixed(1)},${currentstroke.dragFactor > 0 ? currentstroke.dragFactor.toFixed(1) : NaN},` +
+      `${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.drivePeakHandleForce > 0 ? currentstroke.drivePeakHandleForce.toFixed(1) : NaN)},${(currentstroke.totalNumberOfStrokes > 0 && currentstroke.driveAverageHandleForce > 0 ? currentstroke.driveAverageHandleForce.toFixed(1) : NaN)},"${currentstroke.driveAverageHandleForce > 0 ? currentstroke.driveHandleForceCurve.map(value => value.toFixed(2)) : NaN}",` +
+      `"${currentstroke.driveAverageHandleForce > 0 ? currentstroke.driveHandleVelocityCurve.map(value => value.toFixed(3)) : NaN}","${currentstroke.driveAverageHandleForce > 0 ? currentstroke.driveHandlePowerCurve.map(value => value.toFixed(1)) : NaN}"\n`
       i++
     }
     await createFile(RowingData, `${filename}`, false)
@@ -184,5 +195,3 @@ function createRowingDataRecorder (config) {
     recordHeartRate
   }
 }
-
-export { createRowingDataRecorder }
