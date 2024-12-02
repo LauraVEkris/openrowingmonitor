@@ -22,12 +22,14 @@ export function createTCXRecorder (config) {
   let lapnumber = 0
   let postExerciseHR = []
   let lastMetrics
-  let allDataHasBeenWritten
+  let allDataHasBeenWritten = true
 
   // This function handles all incomming commands. Here, the recordingmanager will have filtered
   // all unneccessary commands for us, so we only need to react to 'reset' and 'shutdown'
-  async function handleCommand (commandName) {
+  async function handleCommand (commandName, data, client) {
     switch (commandName) {
+      case ('updateIntervalSettings'):
+        break
       case ('reset'):
         if (lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
           // We apperantly get a reset during session
@@ -44,6 +46,7 @@ export function createTCXRecorder (config) {
         powerSeries.reset()
         speedSeries.reset()
         heartrateSeries.reset()
+        allDataHasBeenWritten = true
         break
       case 'shutdown':
         if (lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
@@ -390,9 +393,9 @@ export function createTCXRecorder (config) {
 
   function minimumRecordingTimeHasPassed () {
     const minimumRecordingTimeInSeconds = 10
-    const noLaps = sessionData.lap.length
-    if (sessionData.lap[noLaps - 1].strokes.length > 0) {
-      const strokeTimeTotal = sessionData.lap[noLaps - 1].strokes[sessionData.lap[noLaps - 1].strokes.length - 1].totalMovingTime
+    const noLaps = lapnumber
+    if (sessionData.lap[noLaps].strokes.length > 0) {
+      const strokeTimeTotal = sessionData.lap[noLaps].strokes[sessionData.lap[noLaps].strokes.length - 1].totalMovingTime
       return (strokeTimeTotal > minimumRecordingTimeInSeconds)
     } else {
       return (false)
@@ -401,9 +404,9 @@ export function createTCXRecorder (config) {
 
   function minimumNumberOfStrokesHaveCompleted () {
     const minimumNumberOfStrokes = 2
-    const noLaps = sessionData.lap.length
-    if (sessionData.lap[noLaps - 1].strokes.length > 0) {
-      const noStrokes = sessionData.lap[noLaps - 1].strokes[sessionData.lap[noLaps - 1].strokes.length - 1].totalNumberOfStrokes
+    const noLaps = lapnumber
+    if (sessionData.lap[noLaps].strokes.length > 0) {
+      const noStrokes = sessionData.lap[noLaps].strokes[sessionData.lap[noLaps].strokes.length - 1].totalNumberOfStrokes
       return (noStrokes > minimumNumberOfStrokes)
     } else {
       return (false)
