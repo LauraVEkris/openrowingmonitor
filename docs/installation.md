@@ -26,11 +26,48 @@ This guide roughly explains how to set up the rowing software and hardware.
 
 ### Installation of the Open Rowing Monitor
 
-Connect to the device with SSH and initiate the following command to set up all required dependencies and to install Open Rowing Monitor as an automatically starting system service:
+Connect to the device with SSH and initiate the following command to set up all required dependencies and to install OpenRowingMonitor as an automatically starting system service:
 
 ```zsh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/jaapvanekris/openrowingmonitor/HEAD/install/install.sh)"
 ```
+
+Just answer the questions from the script and OpenRowingMonitor will be installed for you completely.
+
+<!-- markdownlint-disable-next-line no-inline-html -->
+<details>
+
+<!-- markdownlint-disable-next-line no-inline-html -->
+<summary>Installing alternative branches</summary>
+
+Sometimes you need some functionality that isn't released in our stable 'main' branch yet, so one of our developers advises you to install an experimental branch. Please do not install an experimental branch unless you known what you are doing and you are told explicitly by any of our developers, as some branches may not even be functional without warning. Installing an alternative branch can be done via:
+
+```zsh
+wget https://raw.githubusercontent.com/jaapvanekris/openrowingmonitor/HEAD/install/install.sh
+```
+
+Followed by opening the downloaded file in a text editor (nano in this case):
+
+```zsh
+sudo nano install.sh
+```
+
+Here, look for the line
+
+```zsh
+BRANCH="main"
+```
+
+And change the name of the branch into one of your choosing. Save the file. You can now install the branch by running
+
+```zsh
+sudo /bin/bash ./install.sh
+```
+
+Just answer the questions from the script and OpenRowingMonitor will be installed for you completely.
+
+<!-- markdownlint-disable-next-line no-inline-html -->
+</details>
 
 ### Check if OpenRowingMonitor runs without issue
 
