@@ -48,21 +48,25 @@ if (config.appPriority) {
 const intervalSettings = []
 
 /* an example of the workout setting that the sessionManager will obey: a 1 minute warmup, a 2K timed piece followed by a 1 minute cooldown
+// All with a 500 meter split
 // This should normally come from the PM5 interface or the webinterface
 intervalSettings[0] = {
   targetDistance: 0,
-  targetTime: 60
+  targetTime: 60,
+  splitdistance: 500
 }
 
 /* Additional intervals for testing
 intervalSettings[1] = {
   targetDistance: 2000,
-  targetTime: 0
+  targetTime: 0,
+  splitdistance: 500
 }
 
 intervalSettings[2] = {
   targetDistance: 0,
-  targetTime: 60
+  targetTime: 60,
+  splitdistance: 500
 }
 */
 
