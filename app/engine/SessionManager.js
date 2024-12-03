@@ -128,7 +128,7 @@ export function createSessionManager (config) {
   function resetTraining () {
     stopTraining()
     rowingStatistics.resetTraining()
-    rowingStatistics.allowResumeTraining()
+    rowingStatistics.allowStartOrResumeTraining()
     metrics = rowingStatistics.getMetrics()
     intervalSettings = null
     intervalSettings = []
