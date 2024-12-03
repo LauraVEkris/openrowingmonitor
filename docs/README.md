@@ -6,15 +6,15 @@
 <!-- markdownlint-disable-next-line no-inline-html -->
 <img width="200" height="200" align="left" src="img/openrowingmonitor_icon.png" alt="OpenRowingMonitor logo" class="dropcap">
 
-OpenRowingMonitor is a free and open source performance monitor for rowing machines. We want to upgrade any rowing machine into a smart trainer that can be used with training applications and games, making rowing much more accessible and more fun!
+OpenRowingMonitor is a free and open source monitor for rowing machines. It allows you to upgrade any rowing machine into a smart trainer that can be used with training applications and games, making rowing much more fun and affordable!
 
-It is an application that runs on relatively cheap hardware (a Raspberry Pi) and measures the rowing machine's flywheel (or similar) speed to calculate rowing specific metrics, such as power, split time, speed, stroke rate, distance and calories. We like this data to be easily accessible, so you can share these metrics for controling games and record these metrics for further analysis to improve your rowing (or bragging rights :)).
+It is an application that runs on relatively cheap hardware (a Raspberry Pi) to calculate rowing specific metrics, such as power, split time, speed, stroke rate, distance and calories. We like this data to be easily accessible, so you can share these metrics for controling games and record these metrics for further analysis to improve your rowing (or bragging rights).
 
-OpenRowingMonitor should run fine with any rowing machine that uses some kind of damping mechanism, as long as you can add something to measure the speed of the flywheel, like magnets. It has already shown to work well with many DIY rowing machines like the [Openergo](https://openergo.webs.com), providing the construction is decent. But OpenRowingMonitor can easily be fitted onto existing machines that lack a decent monitor: [you can find a full list of known and supported rowers here](Supported_Rowers.md). If your machine isn't listed, don't worry, it just means that you need to adjust the settings following the [settings adjustment help guide](rower_settings.md) yourself. There is no reason to be anxious, in the [GitHub Discussions](https://github.com/laberning/openrowingmonitor/discussions) there always are friendly people to help you set up your machine and the settings.
+OpenRowingMonitor runs fine on any rowing machine that uses some kind of damping mechanism, as long as you can add something to measure the speed of the flywheel, like magnets. It has already shown to work well with many DIY rowing machines like the [Openergo](https://openergo.webs.com), providing the construction is decent. But OpenRowingMonitor can also be fitted onto existing machines that lack a decent monitor: [you can find a full list of known and supported rowers here](Supported_Rowers.md). If your machine isn't listed, don't worry, it just means that you need to adjust the settings following the [settings adjustment help guide](rower_settings.md) yourself. There is no reason to be anxious, in the [GitHub Discussions](https://github.com/laberning/openrowingmonitor/discussions) there always are friendly people to help you set up your machine and the settings.
 
 ## Features
 
-OpenRowingMonitor aims to provide you with metrics directly, connect to watches, apps and games via bluetooth or ANT+ and allow you to export your data to the analysis tool of your choice. These features have been tested intensily, where most features have survived flawlessly over 3 million meters of rowing with different types of rowing machines.
+OpenRowingMonitor aims to provide you with metrics directly, connect to watches, apps and games via bluetooth or ANT+ and allow you to export your data to the analysis tool of your choice. These features have been tested intensily, where most features have survived flawlessly over thousands of kilometers of rowing with different types of rowing machines.
 
 <!-- markdownlint-disable-next-line no-inline-html -->
 <img src="img/openrowingmonitor_frontend.png" alt="Image showing the main OpenRowingMonitor screen" title="The main screen" width="700"><br clear="left">
@@ -23,7 +23,7 @@ The following items describe most of the current features in more detail.
 
 ### Rowing Metrics
 
-OpenRowingMonitor implements a physics model to simulate the typical metrics of a rowing boat based on the pull on the handle. The physics model can be tuned to the specifics of a rower by changing some model parameters in the configuration file, where we also provide these [settings for machines known to us](Supported_Rowers.md). The underlying V1 physics engine has been validated against a Concept2 PM5 in over 300 sessions (totalling 2.5 million meters), and results deviate less than 0.05% for every individual rowing session.
+OpenRowingMonitor implements a physics model to simulate the typical metrics of a rowing boat based on the pull on the handle. The physics model can be tuned to the specifics of a rower by changing some model parameters in the configuration file, where we also provide these [settings for machines known to us](Supported_Rowers.md). The underlying physics engine is structurally validated against a Concept2 PM5 in over 300 sessions (totalling 2.5 million meters), and results deviate less than 0.1% for every individual rowing session.
 
 OpenRowingMonitor can display the following key metrics on the user interface:
 
