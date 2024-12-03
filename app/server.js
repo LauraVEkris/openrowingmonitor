@@ -141,10 +141,8 @@ async function handleCommand (command, data, client) {
 // Be Aware, this is a temporary workaround to activate the hardcoded settings at application start
 // ToDo: move this to the handlecommand structure as soon as the PM5/web-interface can do this
 if (intervalSettings.length > 0) {
-  // There is an interval defined at startup, let's inform the sessionManager
-  // ToDo: update these settings when the PM5 or webinterface tells us to via the handleCommand structures
-  sessionManager.setIntervalParameters(intervalSettings)
-  recordingManager.setIntervalParameters(intervalSettings)
+  // There is a manually defined interval at startup, let's inform the sessionManager
+  handleCommand('updateIntervalSettings', intervalSettings, null)
 } else {
   log.info('Starting a just row session, no time or distance target set')
 }
