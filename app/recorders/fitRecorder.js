@@ -296,7 +296,7 @@ export function createFITRecorder (config) {
       {
         timestamp: fitWriter.time(workout.startTime),
         device_index: 0,
-        device_type: 'fitness_equipment',
+        device_type: 0,
         manufacturer: 'concept2'
       },
       null,
@@ -320,11 +320,28 @@ export function createFITRecorder (config) {
     await createWorkoutSteps(fitWriter, workout)
 
     fitWriter.writeMessage(
+      'split',
+      {
+        start_time: fitWriter.time(workout.startTime),
+        split_type: 'intervalActive',
+        total_elapsed_time: Math.abs(workout.endTime - workout.startTime) / 1000,
+        total_moving_time: workout.totalMovingTime,
+        total_timer_time: workout.totalMovingTime,
+        total_distance: workout.totalLinearDistance,
+        avg_speed: sessionSpeedSeries.average(),
+        max_speed: sessionSpeedSeries.maximum(),
+        end_time: fitWriter.time(workout.endTime)
+      },
+      null,
+      true
+    )
+
+    fitWriter.writeMessage(
       'event',
       {
         timestamp: fitWriter.time(workout.endTime),
         event: 'timer',
-        event_type: 'stop_all',
+        event_type: 'stopAll',
         event_group: 0
       },
       null,
@@ -338,7 +355,7 @@ export function createFITRecorder (config) {
       'sport',
       {
         sport: 'rowing',
-        sub_sport: 'indoor_rowing',
+        sub_sport: 'indoorRowing',
         name: 'Row Indoor'
       },
       null,
@@ -366,10 +383,10 @@ export function createFITRecorder (config) {
         timestamp: writer.time(workout.endTime),
         message_index: 0,
         sport: 'rowing',
-        sub_sport: 'indoor_rowing',
+        sub_sport: 'indoorRowing',
         event: 'session',
         event_type: 'stop',
-        trigger: 'activity_end',
+        trigger: 'activityEnd',
         start_time: writer.time(workout.startTime),
         total_elapsed_time: Math.abs(workout.endTime - workout.startTime) / 1000,
         total_moving_time: workout.totalMovingTime,
@@ -414,11 +431,11 @@ export function createFITRecorder (config) {
         timestamp: writer.time(lapdata.startTime),
         message_index: lapdata.lapNumber - 1,
         sport: 'rowing',
-        sub_sport: 'indoor_rowing',
+        sub_sport: 'indoorRowing',
         event: 'lap',
         event_type: 'stop',
         intensity: 'active',
-        ...(sessionData.totalNoLaps === lapdata.lapNumber ? { lap_trigger: 'session_end' } : { lap_trigger: 'fitness_equipment' }),
+        ...(sessionData.totalNoLaps === lapdata.lapNumber ? { lap_trigger: 'sessionEnd' } : { lap_trigger: 'fitnessEquipment' }),
         start_time: writer.time(lapdata.startTime),
         total_elapsed_time: lapdata.totalMovingTime,
         total_timer_time: lapdata.totalMovingTime,
@@ -447,7 +464,7 @@ export function createFITRecorder (config) {
         timestamp: writer.time(trackpoint.timeStamp),
         distance: trackpoint.totalLinearDistance,
         total_cycles: trackpoint.totalNumberOfStrokes,
-        activity_type: 'fitness_equipment',
+        activity_type: 'fitnessEquipment',
         ...(trackpoint.cycleLinearVelocity > 0 || trackpoint.metricsContext.isPauseStart ? { speed: trackpoint.cycleLinearVelocity } : {}),
         ...(trackpoint.cyclePower > 0 || trackpoint.metricsContext.isPauseStart ? { power: trackpoint.cyclePower } : {}),
         ...(trackpoint.cycleStrokeRate > 0 ? { cadence: trackpoint.cycleStrokeRate } : {}),
@@ -463,7 +480,8 @@ export function createFITRecorder (config) {
       'workout',
       {
         sport: 'rowing',
-        capabilities: 'fitness_equipment',
+        sub_sport: 'indoorRowing',
+        capabilities: 'fitnessEquipment',
         num_valid_steps: workout.workoutplan.length,
         wkt_name: `Indoor rowing ${workout.totalLinearDistance / 1000}K`
       },
@@ -554,6 +572,7 @@ export function createFITRecorder (config) {
   return {
     handleCommand,
     setBaseFileName,
+    setIntervalParameters,
     recordRowingMetrics,
     recordHeartRate
   }
