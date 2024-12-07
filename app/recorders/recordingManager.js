@@ -119,7 +119,7 @@ export function createRecordingManager (config) {
   }
 
   async function activeWorkoutToTcx () {
-    await tcxRecorder.activeWorkoutToTcx()
+    return await tcxRecorder.activeWorkoutToTcx()
   }
 
   return {
