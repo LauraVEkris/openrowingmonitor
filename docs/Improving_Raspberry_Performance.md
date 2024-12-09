@@ -26,7 +26,7 @@ One of these options is to turn off CPU exploit protection. This is a huge secur
 mitigations=off
 ```
 
-Another option is to dedicate a CPU to Open Rowing Monitor and run the CPU's in isolation. This avenue isn't explored fully, and the effects on Open Rowing Monitor are unknown, but [this text explains how it should work](https://forums.raspberrypi.com/viewtopic.php?t=228727).
+Another option is to dedicate a CPU to Open Rowing Monitor and run the CPU's in isolation. This avenue isn't explored fully, and the effects on Open Rowing Monitor are unknown, but [this text explains how it should work](https://forums.raspberrypi.com/viewtopic.php?t=228727), [this text](https://forums.raspberrypi.com/viewtopic.php?t=325091), [this text](https://raspberrypi.stackexchange.com/questions/61956/can-i-have-1-processor-core-just-for-my-program) and [this text](https://www.cyberciti.biz/tips/setting-processor-affinity-certain-task-or-process.html).
 
 ### CPU Scaling
 
@@ -73,5 +73,7 @@ sudo systemctl disable triggerhappy.service
 There are some other services that can be stopped, but where the effects on Open Rowing Monitor are untested, [which can be found here](https://wiki.linuxaudio.org/wiki/raspberrypi).
 
 ## Things you can do in OpenRowingMonitor
+
+Setting AppPrio and gpioPrio.
 
 One thing you can do to improve CPU performance is to reduce *flanklength*, which will reduce CPU-load. So running with unneccessary long *flanklength* isn't advised.
