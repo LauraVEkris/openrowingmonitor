@@ -170,6 +170,7 @@ export function createFITRecorder (config) {
     sessionData.lap[lapnumber].totalCaloriesAtStart = metrics.totalCalories
     sessionData.lap[lapnumber].totalNumberOfStrokesAtStart = metrics.totalNumberOfStrokes
     sessionData.lap[lapnumber].startTime = startTime
+    sessionData.lap[lapnumber].workoutStepNumber = metrics.workoutStepNumber
     sessionData.lap[lapnumber].lapNumber = lapnumber + 1
   }
 
@@ -444,6 +445,7 @@ export function createFITRecorder (config) {
         sport: 'rowing',
         sub_sport: 'indoorRowing',
         event: 'lap',
+        wkt_step_index: lapdata.workoutStepNumber,
         event_type: 'stop',
         intensity: 'active',
         ...(sessionData.totalNoLaps === lapdata.lapNumber ? { lap_trigger: 'sessionEnd' } : { lap_trigger: 'fitnessEquipment' }),
