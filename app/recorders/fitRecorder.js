@@ -267,6 +267,7 @@ export function createFITRecorder (config) {
   }
 
   async function workoutToFit (workout) {
+    // See https://developer.garmin.com/fit/cookbook/encoding-activity-files/ for a description
     const fitWriter = new FitWriter()
     const versionNumber = parseInt(process.env.npm_package_version, 10)
 
@@ -367,8 +368,8 @@ export function createFITRecorder (config) {
         start_time: writer.time(workout.startTime),
         split_type: 'intervalActive',
         total_elapsed_time: Math.abs(workout.endTime - workout.startTime) / 1000,
+        total_timer_time: Math.abs(workout.endTime - workout.startTime) / 1000,
         total_moving_time: workout.totalMovingTime,
-        total_timer_time: workout.totalMovingTime,
         total_distance: workout.totalLinearDistance,
         avg_speed: sessionSpeedSeries.average(),
         max_speed: sessionSpeedSeries.maximum(),
@@ -379,6 +380,7 @@ export function createFITRecorder (config) {
     )
 
     // Conclude with a session summary
+    // See https://developer.garmin.com/fit/cookbook/durations/ for explanation about times
     writer.writeMessage(
       'session',
       {
@@ -391,6 +393,7 @@ export function createFITRecorder (config) {
         trigger: 'activityEnd',
         start_time: writer.time(workout.startTime),
         total_elapsed_time: Math.abs(workout.endTime - workout.startTime) / 1000,
+        total_timer_time: Math.abs(workout.endTime - workout.startTime) / 1000,
         total_moving_time: workout.totalMovingTime,
         total_distance: workout.totalLinearDistance,
         total_cycles: workout.totalNumberOfStrokes,
@@ -415,9 +418,9 @@ export function createFITRecorder (config) {
     writer.writeMessage(
       'activity',
       {
-        timestamp: writer.time(workout.startTime),
+        timestamp: writer.time(workout.endTime),
         local_timestamp: writer.time(workout.startTime) - workout.startTime.getTimezoneOffset() * 60,
-        total_timer_time: workout.totalMovingTime,
+        total_timer_time: Math.abs(workout.endTime - workout.startTime) / 1000,
         num_sessions: 1,
         event: 'activity',
         event_type: 'stop',
@@ -440,7 +443,7 @@ export function createFITRecorder (config) {
     writer.writeMessage(
       'lap',
       {
-        timestamp: writer.time(lapdata.startTime),
+        timestamp: writer.time(lapdata.endTime),
         message_index: lapdata.lapNumber - 1,
         sport: 'rowing',
         sub_sport: 'indoorRowing',
@@ -450,8 +453,9 @@ export function createFITRecorder (config) {
         intensity: 'active',
         ...(sessionData.totalNoLaps === lapdata.lapNumber ? { lap_trigger: 'sessionEnd' } : { lap_trigger: 'fitnessEquipment' }),
         start_time: writer.time(lapdata.startTime),
-        total_elapsed_time: lapdata.totalMovingTime,
-        total_timer_time: lapdata.totalMovingTime,
+        total_elapsed_time: Math.abs(lapdata.endTime - lapdata.startTime) / 1000,
+        total_timer_time: Math.abs(lapdata.endTime - lapdata.startTime) / 1000,
+        total_moving_time: lapdata.totalMovingTime,
         total_distance: lapdata.totalLinearDistance,
         total_cycles: lapdata.numberOfStrokes,
         avg_cadence: lapdata.averageStrokeRate,
