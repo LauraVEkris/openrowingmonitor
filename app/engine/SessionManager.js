@@ -320,6 +320,7 @@ export function createSessionManager (config) {
   function enrichMetrics (metricsToEnrich) {
     metricsToEnrich.sessiontype = interval.type()
     metricsToEnrich.sessionStatus = sessionState // ToDo: remove this naming change by changing the consumers
+    metricsToEnrich.workoutStepNumber = Math.max(currentIntervalNumber, 0) // Interval number, to keep in sync with the workout plan
     metricsToEnrich.intervalNumber = Math.max(noSpontaneousPauses + currentIntervalNumber + 1, 0) // Interval number, for both planned and unplanned intervals
     metricsToEnrich.intervalMovingTime = interval.timeSinceStart(metricsToEnrich)
     metricsToEnrich.intervalTargetTime = interval.targetTime()
