@@ -130,8 +130,10 @@ export function createFITRecorder (config) {
         createFitFile()
         break
       case (metrics.metricsContext.isPauseEnd):
+        // The session is resumed, so it was a pause instead of a stop
+        // ToDo: handle the situation where the Workout forces rest period (future functionality)
         lapnumber++
-        addRestLap(lapnumber, metrics, sessionData.lap[lapnumber - 1].endTime, currentTime) {
+        addRestLap(lapnumber, metrics, sessionData.lap[lapnumber - 1].endTime, currentTime)
         lapnumber++
         startLap(lapnumber, metrics, currentTime)
         addMetricsToStrokesArray(metrics)
