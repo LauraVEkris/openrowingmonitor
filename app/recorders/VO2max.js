@@ -71,11 +71,9 @@ export function createVO2max (config) {
       while (j < metrics.lap[i].strokes.length) {
         if (metrics.lap[i].strokes[j].totalMovingTime > offset && metrics.lap[i].strokes[j].heartrate !== undefined && metrics.lap[i].strokes[j].heartrate > 0 && metrics.lap[i].strokes[j].cyclePower !== undefined && metrics.lap[i].strokes[j].cyclePower > 0) {
           // We are outside the startup noise and have numeric fields
-          log.debug(`--- VO2Max extrapolation added ${metrics.lap[i].strokes[j].totalMovingTime} sec, HR: ${metrics.lap[i].strokes[j].heartrate} bpm, power ${metrics.lap[i].strokes[j].cyclePower} Watt`)
           bucketedLinearSeries.push(metrics.lap[i].strokes[j].heartrate, metrics.lap[i].strokes[j].cyclePower)
         } else {
           // We skip the first timeperiod as it only depicts the change from a resting HR to a working HR, we also skip inplausible values
-          log.debug(`--- VO2Max extrapolation skipped ${metrics.lap[i].strokes[j].totalMovingTime} sec, HR: ${metrics.lap[i].strokes[j].heartrate} bpm, power ${metrics.lap[i].strokes[j].cyclePower} Watt`)
         }
         j++
       }
