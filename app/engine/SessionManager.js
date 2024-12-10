@@ -26,7 +26,6 @@ export function createSessionManager (config) {
   let intervalSettings = []
   let currentIntervalNumber = -1
   const interval = createWorkoutSegment()
-  let noSpontaneousPauses = 0
   const intervalAndPause = createWorkoutSegment()
   const split = createWorkoutSegment()
   let splitNumber = 0
@@ -122,7 +121,6 @@ export function createSessionManager (config) {
     clearTimeout(watchdogTimer)
     distanceOverTime.push(metrics.totalMovingTime, metrics.totalLinearDistance)
     rowingStatistics.pauseTraining()
-    noSpontaneousPauses++
   }
 
   function resetTraining () {
@@ -132,7 +130,6 @@ export function createSessionManager (config) {
     metrics = rowingStatistics.getMetrics()
     intervalSettings = null
     intervalSettings = []
-    noSpontaneousPauses = 0
     currentIntervalNumber = -1
     splitNumber = 0
     distanceOverTime.reset()
@@ -321,7 +318,6 @@ export function createSessionManager (config) {
     metricsToEnrich.sessiontype = interval.type()
     metricsToEnrich.sessionStatus = sessionState // ToDo: remove this naming change by changing the consumers
     metricsToEnrich.workoutStepNumber = Math.max(currentIntervalNumber, 0) // Interval number, to keep in sync with the workout plan
-    metricsToEnrich.intervalNumber = Math.max(noSpontaneousPauses + currentIntervalNumber + 1, 0) // Interval number, for both planned and unplanned intervals
     metricsToEnrich.intervalMovingTime = interval.timeSinceStart(metricsToEnrich)
     metricsToEnrich.intervalTargetTime = interval.targetTime()
     metricsToEnrich.intervalAndPauseMovingTime = intervalAndPause.timeSinceStart(metricsToEnrich)
