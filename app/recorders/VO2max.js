@@ -17,15 +17,20 @@ export function createVO2max (config) {
   function calculateVO2max (metrics) {
     let projectedVO2max = 0
     let interpolatedVO2max = 0
-    const lastStroke = metrics.lap[metrics.lap.length - 1].strokes[metrics.lap[metrics.lap.length - 1].strokes.length - 1]
+    const lastlap = metrics.lap.length
+    const lastStroke = metrics.lap[lastlap - 1].strokes[metrics.lap[lastlap - 1].strokes.length - 1]
 
     if (metrics.lap[0].strokes[0].heartrate !== undefined && lastStroke.heartrate !== undefined && lastStroke.heartrate >= config.userSettings.restingHR) {
       projectedVO2max = extrapolatedVO2max(metrics)
+    } else {
+      log.debug(`--- Extrapolated VO2Max calculation skipped: last stroke heartrate (${lastStroke.heartrate} BPM) < restingHR (${config.userSettings.restingHR} BPM)`)
     }
 
     if (metrics.lap[0].strokes[0].heartrate !== undefined && lastStroke.heartrate !== undefined && lastStroke.heartrate >= (0.8 * config.userSettings.maxHR)) {
       // Concept2's formula is only valid when doing a pretty intense session
       interpolatedVO2max = calculateInterpolatedVO2max(metrics)
+    } else {
+      log.debug(`--- Interpolated VO2Max calculation skipped: last stroke heartrate (${lastStroke.heartrate} BPM) < Zone 4 HR (${0.8 * config.userSettings.maxHR} BPM)`)
     }
 
     if (projectedVO2max >= 10 && projectedVO2max <= 60 && interpolatedVO2max >= 10 && interpolatedVO2max <= 60) {
@@ -64,11 +69,13 @@ export function createVO2max (config) {
     while (i < metrics.lap.length) {
       j = 0
       while (j < metrics.lap[i].strokes.length) {
-        if (metrics.lap[i].strokes[j].totalMovingTime < offset && metrics.lap[i].strokes[j].heartrate !== undefined && metrics.lap[i].strokes[j].heartrate >= config.userSettings.restingHR && metrics.lap[i].strokes[j].heartrate <= config.userSettings.maxHR && metrics.lap[i].strokes[j].cyclePower !== undefined && metrics.lap[i].strokes[j].cyclePower >= config.userSettings.minPower && metrics.lap[i].strokes[j].cyclePower <= config.userSettings.maxPower) {
-          // We skip the first timeperiod as it only depicts the change from a resting HR to a working HR, we also skip inplausible values
-        } else {
-          // We are outside the startup noise
+        if (metrics.lap[i].strokes[j].totalMovingTime > offset && metrics.lap[i].strokes[j].heartrate !== undefined && metrics.lap[i].strokes[j].heartrate > 0 && metrics.lap[i].strokes[j].cyclePower !== undefined && metrics.lap[i].strokes[j].cyclePower > 0) {
+          // We are outside the startup noise and have numeric fields
+          log.debug(`--- VO2Max extrapolation added ${metrics.lap[i].strokes[j].totalMovingTime} sec, HR: ${metrics.lap[i].strokes[j].heartrate} bpm, power ${metrics.lap[i].strokes[j].cyclePower} Watt`)
           bucketedLinearSeries.push(metrics.lap[i].strokes[j].heartrate, metrics.lap[i].strokes[j].cyclePower)
+        } else {
+          // We skip the first timeperiod as it only depicts the change from a resting HR to a working HR, we also skip inplausible values
+          log.debug(`--- VO2Max extrapolation skipped ${metrics.lap[i].strokes[j].totalMovingTime} sec, HR: ${metrics.lap[i].strokes[j].heartrate} bpm, power ${metrics.lap[i].strokes[j].cyclePower} Watt`)
         }
         j++
       }
