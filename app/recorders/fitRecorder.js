@@ -213,24 +213,10 @@ export function createFITRecorder (config) {
   function addRestLap (lapnumber, metrics, startTime, endTime) {
     sessionData.lap[lapnumber] = { startTime }
     sessionData.lap[lapnumber].intensity = 'rest'
-    sessionData.lap[lapnumber].strokes = []
-    // ToDo: handle the situation where the Workout forces rest period (future functionality), and thus the workoutStepNumber should change based on the current and previous lap
+    // ToDo: look the situation where the Workout forces rest period (future functionality), and thus the workoutStepNumber should change based on the current and previous lap (should work automatically???)
     sessionData.lap[lapnumber].workoutStepNumber = metrics.workoutStepNumber
     sessionData.lap[lapnumber].lapNumber = lapnumber + 1
-    sessionData.lap[lapnumber].totalMovingTime = 0
     sessionData.lap[lapnumber].endTime = endTime
-    sessionData.lap[lapnumber].totalLinearDistance = 0
-    sessionData.lap[lapnumber].totalCalories = 0
-    sessionData.lap[lapnumber].numberOfStrokes = 0
-    sessionData.lap[lapnumber].averageStrokeRate = 0
-    sessionData.lap[lapnumber].maximumStrokeRate = 0
-    sessionData.lap[lapnumber].averageStrokeDistance = 0
-    sessionData.lap[lapnumber].averagePower = 0
-    sessionData.lap[lapnumber].maximumPower = 0
-    sessionData.lap[lapnumber].averageSpeed = 0
-    sessionData.lap[lapnumber].maximumSpeed = 0
-    sessionData.lap[lapnumber].averageHeartrate = 0
-    sessionData.lap[lapnumber].maximumHeartrate = 0
   }
 
   function updateSessionMetrics (metrics) {
@@ -357,7 +343,12 @@ export function createFITRecorder (config) {
     // Write all laps
     let i = 0
     while (i < workout.lap.length) {
-      await createLap(writer, workout.lap[i])
+      if (workout.lap[i].intensity === 'active') {
+        await createActiveLap(writer, workout.lap[i])
+      } else {
+        // This is a rest interval
+        await createRestLap(writer, workout.lap[i])
+      }
       i++
     }
 
@@ -449,8 +440,8 @@ export function createFITRecorder (config) {
     )
   }
 
-  async function createLap (writer, lapdata) {
-    // Write all underlying records
+  async function createActiveLap (writer, lapdata) {
+    // It is an active lap, so write all underlying records
     let i = 0
     while (i < lapdata.strokes.length) {
       await createTrackPoint(writer, lapdata.strokes[i])
@@ -490,6 +481,46 @@ export function createFITRecorder (config) {
       null,
       sessionData.totalNoLaps === lapdata.lapNumber
     )
+  }
+
+  async function createRestLap (writer, lapdata) {
+    // Pause the session with a stop event at the begin of the rest interval
+    await addTimerEvent(writer, lapdata.startTime, 'stopAll')
+
+    // Add a trivial lap summary
+    writer.writeMessage(
+      'lap',
+      {
+        timestamp: writer.time(lapdata.endTime),
+        message_index: lapdata.lapNumber - 1,
+        sport: 'rowing',
+        sub_sport: 'indoorRowing',
+        event: 'lap',
+        wkt_step_index: lapdata.workoutStepNumber,
+        event_type: 'stop',
+        intensity: lapdata.intensity,
+        lap_trigger: 'fitnessEquipment',
+        start_time: writer.time(lapdata.startTime),
+        total_elapsed_time: Math.abs(lapdata.endTime - lapdata.startTime) / 1000,
+        total_timer_time: Math.abs(lapdata.endTime - lapdata.startTime) / 1000,
+        total_moving_time: 0,
+        total_distance: 0,
+        total_cycles: 0,
+        avg_cadence: 0,
+        max_cadence: 0,
+        avg_stroke_distance: 0,
+        total_calories: 0,
+        avg_speed: 0,
+        max_speed: 0,
+        avg_power: 0,
+        max_power: 0,
+      },
+      null,
+      sessionData.totalNoLaps === lapdata.lapNumber
+    )
+
+    // Restart of the session
+    await addTimerEvent(writer, lapdata.endTime, 'start')
   }
 
   async function createTrackPoint (writer, trackpoint) {
