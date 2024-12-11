@@ -212,8 +212,8 @@ export function createFITRecorder (config) {
   }
 
   function addRestLap (lapnumber, metrics, startTime, endTime) {
-    sessionData.lap[lapnumber] = { startTime: startTime }
-	  sessionData.lap[lapnumber].intensity = 'rest'
+    sessionData.lap[lapnumber] = { startTime }
+    sessionData.lap[lapnumber].intensity = 'rest'
     sessionData.lap[lapnumber].strokes = []
     sessionData.lap[lapnumber].workoutStepNumber = metrics.workoutStepNumber
     sessionData.lap[lapnumber].lapNumber = lapnumber + 1
