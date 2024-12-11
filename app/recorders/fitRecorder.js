@@ -513,7 +513,7 @@ export function createFITRecorder (config) {
         avg_speed: 0,
         max_speed: 0,
         avg_power: 0,
-        max_power: 0,
+        max_power: 0
       },
       null,
       sessionData.totalNoLaps === lapdata.lapNumber
