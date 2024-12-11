@@ -131,7 +131,6 @@ export function createFITRecorder (config) {
         break
       case (metrics.metricsContext.isPauseEnd):
         // The session is resumed, so it was a pause instead of a stop
-        // ToDo: handle the situation where the Workout forces rest period (future functionality)
         lapnumber++
         addRestLap(lapnumber, metrics, sessionData.lap[lapnumber - 1].endTime, currentTime)
         lapnumber++
@@ -215,6 +214,7 @@ export function createFITRecorder (config) {
     sessionData.lap[lapnumber] = { startTime }
     sessionData.lap[lapnumber].intensity = 'rest'
     sessionData.lap[lapnumber].strokes = []
+    // ToDo: handle the situation where the Workout forces rest period (future functionality), and thus the workoutStepNumber should change based on the current and previous lap
     sessionData.lap[lapnumber].workoutStepNumber = metrics.workoutStepNumber
     sessionData.lap[lapnumber].lapNumber = lapnumber + 1
     sessionData.lap[lapnumber].totalMovingTime = 0
