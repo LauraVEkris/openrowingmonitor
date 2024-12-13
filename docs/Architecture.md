@@ -15,6 +15,12 @@ The choice has been made to use JavaScript to build te application, as many of t
 
 ## Main functional components and flow between them
 
+OpenRowingMonitor consists out of several isolated functional blocks, some even being their own thread, all communicating through `server.js`. Each functional block has its own manager, maging the entire functional block. In describing OpenRowingMonitor's main architecture, we distinguish between the dataflow and the controleflow. The latter typically is handled by the manager of the section.
+
+We first describe the main data flows. Next, relation between these main functional components by describing the flow of the key pieces of information in more detail: the flywheel and heartrate measurements, as well as the command structure.
+
+### Introduction: main data flow
+
 At the highest level, we recognise the following functional components, with their primary dataflows:
 
 ```mermaid
@@ -56,15 +62,13 @@ subgraph clients
 end
 ```
 
-Here, *currentDt* stands for the time between the impulses of the sensor, as measured by the pigpio in 'ticks' (i.e. microseconds sinds OS start).
+Here, *currentDt* stands for the time between the impulses of the sensor, as measured by the pigpio in 'ticks' (i.e. microseconds sinds OS start). The `GpioTimerService.js` is a small functional block that feeds the rest of the application.
 
-Key element is that clients always will filter for themselves: the rowing engine will transform *currentDt*'s into rowing metrics, and attach flags onto them in the `metricsContext` object contained in the metrics. This context allows clients to act upon specific relevant states, like the start of the drive, the start of a session, etc.
-
-We first describe the relation between these main functional components by describing the flow of the key pieces of information in more detail: the flywheel and heartrate measurements, as well as the command structure.
+Key element is that consuming functional blocks (clients) always will filter for themselves: the RowingEngine essentially transforms *currentDt*'s into useable rowing metrics, and attach flags onto them in the `metricsContext` object contained in the metrics. This context allows clients to act upon states that are specifically relevant to them (like the start of the drive, the start of a session, etc.), while ignoring updates that are irrelevant for them.
 
 ### Command flow
 
-All major elements (i.e the 'managers') in the application expose a `handleCommand()` function, which respond to a defined set of commands. These commands are explicitly restricted to user actions via the web-interface or a peripheral. In essence, this is a user of external session control (via Bluetooth or ANT+) dictating behaviour of OpenRowingMonitor as an external trigger. Effects of a session-state (i.e. session start or end based on a predefined session end) should be handled via the metrics updates. Adittionally, effects upon a session state as a result of a comand (i.e. session ends because of a command) should also be handled via the metrics updates whenever possible. These manual commands are connected as follows:
+All functional blocks have a 'manager', which expose a `handleCommand()` function, which respond to a defined set of commands. These commands are explicitly restricted to user actions (i.e. inputs via the web-interface or a peripheral). In essence, this is a user of external session control (via Bluetooth or ANT+) dictating behaviour of OpenRowingMonitor as an external trigger. Effects of metrics upon a session-state (i.e. session start or end based on a predefined session end) should be handled via the metrics updates. Adittionally, effects upon a session state as a result of a command (i.e. session ends because of a command) should also be handled via the metrics updates whenever possible. These manual commands are connected as follows:
 
 ```mermaid
 sequenceDiagram
