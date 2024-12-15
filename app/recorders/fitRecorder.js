@@ -258,7 +258,9 @@ export function createFITRecorder (config) {
   }
 
   async function workoutToFit (workout) {
-    // See https://developer.garmin.com/fit/cookbook/encoding-activity-files/ for a description
+    // See https://developer.garmin.com/fit/file-types/activity/ for the fields and their meaning. We use 'Smart Recording' per stroke.
+    // See also https://developer.garmin.com/fit/cookbook/encoding-activity-files/ for a description of the filestructure and how timestamps should be implemented
+    // We use 'summary last message sequencing' as the stream makes most sense that way
     const fitWriter = new FitWriter()
     const versionNumber = parseInt(process.env.npm_package_version, 10)
 
@@ -430,6 +432,7 @@ export function createFITRecorder (config) {
     }
 
     // Conclude the lap with a summary
+    // See https://developer.garmin.com/fit/cookbook/durations/ for how the different times are defined
     writer.writeMessage(
       'lap',
       {
@@ -468,7 +471,8 @@ export function createFITRecorder (config) {
     // Pause the session with a stop event at the begin of the rest interval
     await addTimerEvent(writer, lapdata.startTime, 'stopAll')
 
-    // Add a trivial lap summary
+    // Add a rest lap summary
+    // See https://developer.garmin.com/fit/cookbook/durations/ for how the different times are defined
     writer.writeMessage(
       'lap',
       {
@@ -523,6 +527,8 @@ export function createFITRecorder (config) {
   }
 
   async function createWorkoutSteps (writer, workout) {
+    // See https://developer.garmin.com/fit/file-types/workout/ for a general description of the workout structure
+    // and https://developer.garmin.com/fit/cookbook/encoding-workout-files/ for a detailed description of the workout structure
     writer.writeMessage(
       'workout',
       {
