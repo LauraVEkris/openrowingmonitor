@@ -6,13 +6,13 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 
 ### New functionality in 0.9.5
 
-- Added **FIT-File support**: you an now automatically generate a FIT-file after a rowing session
+- Added **FIT-File support**: you an now automatically generate a FIT-file after a rowing session, which alows for a more detailed reporting than the tcx-format, and is commonly accepted by most platforms
 - Support for intervals, splits, rest intervals and spontanuous pauses in the session and the (FIT, tcx and RowingData) recordings.  Please note, setting intervals and splits in a user friendly way is still a ToDo that is intended for 1.0.0.
 
 ### Bugfixes and robustness improvements in 0.9.5
 
-- **Improvement of the architecture**: we cleaned up the old architecture and went to a more message bus structure where clients are responsible for their own datatransmissions. See [architecture](Architecture.md) for a deeper implementation
-- **Performance improvement of the TS estimator**, further reducing CPU load
+- **Improvement of the architecture**: we cleaned up the old architecture and went to a more message bus structure where clients are responsible for their own datatransmissions. See [the architecture description](Architecture.md) for a deep-dive of the implementation
+- **Performance improvement of the TS estimator**, further reducing CPU load, which significantly improves accuracy of the measurements and metrics as the Linux kernel has an easier job keeping the time accurate.
 - **Removed a lot of memory leaks**, although only being problematic in large simulations (i.e. over 3000K), we want to keep our code to behave nice
 - **Improved robustness of the stroke detection algorithm**
 - **Validation of the engine against a PM5 for over 3000KM**, where the deviation is a maximum of 0.1%
