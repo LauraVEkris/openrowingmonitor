@@ -13,6 +13,8 @@ export function createSeries (maxSeriesLength) {
   let numNeg = 0
 
   function push (value) {
+    if (value === undefined || isNaN(value)) { return }
+
     if (maxSeriesLength > 0 && seriesArray.length >= maxSeriesLength) {
       // The maximum of the array has been reached, we have to create room by removing the first
       // value from the array
