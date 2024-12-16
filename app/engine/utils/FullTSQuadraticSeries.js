@@ -44,6 +44,7 @@ export function createTSQuadraticSeries (maxSeriesLength = 0) {
   function push (x, y) {
     // Invariant: A contains all a's (as in the general formula y = a * x^2 + b * x + c)
     // Where the a's are labeled in the Binary Search Tree with their Xi when they BEGIN in the point (Xi, Yi)
+    if (x === undefined || isNaN(x) || y === undefined || isNaN(y)) { return }
 
     if (maxSeriesLength > 0 && X.length() >= maxSeriesLength) {
       // The maximum of the array has been reached, so when pushing the new datapoint (x,y), the array will get shifted,
