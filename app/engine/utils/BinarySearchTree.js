@@ -10,6 +10,7 @@ export function createLabelledBinarySearchTree () {
   let tree = null
 
   function push (label, value) {
+    if (value === undefined || !isNaN(value)) { return }
     if (tree === null) {
       tree = newNode(label, value)
     } else {
