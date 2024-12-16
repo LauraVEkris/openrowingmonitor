@@ -205,11 +205,15 @@ export function createRowingStatistics (config) {
     } else {
       dragFactor = undefined
     }
-    // based on: http://eodg.atm.ox.ac.uk/user/dudhia/rowing/physics/ergometer.html#section11
-    strokeCalories = (4 * cyclePower.clean() + 350) * (cycleDuration.clean()) / 4200
-    strokeWork = cyclePower.clean() * cycleDuration.clean()
-    const totalCalories = calories.Y.atSeriesEnd() + strokeCalories
-    calories.push(totalMovingTime, totalCalories)
+
+    if (cyclePower.reliable() && cycleDuration.reliable()) {
+      // ToDo: see if this can be made part of the continuousmatrcs as Garmin and Concept2 also have a 'calories' type of training
+      // based on: http://eodg.atm.ox.ac.uk/user/dudhia/rowing/physics/ergometer.html#section11
+      strokeCalories = (4 * cyclePower.clean() + 350) * (cycleDuration.clean()) / 4200
+      strokeWork = cyclePower.clean() * cycleDuration.clean()
+      const totalCalories = calories.Y.atSeriesEnd() + strokeCalories
+      calories.push(totalMovingTime, totalCalories)
+    }
   }
 
   function allMetrics () {
