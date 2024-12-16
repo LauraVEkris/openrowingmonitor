@@ -40,6 +40,8 @@ export function createTSLinearSeries (maxSeriesLength = 0) {
   function push (x, y) {
     // Invariant: A contains all a's (as in the general formula y = a * x + b)
     // Where the a's are labeled in the Binary Search Tree with their xi when they BEGIN in the point (xi, yi)
+    if (x === undefined || isNaN(x) || y === undefined || isNaN(y)) { return }
+
     if (maxSeriesLength > 0 && X.length() >= maxSeriesLength) {
       // The maximum of the array has been reached, so when pushing the x,y the array gets shifted,
       // thus we have to remove the a's belonging to the current position X0 as well before this value is trashed
