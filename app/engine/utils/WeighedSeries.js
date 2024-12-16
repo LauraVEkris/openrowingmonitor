@@ -14,6 +14,7 @@ export function createWeighedSeries (maxSeriesLength, defaultValue) {
   const weightedArray = createSeries(maxSeriesLength)
 
   function push (value, weight) {
+    if (value === undefined || isNaN(value) || weight === undefined || isNaN(weight)) { return }
     dataArray.push(value)
     weightArray.push(weight)
     weightedArray.push(value * weight)
