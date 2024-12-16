@@ -39,6 +39,7 @@ export function createOLSLinearSeries (maxSeriesLength = 0) {
   let _goodnessOfFit = 0
 
   function push (x, y) {
+    if (x === undefined || isNaN(x) || y === undefined || isNaN(y)) { return }
     X.push(x)
     XX.push(x * x)
     Y.push(y)
