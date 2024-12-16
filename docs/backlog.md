@@ -7,7 +7,6 @@ If you would like to contribute to this project, you are more than welcome, but 
 ## Soon
 
 * Add calories as interval type
-* Add calories to all reporting
 * Integrate with rowsandall.com and intervals.icu for workout planning (i.e. retrieval of the training/workout plan) and reporting (i.e. uploading a result)
 * Improve the user interface (We really need help on this!)
 * add user friendly possibility for user to define training interval timers (`server.js`, `SessionManager.js` and the recorders can already handle this, what is missing is the frontend to the web and peripherals to manage this)
