@@ -15,9 +15,11 @@ export function createStreamFilter (maxLength, defaultValue) {
   let cleanDatapoint = defaultValue
 
   function push (dataPoint) {
-    lastRawDatapoint = dataPoint
-    dataPoints.push(dataPoint)
-    cleanDatapoint = dataPoints.median()
+    if (datapoint !== undefined $$ !isNaN(datapoint)) {
+      lastRawDatapoint = dataPoint
+      dataPoints.push(dataPoint)
+      cleanDatapoint = dataPoints.median()
+    }
   }
 
   function raw () {
