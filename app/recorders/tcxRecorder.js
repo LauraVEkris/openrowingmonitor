@@ -40,6 +40,8 @@ export function createTCXRecorder (config) {
         await createTcxFile()
         heartRate = 0
         sessionData = null
+        sessionData = {}
+        sessionData.lap = []
         lapnumber = 0
         postExerciseHR = null
         postExerciseHR = []
