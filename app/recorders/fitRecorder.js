@@ -600,14 +600,22 @@ export function createFITRecorder (config) {
 
   function minimumRecordingTimeHasPassed () {
     const minimumRecordingTimeInSeconds = 10
-    const strokeTimeTotal = sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime
-    return (strokeTimeTotal > minimumRecordingTimeInSeconds)
+    if (lastMetrics !== undefined && lastMetrics.totalMovingTime !== undefined) {
+      const strokeTimeTotal = lastMetrics.totalMovingTime
+      return (strokeTimeTotal > minimumRecordingTimeInSeconds)
+    } else {
+      return false
+    }
   }
 
   function minimumNumberOfStrokesHaveCompleted () {
     const minimumNumberOfStrokes = 2
-    const noStrokes = sessionData.lap[0].strokes.length
-    return (noStrokes > minimumNumberOfStrokes)
+    if (lastMetrics !== undefined && lastMetrics.totalNumberOfStrokes !== undefined) {
+      const noStrokes = lastMetrics.totalNumberOfStrokes
+      return (noStrokes > minimumNumberOfStrokes)
+    } else {
+      return false
+    }
   }
 
   return {
