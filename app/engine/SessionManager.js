@@ -133,16 +133,15 @@ export function createSessionManager (config) {
     stopTraining()
     rowingStatistics.resetTraining()
     rowingStatistics.allowStartOrResumeTraining()
-    metrics = rowingStatistics.getMetrics()
     intervalSettings = null
     intervalSettings = []
     currentIntervalNumber = -1
     splitNumber = 0
     distanceOverTime.reset()
+    metrics = rowingStatistics.getMetrics()
     resetMetricsSessionContext(metrics)
     sessionState = 'WaitingForStart'
     lastSessionState = 'WaitingForStart'
-    resetMetricsSessionContext(metrics)
     interval.setStart(metrics)
     intervalAndPause.setStart(metrics)
     split.setStart(metrics)
