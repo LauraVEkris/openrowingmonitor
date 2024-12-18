@@ -393,23 +393,21 @@ export function createTCXRecorder (config) {
 
   function minimumRecordingTimeHasPassed () {
     const minimumRecordingTimeInSeconds = 10
-    const noLaps = lapnumber
-    if (sessionData.lap[noLaps].strokes.length > 0) {
-      const strokeTimeTotal = sessionData.lap[noLaps].strokes[sessionData.lap[noLaps].strokes.length - 1].totalMovingTime
+    if (lastMetrics !== undefined && lastMetrics.totalMovingTime !== undefined) {
+      const strokeTimeTotal = lastMetrics.totalMovingTime
       return (strokeTimeTotal > minimumRecordingTimeInSeconds)
     } else {
-      return (false)
+      return false
     }
   }
 
   function minimumNumberOfStrokesHaveCompleted () {
     const minimumNumberOfStrokes = 2
-    const noLaps = lapnumber
-    if (sessionData.lap[noLaps].strokes.length > 0) {
-      const noStrokes = sessionData.lap[noLaps].strokes[sessionData.lap[noLaps].strokes.length - 1].totalNumberOfStrokes
+    if (lastMetrics !== undefined && lastMetrics.totalNumberOfStrokes !== undefined) {
+      const noStrokes = lastMetrics.totalNumberOfStrokes
       return (noStrokes > minimumNumberOfStrokes)
     } else {
-      return (false)
+      return false
     }
   }
 
