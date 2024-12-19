@@ -176,7 +176,7 @@ export function createSessionManager (config) {
       case (lastSessionState === 'WaitingForStart'):
         // We can't change into the "Rowing" state since we are waiting for a drive phase that didn't come
         break
-      case (lastSessionState === 'Paused' && && metrics.metricsContext.isMoving === true):
+      case (lastSessionState === 'Paused' && metrics.metricsContext.isMoving === true):
         allowStartOrResumeTraining(metrics)
         sessionState = 'Rowing'
         metrics.metricsContext.isIntervalStart = true
