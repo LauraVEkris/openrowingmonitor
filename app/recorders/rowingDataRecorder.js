@@ -16,7 +16,7 @@ export function createRowingDataRecorder (config) {
   let splitNumber = 0
   let heartRate = 0
   let strokes = []
-  let lastMetrics
+  let lastMetrics = {}
   let allDataHasBeenWritten
 
   // This function handles all incomming commands. As all commands are broadasted to all application parts,
@@ -36,6 +36,7 @@ export function createRowingDataRecorder (config) {
         strokes = null
         strokes = []
         lastMetrics = null
+        lastMetrics = {}
         allDataHasBeenWritten = true
         break
       case 'shutdown':
