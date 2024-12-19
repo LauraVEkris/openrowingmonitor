@@ -105,6 +105,11 @@ export function createRowingStatistics (config) {
         metricsContext.isMoving = true
         metricsContext.isDriveStart = true
         break
+      case (lastStrokeState === 'WaitingForDrive' && rower.strokeState() === 'Recovery'):
+        updateContinousMetrics()
+        metricsContext.isMoving = true
+        metricsContext.isRecoveryStart = true
+        break
       case (lastStrokeState === 'WaitingForDrive'):
         // We can't change into the "Rowing" state since we are waiting for a drive phase that didn't come
         metricsContext.isMoving = false // This has the disired side-effect that the many of the reported instanous metrics are zero-ed
