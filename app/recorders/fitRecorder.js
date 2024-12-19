@@ -30,7 +30,7 @@ export function createFITRecorder (config) {
   sessionData.workoutplan = []
   sessionData.lap = []
   let lapnumber = 0
-  let lastMetrics
+  let lastMetrics = {}
   let allDataHasBeenWritten
 
   // This function handles all incomming commands. Here, the recordingmanager will have filtered
@@ -54,6 +54,7 @@ export function createFITRecorder (config) {
         resetLapMetrics()
         sessionData = null
         sessionData = {}
+        lastMetrics = {}
         break
       case 'shutdown':
         if (lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
