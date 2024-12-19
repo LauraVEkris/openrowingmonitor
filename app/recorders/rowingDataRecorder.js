@@ -61,6 +61,7 @@ export function createRowingDataRecorder (config) {
   }
 
   function recordRowingMetrics (metrics) {
+    // ToDo: Move to the metrics.timestamp data
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
         if (startTime === undefined) {
