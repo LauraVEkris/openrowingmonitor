@@ -29,6 +29,7 @@ export function createSessionManager (config) {
   const interval = createWorkoutSegment()
   const intervalAndPause = createWorkoutSegment()
   const split = createWorkoutSegment()
+  let intervalAndPauseStartTime = new Date()
   let splitNumber = 0
   const distanceOverTime = createOLSLinearSeries(Math.min(4, numOfDataPointsForAveraging))
 
@@ -111,6 +112,7 @@ export function createSessionManager (config) {
 
   function allowStartOrResumeTraining (metrics) {
     rowingStatistics.allowStartOrResumeTraining()
+    intervalAndPauseStartTime = new Date()
     intervalAndPause.setStart(metrics)
     split.setStart(metrics)
     split.setEnd(interval.getSplit())
@@ -143,6 +145,7 @@ export function createSessionManager (config) {
     sessionState = 'WaitingForStart'
     lastSessionState = 'WaitingForStart'
     interval.setStart(metrics)
+    intervalAndPauseStartTime = new Date()
     intervalAndPause.setStart(metrics)
     split.setStart(metrics)
     emitMetrics(metrics)
@@ -164,7 +167,7 @@ export function createSessionManager (config) {
 
     // This is the core of the finite state machine that defines all state transitions
     switch (true) {
-      case (lastSessionState === 'WaitingForStart' && metrics.strokeState === 'Drive'):
+      case (lastSessionState === 'WaitingForStart' && metrics.metricsContext.isMoving === true):
         allowStartOrResumeTraining(metrics)
         sessionState = 'Rowing'
         metrics.metricsContext.isIntervalStart = true
@@ -173,7 +176,7 @@ export function createSessionManager (config) {
       case (lastSessionState === 'WaitingForStart'):
         // We can't change into the "Rowing" state since we are waiting for a drive phase that didn't come
         break
-      case (lastSessionState === 'Paused' && metrics.strokeState === 'Drive'):
+      case (lastSessionState === 'Paused' && && metrics.metricsContext.isMoving === true):
         allowStartOrResumeTraining(metrics)
         sessionState = 'Rowing'
         metrics.metricsContext.isIntervalStart = true
@@ -330,6 +333,7 @@ export function createSessionManager (config) {
       // This function sets the interval parameters in absolute distances/times
       // Thus the interval target always is a projected "finishline" from the current position
       interval.setStart(baseMetrics)
+      intervalAndPauseStartTime = new Date(intervalAndPauseStartTime.getTime() + intervalAndPause.timeSinceStart(baseMetrics) * 1000)
       intervalAndPause.setStart(baseMetrics)
 
       currentIntervalNumber++
@@ -361,6 +365,7 @@ export function createSessionManager (config) {
 
   function enrichMetrics (metricsToEnrich) {
     // ToDo: add absolute timestamp and base all recorders and BLE connections use that to harmonize timestamps across devices
+    metricsToEnrich.timestamp = new Date(intervalAndPauseStartTime.getTime() + intervalAndPause.timeSinceStart(metricsToEnrich) * 1000)
     metricsToEnrich.sessiontype = interval.type()
     metricsToEnrich.sessionStatus = sessionState // ToDo: remove this naming change by changing the consumers
     metricsToEnrich.workoutStepNumber = Math.max(currentIntervalNumber, 0) // Interval number, to keep in sync with the workout plan
