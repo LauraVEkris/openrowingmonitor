@@ -70,6 +70,7 @@ export function createTCXRecorder (config) {
   }
 
   function recordRowingMetrics (metrics) {
+    // ToDo: Move to the metrics.timestamp data
     const currentTime = new Date()
     let startTime
     let intervalEndMetrics
