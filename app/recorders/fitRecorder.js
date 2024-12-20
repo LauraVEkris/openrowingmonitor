@@ -82,16 +82,11 @@ export function createFITRecorder (config) {
   }
 
   function recordRowingMetrics (metrics) {
-    // ToDo: Move to the metrics.timestamp data
-    const currentTime = new Date()
-    let startTime
-    let workoutStepNo
-
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
-        sessionData.startTime = currentTime
+        sessionData.startTime = metrics.timestamp
         lapnumber = 0
-        startLap(lapnumber, metrics, currentTime)
+        startLap(lapnumber, metrics)
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isSessionStop):
@@ -113,12 +108,10 @@ export function createFITRecorder (config) {
         break
       case (metrics.metricsContext.isPauseEnd):
         // The session is resumed, so it was a pause instead of a stop
-        startTime = sessionData.lap[lapnumber].endTime
-        workoutStepNo = sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].workoutStepNumber
         lapnumber++
-        addRestLap(lapnumber, metrics, startTime, currentTime, workoutStepNo)
+        addRestLap(lapnumber, metrics, sessionData.lap[lapnumber-1].ensessionData.lap[lapnumber-1].endTimedTime, sessionData.lap[lapnumber - 1].strokes[sessionData.lap[lapnumber - 1].strokes.length - 1].workoutStepNumber)
         lapnumber++
-        startLap(lapnumber, metrics, currentTime)
+        startLap(lapnumber, metrics)
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isIntervalStart || metrics.metricsContext.isSplitEnd):
@@ -129,7 +122,7 @@ export function createFITRecorder (config) {
         calculateSessionMetrics(metrics)
         resetLapMetrics()
         lapnumber++
-        startLap(lapnumber, metrics, sessionData.lap[lapnumber - 1].endTime)
+        startLap(lapnumber, metrics)
         updateLapMetrics(metrics)
         break
       case (metrics.metricsContext.isDriveStart):
@@ -143,19 +136,18 @@ export function createFITRecorder (config) {
 
   function addMetricsToStrokesArray (metrics) {
     addHeartRateToMetrics(metrics)
-    metrics.timeStamp = new Date(sessionData.lap[lapnumber].startTime.getTime() + (metrics.totalMovingTime - sessionData.lap[lapnumber].totalMovingTimeAtStart) * 1000)
     sessionData.lap[lapnumber].strokes.push(metrics)
     allDataHasBeenWritten = false
   }
 
-  function startLap (lapnumber, metrics, startTime) {
+  function startLap (lapnumber, metrics) {
     sessionData.lap[lapnumber] = { totalMovingTimeAtStart: metrics.totalMovingTime }
     sessionData.lap[lapnumber].intensity = 'active'
     sessionData.lap[lapnumber].strokes = []
     sessionData.lap[lapnumber].totalLinearDistanceAtStart = metrics.totalLinearDistance
     sessionData.lap[lapnumber].totalCaloriesAtStart = metrics.totalCalories
     sessionData.lap[lapnumber].totalNumberOfStrokesAtStart = metrics.totalNumberOfStrokes
-    sessionData.lap[lapnumber].startTime = startTime
+    sessionData.lap[lapnumber].startTime = metrics.timestamp
     sessionData.lap[lapnumber].workoutStepNumber = metrics.workoutStepNumber
     sessionData.lap[lapnumber].lapNumber = lapnumber + 1
   }
@@ -171,7 +163,7 @@ export function createFITRecorder (config) {
   function calculateLapMetrics (metrics) {
     // We need to calculate the end time of the interval based on the time passed in the interval, as delay in message handling can cause weird effects here
     sessionData.lap[lapnumber].totalMovingTime = metrics.totalMovingTime - sessionData.lap[lapnumber].totalMovingTimeAtStart
-    sessionData.lap[lapnumber].endTime = new Date(sessionData.lap[lapnumber].startTime.getTime() + sessionData.lap[lapnumber].totalMovingTime * 1000)
+    sessionData.lap[lapnumber].endTime = metrics.timestamp
     sessionData.lap[lapnumber].totalLinearDistance = metrics.totalLinearDistance - sessionData.lap[lapnumber].totalLinearDistanceAtStart
     sessionData.lap[lapnumber].totalCalories = metrics.totalCalories - sessionData.lap[lapnumber].totalCaloriesAtStart
     sessionData.lap[lapnumber].numberOfStrokes = metrics.totalNumberOfStrokes - sessionData.lap[lapnumber].totalNumberOfStrokesAtStart
@@ -194,12 +186,12 @@ export function createFITRecorder (config) {
     lapHeartrateSeries.reset()
   }
 
-  function addRestLap (lapnumber, metrics, startTime, endTime, workoutStepNo) {
+  function addRestLap (lapnumber, metrics, startTime, workoutStepNo) {
     sessionData.lap[lapnumber] = { startTime }
     sessionData.lap[lapnumber].intensity = 'rest'
     sessionData.lap[lapnumber].workoutStepNumber = workoutStepNo
     sessionData.lap[lapnumber].lapNumber = lapnumber + 1
-    sessionData.lap[lapnumber].endTime = endTime
+    sessionData.lap[lapnumber].endTime = metrics.timestamp
   }
 
   function updateSessionMetrics (metrics) {
@@ -514,7 +506,7 @@ export function createFITRecorder (config) {
     writer.writeMessage(
       'record',
       {
-        timestamp: writer.time(trackpoint.timeStamp),
+        timestamp: writer.time(trackpoint.timestamp),
         distance: trackpoint.totalLinearDistance,
         total_cycles: trackpoint.totalNumberOfStrokes,
         activity_type: 'fitnessEquipment',
