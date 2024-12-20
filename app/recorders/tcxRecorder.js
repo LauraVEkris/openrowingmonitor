@@ -76,10 +76,10 @@ export function createTCXRecorder (config) {
     let intervalEndMetrics
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
-        sessionData = { startTime: currentTime }
+        sessionData = { startTime: metrics.timestamp }
         sessionData.lap = []
         lapnumber = 0
-        sessionData.lap[lapnumber] = { startTime: currentTime }
+        sessionData.lap[lapnumber] = { startTime: metrics.timestamp }
         sessionData.lap[lapnumber].strokes = []
         addMetricsToStrokesArray(metrics)
         break
@@ -106,7 +106,7 @@ export function createTCXRecorder (config) {
         break
       case (metrics.metricsContext.isPauseEnd):
         lapnumber++
-        sessionData.lap[lapnumber] = { startTime: currentTime }
+        sessionData.lap[lapnumber] = { startTime: metrics.timestamp }
         sessionData.lap[lapnumber].strokes = []
         addMetricsToStrokesArray(metrics)
         break
@@ -114,6 +114,7 @@ export function createTCXRecorder (config) {
         // Please note: we deliberatly add the metrics twice as it marks both the end of the old interval and the start of a new one
         updateLapMetrics(metrics)
         intervalEndMetrics = { ...metrics }
+        // ToDo: check if next line is needed
         intervalEndMetrics.intervalAndPauseMovingTime = metrics.totalMovingTime - sessionData.lap[lapnumber].strokes[0].totalMovingTime
         addMetricsToStrokesArray(intervalEndMetrics)
         calculateLapMetrics(metrics)
@@ -121,9 +122,7 @@ export function createTCXRecorder (config) {
         speedSeries.reset()
         heartrateSeries.reset()
         lapnumber++
-        // We need to calculate the start time of the interval, as delay in message handling can cause weird effects here
-        startTime = new Date(sessionData.lap[lapnumber - 1].startTime.getTime() + intervalEndMetrics.intervalAndPauseMovingTime * 1000)
-        sessionData.lap[lapnumber] = { startTime }
+        sessionData.lap[lapnumber] = { startTime: metrics.timestamp }
         sessionData.lap[lapnumber].strokes = []
         addMetricsToStrokesArray(metrics)
         break
@@ -252,7 +251,7 @@ export function createTCXRecorder (config) {
     // Add the strokes
     let i = 0
     while (i < lapdata.strokes.length) {
-      tcxData += await createTrackPoint(lapdata.startTime, lapdata.strokes[i])
+      tcxData += await createTrackPoint(lapdata.strokes[i])
       i++
     }
     tcxData += '        </Track>\n'
@@ -268,12 +267,10 @@ export function createTCXRecorder (config) {
     return tcxData
   }
 
-  async function createTrackPoint (offset, trackpoint) {
-    const trackPointTime = new Date(offset.getTime() + trackpoint.intervalAndPauseMovingTime * 1000)
-
+  async function createTrackPoint (trackpoint) {
     let tcxData = ''
     tcxData += '          <Trackpoint>\n'
-    tcxData += `            <Time>${trackPointTime.toISOString()}</Time>\n`
+    tcxData += `            <Time>${trackpoint.timestamp.toISOString()}</Time>\n`
     tcxData += `            <DistanceMeters>${trackpoint.totalLinearDistance.toFixed(2)}</DistanceMeters>\n`
     tcxData += `            <Cadence>${(trackpoint.cycleStrokeRate > 0 ? Math.round(trackpoint.cycleStrokeRate) : 0)}</Cadence>\n`
     if (trackpoint.cycleLinearVelocity > 0 || trackpoint.cyclePower > 0 || trackpoint.metricsContext.isPauseStart) {
