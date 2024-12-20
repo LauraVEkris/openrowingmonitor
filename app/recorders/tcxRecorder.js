@@ -70,7 +70,6 @@ export function createTCXRecorder (config) {
   }
 
   function recordRowingMetrics (metrics) {
-    let intervalEndMetrics
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
         sessionData = { startTime: metrics.timestamp }
@@ -110,10 +109,7 @@ export function createTCXRecorder (config) {
       case (metrics.metricsContext.isIntervalStart):
         // Please note: we deliberatly add the metrics twice as it marks both the end of the old interval and the start of a new one
         updateLapMetrics(metrics)
-        intervalEndMetrics = { ...metrics }
-        // ToDo: check if next line is needed
-        intervalEndMetrics.intervalAndPauseMovingTime = metrics.totalMovingTime - sessionData.lap[lapnumber].strokes[0].totalMovingTime
-        addMetricsToStrokesArray(intervalEndMetrics)
+        addMetricsToStrokesArray(metrics)
         calculateLapMetrics(metrics)
         powerSeries.reset()
         speedSeries.reset()
