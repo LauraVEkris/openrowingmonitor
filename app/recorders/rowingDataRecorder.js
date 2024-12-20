@@ -61,11 +61,10 @@ export function createRowingDataRecorder (config) {
   }
 
   function recordRowingMetrics (metrics) {
-    // ToDo: Move to the metrics.timestamp data
     switch (true) {
       case (metrics.metricsContext.isSessionStart):
         if (startTime === undefined) {
-          startTime = new Date()
+          startTime = metrics.timestamp
         }
         addMetricsToStrokesArray(metrics)
         break
@@ -98,7 +97,6 @@ export function createRowingDataRecorder (config) {
 
   function addMetricsToStrokesArray (metrics) {
     addHeartRateToMetrics(metrics)
-    addTimestampToMetrics(metrics)
     addSplitnumberToMetrics(metrics)
     strokes.push(metrics)
     allDataHasBeenWritten = false
@@ -109,16 +107,6 @@ export function createRowingDataRecorder (config) {
       metrics.heartrate = heartRate
     } else {
       metrics.heartrate = undefined
-    }
-  }
-
-  function addTimestampToMetrics (metrics) {
-    if (metrics.totalMovingTime !== undefined) {
-      const trackPointTime = new Date(startTime.getTime() + metrics.totalMovingTime * 1000)
-      metrics.timestamp = trackPointTime.getTime() / 1000
-    } else {
-      const currentTime = new Date()
-      metrics.timestamp = currentTime.getTime() / 1000
     }
   }
 
