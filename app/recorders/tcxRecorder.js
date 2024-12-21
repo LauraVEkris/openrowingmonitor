@@ -135,7 +135,7 @@ export function createTCXRecorder (config) {
   function startLap (lapnumber, metrics) {
     sessionData.lap[lapnumber] = { startTime: metrics.timestamp }
     sessionData.lap[lapnumber].intensity = 'Active'
-    sessionData.lap[lapnumber].strokes = []    
+    sessionData.lap[lapnumber].strokes = []
   }
 
   function updateLapMetrics (metrics) {
@@ -256,7 +256,7 @@ export function createTCXRecorder (config) {
       tcxData += `        <AverageHeartRateBpm>${Math.round(lapdata.averageHeartrate.toFixed(0))}</AverageHeartRateBpm>\n`
       tcxData += `        <MaximumHeartRateBpm>${Math.round(lapdata.maximumHeartrate.toFixed(0))}</MaximumHeartRateBpm>\n`
     }
-    tcxData += '        <Intensity>${lapdata.intensity}</Intensity>\n'
+    tcxData += `        <Intensity>${lapdata.intensity}</Intensity>\n`
     tcxData += `        <Cadence>${lapdata.averageStrokeRate.toFixed(0)}</Cadence>\n`
     tcxData += '        <TriggerMethod>Manual</TriggerMethod>\n'
     tcxData += '        <Track>\n'
@@ -283,15 +283,14 @@ export function createTCXRecorder (config) {
     let tcxData = ''
     tcxData += `      <Lap StartTime="${lapdata.startTime.toISOString()}">\n`
     tcxData += `        <TotalTimeSeconds>${(lapdata.endTime - lapdata.startTime).toFixed(1)}</TotalTimeSeconds>\n`
-    tcxData += `        <DistanceMeters>0</DistanceMeters>\n`
-    tcxData += `        <MaximumSpeed>0</MaximumSpeed>\n`
-    tcxData += `        <Calories>0</Calories>\n`
-    tcxData += '        <Intensity>${lapdata.intensity}</Intensity>\n'
+    tcxData += '        <DistanceMeters>0</DistanceMeters>\n'
+    tcxData += '        <MaximumSpeed>0</MaximumSpeed>\n'
+    tcxData += '        <Calories>0</Calories>\n'
+    tcxData += `        <Intensity>${lapdata.intensity}</Intensity>\n`
     tcxData += '        <TriggerMethod>Manual</TriggerMethod>\n'
     tcxData += '      </Lap>\n'
     return tcxData
   }
-
 
   async function createTrackPoint (trackpoint) {
     let tcxData = ''
