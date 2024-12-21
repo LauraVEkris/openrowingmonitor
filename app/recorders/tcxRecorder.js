@@ -115,11 +115,18 @@ export function createTCXRecorder (config) {
         startLap(lapnumber, metrics)
         addMetricsToStrokesArray(metrics)
         break
-      case (metrics.metricsContext.isDriveStart):
+      case (metrics.metricsContext.isSplitEnd):
+        // Please note: we deliberatly add the metrics twice as it marks both the end of the old split and the start of a new one
         updateLapMetrics(metrics)
         addMetricsToStrokesArray(metrics)
+        calculateLapMetrics(metrics)
+        resetLapMetrics()
+        lapnumber++
+        startLap(lapnumber, metrics)
+        addMetricsToStrokesArray(metrics)
         break
-      case (metrics.metricsContext.isSplitEnd):
+      case (metrics.metricsContext.isDriveStart):
+        updateLapMetrics(metrics)
         addMetricsToStrokesArray(metrics)
         break
     }
