@@ -109,7 +109,7 @@ export function createFITRecorder (config) {
       case (metrics.metricsContext.isPauseEnd):
         // The session is resumed, so it was a pause instead of a stop
         lapnumber++
-        addRestLap(lapnumber, metrics, sessionData.lap[lapnumber - 1].ensessionData.lap[lapnumber - 1].endTimedTime, sessionData.lap[lapnumber - 1].strokes[sessionData.lap[lapnumber - 1].strokes.length - 1].workoutStepNumber)
+        addRestLap(lapnumber, metrics, sessionData.lap[lapnumber - 1].endTime, sessionData.lap[lapnumber - 1].strokes[sessionData.lap[lapnumber - 1].strokes.length - 1].workoutStepNumber)
         lapnumber++
         startLap(lapnumber, metrics)
         addMetricsToStrokesArray(metrics)
