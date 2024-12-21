@@ -75,8 +75,7 @@ export function createTCXRecorder (config) {
         sessionData = { startTime: metrics.timestamp }
         sessionData.lap = []
         lapnumber = 0
-        sessionData.lap[lapnumber] = { startTime: metrics.timestamp }
-        sessionData.lap[lapnumber].strokes = []
+        startLap(lapnumber, metrics)
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isSessionStop):
@@ -92,18 +91,18 @@ export function createTCXRecorder (config) {
         updateLapMetrics(metrics)
         addMetricsToStrokesArray(metrics)
         calculateLapMetrics(metrics)
-        powerSeries.reset()
-        speedSeries.reset()
-        heartrateSeries.reset()
+        resetLapMetrics()
         postExerciseHR = null
         postExerciseHR = []
         createTcxFile()
         measureRecoveryHR()
         break
       case (metrics.metricsContext.isPauseEnd):
+        // First add the rest lap hich we seem to have completed
         lapnumber++
-        sessionData.lap[lapnumber] = { startTime: metrics.timestamp }
-        sessionData.lap[lapnumber].strokes = []
+        addRestLap(lapnumber, metrics, sessionData.lap[lapnumber - 1].endTime)
+        lapnumber++
+        startLap(lapnumber, metrics)
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isIntervalStart):
@@ -111,12 +110,9 @@ export function createTCXRecorder (config) {
         updateLapMetrics(metrics)
         addMetricsToStrokesArray(metrics)
         calculateLapMetrics(metrics)
-        powerSeries.reset()
-        speedSeries.reset()
-        heartrateSeries.reset()
+        resetLapMetrics()
         lapnumber++
-        sessionData.lap[lapnumber] = { startTime: metrics.timestamp }
-        sessionData.lap[lapnumber].strokes = []
+        startLap(lapnumber, metrics)
         addMetricsToStrokesArray(metrics)
         break
       case (metrics.metricsContext.isDriveStart):
@@ -136,6 +132,12 @@ export function createTCXRecorder (config) {
     allDataHasBeenWritten = false
   }
 
+  function startLap (lapnumber, metrics) {
+    sessionData.lap[lapnumber] = { startTime: metrics.timestamp }
+    sessionData.lap[lapnumber].intensity = 'Active'
+    sessionData.lap[lapnumber].strokes = []    
+  }
+
   function updateLapMetrics (metrics) {
     if (metrics.cyclePower !== undefined && metrics.cyclePower > 0) { powerSeries.push(metrics.cyclePower) }
     if (metrics.cycleLinearVelocity !== undefined && metrics.cycleLinearVelocity > 0) { speedSeries.push(metrics.cycleLinearVelocity) }
@@ -143,6 +145,7 @@ export function createTCXRecorder (config) {
   }
 
   function calculateLapMetrics (metrics) {
+    sessionData.lap[lapnumber].endTime = metrics.timestamp
     sessionData.lap[lapnumber].totalMovingTime = metrics.totalMovingTime - sessionData.lap[lapnumber].strokes[0].totalMovingTime
     sessionData.lap[lapnumber].totalLinearDistance = metrics.totalLinearDistance - sessionData.lap[lapnumber].strokes[0].totalLinearDistance
     sessionData.lap[lapnumber].totalCalories = metrics.totalCalories - sessionData.lap[lapnumber].strokes[0].totalCalories
@@ -155,6 +158,18 @@ export function createTCXRecorder (config) {
     sessionData.lap[lapnumber].maximumSpeed = speedSeries.maximum()
     sessionData.lap[lapnumber].averageHeartrate = heartrateSeries.average()
     sessionData.lap[lapnumber].maximumHeartrate = heartrateSeries.maximum()
+  }
+
+  function resetLapMetrics () {
+    powerSeries.reset()
+    speedSeries.reset()
+    heartrateSeries.reset()
+  }
+
+  function addRestLap (lapnumber, metrics, endTime)
+    sessionData.lap[lapnumber] = { endTime: metrics.timestamp }
+    sessionData.lap[lapnumber].intensity = 'Resting'
+    sessionData.lap[lapnumber].startTime = endTime
   }
 
   function addHeartRateToMetrics (metrics) {
@@ -216,7 +231,11 @@ export function createTCXRecorder (config) {
     tcxData += `      <Id>${workout.startTime.toISOString()}</Id>\n`
     let i = 0
     while (i < workout.lap.length) {
-      tcxData += await createLap(workout.lap[i])
+      if (workout.lap[lapnumber].intensity !== 'Resting') {
+        tcxData += await createActiveLap(workout.lap[i])
+      } else {
+        tcxData += await createRestLap(workout.lap[i])
+      }
       i++
     }
     tcxData += await createNotes(workout)
@@ -226,7 +245,7 @@ export function createTCXRecorder (config) {
     return tcxData
   }
 
-  async function createLap (lapdata) {
+  async function createActiveLap (lapdata) {
     let tcxData = ''
     tcxData += `      <Lap StartTime="${lapdata.startTime.toISOString()}">\n`
     tcxData += `        <TotalTimeSeconds>${lapdata.totalMovingTime.toFixed(1)}</TotalTimeSeconds>\n`
@@ -237,7 +256,7 @@ export function createTCXRecorder (config) {
       tcxData += `        <AverageHeartRateBpm>${Math.round(lapdata.averageHeartrate.toFixed(0))}</AverageHeartRateBpm>\n`
       tcxData += `        <MaximumHeartRateBpm>${Math.round(lapdata.maximumHeartrate.toFixed(0))}</MaximumHeartRateBpm>\n`
     }
-    tcxData += '        <Intensity>Active</Intensity>\n'
+    tcxData += '        <Intensity>${lapdata.intensity}</Intensity>\n'
     tcxData += `        <Cadence>${lapdata.averageStrokeRate.toFixed(0)}</Cadence>\n`
     tcxData += '        <TriggerMethod>Manual</TriggerMethod>\n'
     tcxData += '        <Track>\n'
@@ -259,6 +278,20 @@ export function createTCXRecorder (config) {
     tcxData += '      </Lap>\n'
     return tcxData
   }
+
+  async function createRestLap (lapdata) {
+    let tcxData = ''
+    tcxData += `      <Lap StartTime="${lapdata.startTime.toISOString()}">\n`
+    tcxData += `        <TotalTimeSeconds>${(lapdata.endTime - lapdata.startTime).toFixed(1)}</TotalTimeSeconds>\n`
+    tcxData += `        <DistanceMeters>0</DistanceMeters>\n`
+    tcxData += `        <MaximumSpeed>0</MaximumSpeed>\n`
+    tcxData += `        <Calories>0</Calories>\n`
+    tcxData += '        <Intensity>${lapdata.intensity}</Intensity>\n'
+    tcxData += '        <TriggerMethod>Manual</TriggerMethod>\n'
+    tcxData += '      </Lap>\n'
+    return tcxData
+  }
+
 
   async function createTrackPoint (trackpoint) {
     let tcxData = ''
