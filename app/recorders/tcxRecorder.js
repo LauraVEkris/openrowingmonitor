@@ -166,7 +166,7 @@ export function createTCXRecorder (config) {
     heartrateSeries.reset()
   }
 
-  function addRestLap (lapnumber, metrics, endTime)
+  function addRestLap (lapnumber, metrics, endTime) {
     sessionData.lap[lapnumber] = { endTime: metrics.timestamp }
     sessionData.lap[lapnumber].intensity = 'Resting'
     sessionData.lap[lapnumber].startTime = endTime
