@@ -117,7 +117,18 @@ export function createFITRecorder (config) {
         startLap(lapnumber, metrics)
         addMetricsToStrokesArray(metrics)
         break
-      case (metrics.metricsContext.isIntervalStart || metrics.metricsContext.isSplitEnd):
+      case (metrics.metricsContext.isIntervalStart):
+        if (metrics.metricsContext.isDriveStart) { addMetricsToStrokesArray(metrics) }
+        updateLapMetrics(metrics)
+        updateSessionMetrics(metrics)
+        calculateLapMetrics(metrics)
+        calculateSessionMetrics(metrics)
+        resetLapMetrics()
+        lapnumber++
+        startLap(lapnumber, metrics)
+        updateLapMetrics(metrics)
+        break
+      case (metrics.metricsContext.isSplitEnd):
         if (metrics.metricsContext.isDriveStart) { addMetricsToStrokesArray(metrics) }
         updateLapMetrics(metrics)
         updateSessionMetrics(metrics)
