@@ -47,7 +47,9 @@ export function createSessionManager (config) {
     resetMetricsSessionContext(metrics)
     switch (commandName) {
       case ('updateIntervalSettings'):
-        setIntervalParameters(data)
+        if (sessionState !== 'Rowing') {
+          setIntervalParameters(data)
+        }
         break
       case ('start'):
         if (sessionState !== 'Rowing') {
@@ -296,6 +298,7 @@ export function createSessionManager (config) {
   }
 
   function setIntervalParameters (intervalParameters) {
+    intervalSettings = null
     intervalSettings = intervalParameters
     currentIntervalNumber = -1
     if (intervalSettings.length > 0) {
