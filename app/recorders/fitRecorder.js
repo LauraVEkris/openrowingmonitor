@@ -38,7 +38,9 @@ export function createFITRecorder (config) {
   async function handleCommand (commandName, data, client) {
     switch (commandName) {
       case ('updateIntervalSettings'):
-        setIntervalParameters(data)
+        if (!lastMetrics.metricsContext.isMoving) {
+          setIntervalParameters(data)
+        }
         break
       case ('reset'):
         if (lastMetrics.metricsContext.isMoving && lastMetrics.totalMovingTime > sessionData.lap[lapnumber].strokes[sessionData.lap[lapnumber].strokes.length - 1].totalMovingTime) {
@@ -77,6 +79,7 @@ export function createFITRecorder (config) {
 
   function setIntervalParameters (intervalParameters) {
     if (intervalParameters !== undefined && intervalParameters.length > 0) {
+      sessionData.workoutplan = null
       sessionData.workoutplan = intervalParameters
     }
   }
