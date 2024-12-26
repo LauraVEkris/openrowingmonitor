@@ -380,7 +380,7 @@ export function createSessionManager (config) {
   function enrichMetrics (metricsToEnrich) {
     // ToDo: add absolute timestamp and base all recorders and BLE connections use that to harmonize timestamps across devices
     metricsToEnrich.timestamp = new Date(intervalAndPauseStartTime.getTime() + intervalAndPause.timeSinceStart(metricsToEnrich) * 1000)
-    metricsToEnrich.sessiontype = interval.type()
+    metricsToEnrich.sessiontype = intervalSettings[currentIntervalNumber].type !== 'rest' ? interval.type() : 'rest'
     metricsToEnrich.sessionStatus = sessionState // ToDo: remove this naming change by changing the consumers
     metricsToEnrich.workoutStepNumber = Math.max(currentIntervalNumber, 0) // Interval number, to keep in sync with the workout plan
     metricsToEnrich.pauseCountdownTime = Math.max(pauseCountdownTimer, 0) // Time left on the countdown timer
