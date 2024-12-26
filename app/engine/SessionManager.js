@@ -230,9 +230,6 @@ export function createSessionManager (config) {
         // As we typically overshoot our interval target, we project the intermediate value
         stopTraining()
         temporaryDatapoint = interval.interpolateEnd(lastBroadcastedMetrics, metrics)
-        currentIntervalNumber++
-        pauseCountdownTimer = intervalSettings[currentIntervalNumber].targetTime
-        pauseTimer = setTimeout(onPauseTimer, 100)
         sessionState = 'Paused'
         if (temporaryDatapoint.modified) {
           // The intermediate datapoint is actually different
@@ -240,12 +237,18 @@ export function createSessionManager (config) {
           temporaryDatapoint.metricsContext.isIntervalStart = true
           temporaryDatapoint.metricsContext.isSplitEnd = true
           temporaryDatapoint.metricsContext.isPauseStart = true
+          interval.setStart(temporaryDatapoint)
           emitMetrics(temporaryDatapoint)
         } else {
           metrics.metricsContext.isIntervalStart = true
           metrics.metricsContext.isSplitEnd = true
           metrics.metricsContext.isPauseStart = true
+          interval.setStart(metrics)
         }
+        currentIntervalNumber++
+        interval.setEnd(intervalSettings[currentIntervalNumber])
+        pauseCountdownTimer = interval.timeToEnd(metrics)
+        pauseTimer = setTimeout(onPauseTimer, 100)
         break
       case (lastSessionState === 'Rowing' && metrics.metricsContext.isMoving && interval.isEndReached(metrics)):
         // Here we do NOT want zero the metrics, as we want to keep the metrics we had when we crossed the finishline
@@ -380,7 +383,7 @@ export function createSessionManager (config) {
   function enrichMetrics (metricsToEnrich) {
     // ToDo: add absolute timestamp and base all recorders and BLE connections use that to harmonize timestamps across devices
     metricsToEnrich.timestamp = new Date(intervalAndPauseStartTime.getTime() + intervalAndPause.timeSinceStart(metricsToEnrich) * 1000)
-    metricsToEnrich.sessiontype = intervalSettings[currentIntervalNumber].type !== 'rest' ? interval.type() : 'rest'
+    metricsToEnrich.sessiontype = interval.type()
     metricsToEnrich.sessionStatus = sessionState // ToDo: remove this naming change by changing the consumers
     metricsToEnrich.workoutStepNumber = Math.max(currentIntervalNumber, 0) // Interval number, to keep in sync with the workout plan
     metricsToEnrich.pauseCountdownTime = Math.max(pauseCountdownTimer, 0) // Time left on the countdown timer
