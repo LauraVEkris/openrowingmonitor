@@ -20,6 +20,7 @@ export function createSessionManager (config) {
   let metrics
   let lastBroadcastedMetrics = {}
   let pauseTimer
+  let pauseCountdownTimer = 0
   let watchdogTimer
   const watchdogTimout = 1000 * config.rowerSettings.maximumStrokeTimeBeforePause // Pause timeout in miliseconds
   let sessionState = 'WaitingForStart'
@@ -140,6 +141,7 @@ export function createSessionManager (config) {
     intervalSettings = null
     intervalSettings = []
     currentIntervalNumber = -1
+    pauseCountdownTimer = 0
     splitNumber = 0
     distanceOverTime.reset()
     metrics = rowingStatistics.getMetrics()
@@ -229,7 +231,8 @@ export function createSessionManager (config) {
         stopTraining()
         temporaryDatapoint = interval.interpolateEnd(lastBroadcastedMetrics, metrics)
         currentIntervalNumber++
-        pauseTimer = setTimeout(onPauseTimer, (intervalSettings[currentIntervalNumber].targetTime * 1000))
+        pauseCountdownTimer = intervalSettings[currentIntervalNumber].targetTime
+        pauseTimer = setTimeout(onPauseTimer, 100)
         sessionState = 'Paused'
         if (temporaryDatapoint.modified) {
           // The intermediate datapoint is actually different
@@ -352,13 +355,21 @@ export function createSessionManager (config) {
   }
 
   function onPauseTimer () {
-    pauseTraining()
-    sessionState = 'Paused'
-    metrics = rowingStatistics.getMetrics()
-    activateNextIntervalParameters(metrics)
-    resetMetricsSessionContext(metrics)
+    pauseCountdownTimer = pauseCountdownTimer - 0.1
+    if (pauseCountdownTimer > 0) {
+      // The countdowntimer still has some time left on itq
+      pauseTimer = setTimeout(onPauseTimer, 100)
+    } else {
+      // The timer has run out
+      pauseTraining()
+      sessionState = 'Paused'
+      metrics = rowingStatistics.getMetrics()
+      activateNextIntervalParameters(metrics)
+      resetMetricsSessionContext(metrics)
+      pauseCountdownTimer = 0
+      log.debug(`Time: ${metrics.totalMovingTime}, rest interval ended`)
+    }
     emitMetrics(metrics)
-    log.debug(`Time: ${metrics.totalMovingTime}, rest interval ended`)
   }
 
   function emitMetrics (metricsToEmit) {
@@ -372,6 +383,7 @@ export function createSessionManager (config) {
     metricsToEnrich.sessiontype = interval.type()
     metricsToEnrich.sessionStatus = sessionState // ToDo: remove this naming change by changing the consumers
     metricsToEnrich.workoutStepNumber = Math.max(currentIntervalNumber, 0) // Interval number, to keep in sync with the workout plan
+    metricsToEnrich.pauseCountdownTime = Math.max(pauseCountdownTimer, 0) // Time left on the countdown timer
     metricsToEnrich.intervalMovingTime = interval.timeSinceStart(metricsToEnrich)
     metricsToEnrich.intervalTargetTime = interval.targetTime()
     metricsToEnrich.intervalAndPauseMovingTime = intervalAndPause.timeSinceStart(metricsToEnrich)
