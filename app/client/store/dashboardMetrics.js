@@ -56,8 +56,7 @@ export const DASHBOARD_METRICS = {
     template: (metrics, config) => {
       const time = (metrics?.sessiontype === 'time' ? Math.max(metrics?.intervalTargetTime - metrics?.intervalMovingTime, 0) : (metrics?.sessiontype === 'rest' && metrics?.pauseCountdownTime > 0 ? metrics?.pauseCountdownTime : metrics?.totalMovingTime))
 
-      // ToDo: add visual indicator of a rest inteval countdown by changing the icon
-      return simpleMetricFactory(secondsToTimeString(time ?? 0), '', config.guiConfigs.showIcons ? icon_clock : '')
+      return simpleMetricFactory(secondsToTimeString(time ?? 0), '', config.guiConfigs.showIcons ? (metrics?.sessiontype === 'rest' && metrics?.pauseCountdownTime > 0 ? icon_alarmclock : icon_clock) : '')
     }
   },
 
