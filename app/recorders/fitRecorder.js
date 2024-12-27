@@ -325,13 +325,12 @@ export function createFITRecorder (config) {
       true
     )
 
-
     fitWriter.writeMessage(
       'sport',
       {
         sport: 'rowing',
         sub_sport: 'indoorRowing',
-        name: 'Row Indoor'
+        name: 'Indoor rowing'
       },
       null,
       true
