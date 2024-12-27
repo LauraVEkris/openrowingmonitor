@@ -28,6 +28,7 @@ export function createFITRecorder (config) {
   let heartRate = 0
   let sessionData = {}
   sessionData.workoutplan = []
+  sessionData.workoutplan[0] = { type: 'justrow' }
   sessionData.lap = []
   let lapnumber = 0
   let lastMetrics = {}
@@ -56,6 +57,9 @@ export function createFITRecorder (config) {
         resetLapMetrics()
         sessionData = null
         sessionData = {}
+        sessionData.workoutplan = []
+        sessionData.workoutplan[0] = { type: 'justrow' }
+        sessionData.lap = []
         lastMetrics = {}
         break
       case 'shutdown':
