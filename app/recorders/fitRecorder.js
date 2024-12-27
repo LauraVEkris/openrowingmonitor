@@ -311,6 +311,21 @@ export function createFITRecorder (config) {
       true
     )
 
+    // The below message deliberately leans on the config.userSettings as they might be changed by external sources
+    fitWriter.writeMessage(
+      'user_profile',
+      {
+        gender: config.userSettings.sex,
+        weight: config.userSettings.weight,
+        weight_setting: 'metric',
+        resting_heart_rate: config.userSettings.restingHR,
+        default_max_heart_rate: config.userSettings.maxHR
+      },
+      null,
+      true
+    )
+
+
     fitWriter.writeMessage(
       'sport',
       {
