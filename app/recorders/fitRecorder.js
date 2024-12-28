@@ -32,7 +32,9 @@ export function createFITRecorder (config) {
   sessionData.lap = []
   let lapnumber = 0
   let lastMetrics = {}
-  let allDataHasBeenWritten
+  let fitfileContent
+  let fitfileContentIsCurrent = true
+  let allDataHasBeenWritten = true
 
   // This function handles all incomming commands. Here, the recordingmanager will have filtered
   // all unneccessary commands for us, so we only need to react to 'updateIntervalSettings', 'reset' and 'shutdown'
@@ -155,6 +157,7 @@ export function createFITRecorder (config) {
   function addMetricsToStrokesArray (metrics) {
     addHeartRateToMetrics(metrics)
     sessionData.lap[lapnumber].strokes.push(metrics)
+    fitfileContentIsCurrent = false
     allDataHasBeenWritten = false
   }
 
@@ -259,17 +262,34 @@ export function createFITRecorder (config) {
       return
     }
 
-    const fitRecord = await workoutToFit(sessionData)
-    if (fitRecord === undefined) {
+    // Let's fill the fitfileContent global variable and set the associated fitfileContentIsCurrent flag
+    await workoutToFit(sessionData)
+    
+    if (fitfileContent === undefined) {
       log.error('error creating fit file')
       return
     }
-    await createFile(fitRecord, `${filename}`, config.gzipFitFiles)
+    await createFile(fitfileContent, `${filename}`, config.gzipFitFiles)
     allDataHasBeenWritten = true
     log.info(`Garmin fit data has been written as ${filename}`)
   }
 
+  async function activeWorkoutToFit () {
+    // Be aware, this is exposed to the Strava and intervals.icu exporter
+    await workoutToFit(sessionData)
+    if (fitfileContent === undefined) {
+      log.error('error creating fit file content')
+      return undefined
+    } else {
+      return fitfileContent
+    }
+  }
+
   async function workoutToFit (workout) {
+    // Be aware, this function has two entry points: createFitFile and activeWorkoutToFit
+    // The file content is filled and hasn't changed
+    if (fitfileContentIsCurrent === true && fitfileContent !== undefined) { return fitfileContent }
+    
     // See https://developer.garmin.com/fit/file-types/activity/ for the fields and their meaning. We use 'Smart Recording' per stroke.
     // See also https://developer.garmin.com/fit/cookbook/encoding-activity-files/ for a description of the filestructure and how timestamps should be implemented
     // We use 'summary last message sequencing' as the stream makes most sense that way
@@ -342,7 +362,8 @@ export function createFITRecorder (config) {
     // Write the metrics
     await createActivity(fitWriter, workout)
 
-    return fitWriter.finish()
+    fitfileContent = fitWriter.finish()
+    fitfileContentIsCurrent = true
   }
 
   async function createActivity (writer, workout) {
@@ -649,6 +670,7 @@ export function createFITRecorder (config) {
     setBaseFileName,
     setIntervalParameters,
     recordRowingMetrics,
-    recordHeartRate
+    recordHeartRate,
+    activeWorkoutToFit
   }
 }
