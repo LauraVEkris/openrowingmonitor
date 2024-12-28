@@ -264,7 +264,7 @@ export function createFITRecorder (config) {
 
     // Let's fill the fitfileContent global variable and set the associated fitfileContentIsCurrent flag
     await workoutToFit(sessionData)
-    
+
     if (fitfileContent === undefined) {
       log.error('error creating fit file')
       return
@@ -289,7 +289,7 @@ export function createFITRecorder (config) {
     // Be aware, this function has two entry points: createFitFile and activeWorkoutToFit
     // The file content is filled and hasn't changed
     if (fitfileContentIsCurrent === true && fitfileContent !== undefined) { return fitfileContent }
-    
+
     // See https://developer.garmin.com/fit/file-types/activity/ for the fields and their meaning. We use 'Smart Recording' per stroke.
     // See also https://developer.garmin.com/fit/cookbook/encoding-activity-files/ for a description of the filestructure and how timestamps should be implemented
     // We use 'summary last message sequencing' as the stream makes most sense that way
