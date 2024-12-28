@@ -229,7 +229,7 @@ export function createTCXRecorder (config) {
     // Be aware, this function has two entry points: createTcxFile and activeWorkoutToTcx
     // The file content is filled and hasn't changed
     if (tcxfileContentIsCurrent === true && tcxfileContent !== undefined) { return tcxfileContent }
-    
+
     let tcxData = ''
     tcxData += '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
     tcxData += '<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:ns2="http://www.garmin.com/xmlschemas/ActivityExtension/v2">\n'
