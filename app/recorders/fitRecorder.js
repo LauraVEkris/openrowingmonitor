@@ -262,26 +262,25 @@ export function createFITRecorder (config) {
       return
     }
 
-    // Let's fill the fitfileContent global variable and set the associated fitfileContentIsCurrent flag
-    await workoutToFit(sessionData)
+    const fitData = await workoutToFit(sessionData)
 
-    if (fitfileContent === undefined) {
+    if (fitData === undefined) {
       log.error('error creating fit file')
       return
     }
-    await createFile(fitfileContent, `${filename}`, config.gzipFitFiles)
+    await createFile(fitData, `${filename}`, config.gzipFitFiles)
     allDataHasBeenWritten = true
     log.info(`Garmin fit data has been written as ${filename}`)
   }
 
   async function activeWorkoutToFit () {
     // Be aware, this is exposed to the Strava and intervals.icu exporter
-    await workoutToFit(sessionData)
-    if (fitfileContent === undefined) {
+    const fitData = await workoutToFit(sessionData)
+    if (fitData === undefined) {
       log.error('error creating fit file content')
       return undefined
     } else {
-      return fitfileContent
+      return fitData
     }
   }
 
@@ -364,6 +363,7 @@ export function createFITRecorder (config) {
 
     fitfileContent = fitWriter.finish()
     fitfileContentIsCurrent = true
+    return fitfileContent
   }
 
   async function createActivity (writer, workout) {
