@@ -22,6 +22,8 @@ export function createTCXRecorder (config) {
   let lapnumber = 0
   let postExerciseHR = []
   let lastMetrics
+  let tcxfileContent
+  let tcxfileContentIsCurrent = true
   let allDataHasBeenWritten = true
 
   // This function handles all incomming commands. Here, the recordingmanager will have filtered
@@ -136,6 +138,7 @@ export function createTCXRecorder (config) {
   function addMetricsToStrokesArray (metrics) {
     addHeartRateToMetrics(metrics)
     sessionData.lap[lapnumber].strokes.push(metrics)
+    tcxfileContentIsCurrent = false
     allDataHasBeenWritten = false
   }
 
@@ -223,12 +226,18 @@ export function createTCXRecorder (config) {
   }
 
   async function workoutToTcx (workout) {
+    // Be aware, this function has two entry points: createTcxFile and activeWorkoutToTcx
+    // The file content is filled and hasn't changed
+    if (tcxfileContentIsCurrent === true && tcxfileContent !== undefined) { return tcxfileContent }
+    
     let tcxData = ''
     tcxData += '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
     tcxData += '<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:ns2="http://www.garmin.com/xmlschemas/ActivityExtension/v2">\n'
     tcxData += await createActivity(sessionData)
     tcxData += '</TrainingCenterDatabase>\n'
-    return tcxData
+    tcxfileContent = tcxData
+    tcxfileContentIsCurrent = true
+    return tcxfileContent
   }
 
   async function createActivity (workout) {
