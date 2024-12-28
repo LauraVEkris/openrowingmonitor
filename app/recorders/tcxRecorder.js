@@ -216,7 +216,7 @@ export function createTCXRecorder (config) {
   }
 
   async function activeWorkoutToTcx () {
-    // Be aware! This function is also exposed to the Strava recorder!
+    // Be aware, this is exposed to the Strava and intervals.icu exporters
     const tcx = await workoutToTcx(sessionData)
 
     return {
