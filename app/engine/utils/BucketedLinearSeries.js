@@ -7,7 +7,7 @@
 
 import { createTSLinearSeries } from './FullTSLinearSeries.js'
 
-export function createBucketedLinearSeries (config) {
+export function createBucketedLinearSeries () {
   const linearSeries = createTSLinearSeries()
   const xCutOffInterval = 5.0
   const yCutOffInterval = 7.0
