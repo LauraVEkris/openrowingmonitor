@@ -8,6 +8,7 @@ import log from 'loglevel'
 import zlib from 'zlib'
 import fs from 'fs/promises'
 import { createSeries } from '../engine/utils/Series.js'
+import { createVO2max } from './utils/VO2max.js'
 import { promisify } from 'util'
 import { FitWriter } from '@markw65/fit-file-writer'
 
@@ -24,6 +25,7 @@ export function createFITRecorder (config) {
   const sessionStrokerateSeries = createSeries()
   const sessionStrokedistanceSeries = createSeries()
   const sessionHeartrateSeries = createSeries()
+  const VO2max = createVO2max(config)
   let filename
   let heartRate = 0
   let sessionData = {}
@@ -157,6 +159,7 @@ export function createFITRecorder (config) {
   function addMetricsToStrokesArray (metrics) {
     addHeartRateToMetrics(metrics)
     sessionData.lap[lapnumber].strokes.push(metrics)
+    VO2max.push(metrics)
     fitfileContentIsCurrent = false
     allDataHasBeenWritten = false
   }
@@ -213,6 +216,7 @@ export function createFITRecorder (config) {
     sessionData.lap[lapnumber].workoutStepNumber = workoutStepNo
     sessionData.lap[lapnumber].lapNumber = lapnumber + 1
     sessionData.lap[lapnumber].endTime = metrics.timestamp
+    VO2max.handleRestart(metrics.totalMovingTime)
   }
 
   function updateSessionMetrics (metrics) {
@@ -237,6 +241,7 @@ export function createFITRecorder (config) {
     sessionStrokerateSeries.reset()
     sessionStrokedistanceSeries.reset()
     sessionHeartrateSeries.reset()
+    VO2max.reset()
   }
 
   // initiated when a new heart rate value is received from heart rate sensor
@@ -403,6 +408,8 @@ export function createFITRecorder (config) {
       null,
       true
     )
+
+    await createVO2MaxRecord(writer, workout)
 
     // Conclude with a session summary
     // See https://developer.garmin.com/fit/cookbook/durations/ for explanation about times
@@ -626,6 +633,23 @@ export function createFITRecorder (config) {
       null,
       true
     )
+  }
+
+  async function createVO2MaxRecord (writer) {
+    if (VO2max.result() > 10 && VO2max.result() < 60) {
+      fitWriter.writeMessage(
+        'max_met_data',
+        {
+          update_time: writer.time(workout.endTime),
+          sport: 'rowing',
+          sub_sport: 'indoorRowing',
+          vo2_max: VO2max.result(),
+          max_met_category: 'generic'
+        },
+        null,
+        true
+      )
+    }
   }
 
   async function createFile (content, filename, compress = false) {
