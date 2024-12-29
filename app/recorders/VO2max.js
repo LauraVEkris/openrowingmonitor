@@ -5,14 +5,15 @@
   This Module calculates the training specific VO2Max metrics. It is based on formula's found on the web (see function definitions).
 */
 
-import { createBucketedLinearSeries } from '../engine/utils/BucketedLinearSeries.js'
+import { createBucketedLinearSeries } from './utils/BucketedLinearSeries.js'
 import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
 export function createVO2max (config) {
-  const bucketedLinearSeries = createBucketedLinearSeries()
+  const bucketedLinearSeries = createBucketedLinearSeries(5.0, 7.0, 6.0)
   const minimumValidBrackets = 5.0
-  let offset = 90
+  const warmupPeriod = 90 // Period to ignore HR changes to allow the HR to settle
+  let offset = warmupPeriod
   let metricsArray = []
   let VO2MaxResult = 0
   let VO2MaxResultIsCurrent = true
@@ -31,7 +32,7 @@ export function createVO2max (config) {
   }
 
   function handleRestart (totalMovingTime) {
-    offset = totalMovingTime
+    offset = totalMovingTime + warmupPeriod
   }
 
   function result () {
