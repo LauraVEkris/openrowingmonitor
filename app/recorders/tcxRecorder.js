@@ -156,7 +156,7 @@ export function createTCXRecorder (config) {
   function updateLapMetrics (metrics) {
     if (metrics.cyclePower !== undefined && metrics.cyclePower > 0) { powerSeries.push(metrics.cyclePower) }
     if (metrics.cycleLinearVelocity !== undefined && metrics.cycleLinearVelocity > 0) { speedSeries.push(metrics.cycleLinearVelocity) }
-    if (heartRate !== undefined && heartRate > 0) { heartrateSeries.push(heartRate) }
+    if (!isNaN(heartRate) && heartRate > 0) { heartrateSeries.push(heartRate) }
   }
 
   function calculateLapMetrics (metrics) {
@@ -189,7 +189,7 @@ export function createTCXRecorder (config) {
   }
 
   function addHeartRateToMetrics (metrics) {
-    if (heartRate !== undefined && heartRate > 0) {
+    if (!isNaN(heartRate) && heartRate > 0) {
       metrics.heartrate = heartRate
     } else {
       metrics.heartrate = undefined
@@ -274,7 +274,7 @@ export function createTCXRecorder (config) {
     tcxData += `        <DistanceMeters>${lapdata.totalLinearDistance.toFixed(1)}</DistanceMeters>\n`
     tcxData += `        <MaximumSpeed>${lapdata.maximumSpeed.toFixed(2)}</MaximumSpeed>\n`
     tcxData += `        <Calories>${Math.round(lapdata.totalCalories)}</Calories>\n`
-    if (lapdata.averageHeartrate !== undefined && lapdata.averageHeartrate > 0 && lapdata.maximumHeartrate !== undefined && lapdata.maximumHeartrate > 0) {
+    if (!isNaN(lapdata.averageHeartrate) && lapdata.averageHeartrate > 0 && !isNaN(lapdata.maximumHeartrate) && lapdata.maximumHeartrate > 0) {
       tcxData += `        <AverageHeartRateBpm>${Math.round(lapdata.averageHeartrate.toFixed(0))}</AverageHeartRateBpm>\n`
       tcxData += `        <MaximumHeartRateBpm>${Math.round(lapdata.maximumHeartrate.toFixed(0))}</MaximumHeartRateBpm>\n`
     }
@@ -332,7 +332,7 @@ export function createTCXRecorder (config) {
       tcxData += '              </ns2:TPX>\n'
       tcxData += '            </Extensions>\n'
     }
-    if (trackpoint.heartrate !== undefined && trackpoint.heartrate > 0) {
+    if (!isNaN(trackpoint.heartrate) && trackpoint.heartrate > 0) {
       tcxData += '            <HeartRateBpm>\n'
       tcxData += `              <Value>${trackpoint.heartrate}</Value>\n`
       tcxData += '            </HeartRateBpm>\n'
@@ -410,7 +410,7 @@ export function createTCXRecorder (config) {
   function measureRecoveryHR () {
     // This function is called when the rowing session is stopped. postExerciseHR[0] is the last measured excercise HR
     // Thus postExerciseHR[1] is Recovery HR after 1 min, etc..
-    if (heartRate !== undefined && config.userSettings.restingHR <= heartRate && heartRate <= config.userSettings.maxHR) {
+    if (!isNaN(heartRate) && config.userSettings.restingHR <= heartRate && heartRate <= config.userSettings.maxHR) {
       log.debug(`*** HRR-${postExerciseHR.length}: ${heartRate}`)
       postExerciseHR.push(heartRate)
       if ((postExerciseHR.length > 1) && (postExerciseHR.length <= 4)) {
