@@ -635,9 +635,9 @@ export function createFITRecorder (config) {
     )
   }
 
-  async function createVO2MaxRecord (writer) {
+  async function createVO2MaxRecord (writer, workout) {
     if (VO2max.result() > 10 && VO2max.result() < 60) {
-      fitWriter.writeMessage(
+      writer.writeMessage(
         'max_met_data',
         {
           update_time: writer.time(workout.endTime),
