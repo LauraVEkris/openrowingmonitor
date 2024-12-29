@@ -12,7 +12,7 @@ const log = loglevel.getLogger('RowingEngine')
 export function createVO2max (config) {
   const bucketedLinearSeries = createBucketedLinearSeries(5.0, 7.0, 6.0)
   const minimumValidBrackets = 5.0
-  const warmupPeriod = 90 // Period to ignore HR changes to allow the HR to settle
+  const warmupPeriod = 600 // Period to ignore HR changes to allow the HR to settle
   let offset = warmupPeriod
   let metricsArray = []
   let VO2MaxResult = 0
