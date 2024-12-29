@@ -8,7 +8,7 @@ import log from 'loglevel'
 import zlib from 'zlib'
 import fs from 'fs/promises'
 import { createSeries } from '../engine/utils/Series.js'
-import { createVO2max } from './VO2max.js'
+import { createVO2max } from './utils/VO2max.js'
 import { promisify } from 'util'
 const gzip = promisify(zlib.gzip)
 
