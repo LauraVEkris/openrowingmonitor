@@ -87,6 +87,7 @@ export function createVO2max (config) {
     // Underlying formula's can be found here: https://sportcoaching.co.nz/how-does-garmin-calculate-vo2-max/
     let ProjectedVO2max
 
+    bucketedLinearSeries.reset()
     let i = 0
     while (i < metrics.length) {
       bucketedLinearSeries.push(metrics.heartrate, metrics.cyclePower)
