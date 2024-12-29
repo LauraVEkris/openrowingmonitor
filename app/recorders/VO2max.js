@@ -171,6 +171,7 @@ export function createVO2max (config) {
 
   return {
     push,
+    handleRestart,
     result,
     averageObservedHR,
     maxObservedHR,
