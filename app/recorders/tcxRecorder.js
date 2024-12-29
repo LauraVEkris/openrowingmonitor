@@ -52,6 +52,7 @@ export function createTCXRecorder (config) {
         powerSeries.reset()
         speedSeries.reset()
         heartrateSeries.reset()
+        VO2max.reset()
         allDataHasBeenWritten = true
         break
       case 'shutdown':
