@@ -33,6 +33,7 @@ export function createFITRecorder (config) {
   sessionData.workoutplan[0] = { type: 'justrow' }
   sessionData.lap = []
   let lapnumber = 0
+  let postExerciseHR2 = 0
   let lastMetrics = {}
   let fitfileContent
   let fitfileContentIsCurrent = true
@@ -106,7 +107,9 @@ export function createFITRecorder (config) {
         addMetricsToStrokesArray(metrics)
         calculateLapMetrics(metrics)
         calculateSessionMetrics(metrics)
+        postExerciseHR2 = 0
         createFitFile()
+        setTimeout(measureRecoveryHR, 120000)
         break
       case (metrics.metricsContext.isPauseStart):
         updateLapMetrics(metrics)
@@ -115,7 +118,9 @@ export function createFITRecorder (config) {
         calculateLapMetrics(metrics)
         calculateSessionMetrics(metrics)
         resetLapMetrics()
+        postExerciseHR2 = 0
         createFitFile()
+        setTimeout(measureRecoveryHR, 120000)
         break
       case (metrics.metricsContext.isPauseEnd):
         // The session is resumed, so it was a pause instead of a stop
@@ -461,6 +466,8 @@ export function createFITRecorder (config) {
       null,
       true
     )
+
+    await addHRR2Event(writer)
   }
 
   async function addTimerEvent (writer, time, eventType) {
@@ -636,7 +643,7 @@ export function createFITRecorder (config) {
   }
 
   async function createVO2MaxRecord (writer, workout) {
-    if (VO2max.result() > 10 && VO2max.result() < 60) {
+    if (!isNan(VO2max.result()) && VO2max.result() > 10 && VO2max.result() < 60) {
       writer.writeMessage(
         'max_met_data',
         {
@@ -645,6 +652,22 @@ export function createFITRecorder (config) {
           sub_sport: 'indoorRowing',
           vo2_max: VO2max.result(),
           max_met_category: 'generic'
+        },
+        null,
+        true
+      )
+    }
+  }
+
+  async function addHRR2Event (writer) {
+    if (!isNaN(postExerciseHR2) && postExerciseHR2 > 0) {
+      writer.writeMessage(
+        'event',
+        {
+          timestamp: writer.time(new Date()),
+          event: 'recoveryHr',
+          event_type: 'marker',
+          data: postExerciseHR2
         },
         null,
         true
@@ -666,6 +689,14 @@ export function createFITRecorder (config) {
       } catch (err) {
         log.error(err)
       }
+    }
+  }
+
+  function measureRecoveryHR () {
+    if (!isNaN(heartRate) && config.userSettings.restingHR <= heartRate && heartRate <= config.userSettings.maxHR) {
+      postExerciseHR2 = heartRate
+      allDataHasBeenWritten = false
+      createFitFile()
     }
   }
 
