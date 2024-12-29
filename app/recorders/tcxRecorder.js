@@ -16,6 +16,8 @@ export function createTCXRecorder (config) {
   const powerSeries = createSeries()
   const speedSeries = createSeries()
   const heartrateSeries = createSeries()
+  const VO2max = createVO2max(config)
+  const drag = createSeries()
   let filename
   let heartRate = 0
   let sessionData
@@ -138,6 +140,8 @@ export function createTCXRecorder (config) {
   function addMetricsToStrokesArray (metrics) {
     addHeartRateToMetrics(metrics)
     sessionData.lap[lapnumber].strokes.push(metrics)
+    VO2max.push(metrics)
+    if (!isNaN(metrics.dragFactor) && metrics.dragFactor > 0) { drag.push(metrics.dragFactor) }
     tcxfileContentIsCurrent = false
     allDataHasBeenWritten = false
   }
@@ -176,10 +180,11 @@ export function createTCXRecorder (config) {
     heartrateSeries.reset()
   }
 
-  function addRestLap (lapnumber, metrics, endTime) {
+  function addRestLap (lapnumber, metrics, startTime) {
     sessionData.lap[lapnumber] = { endTime: metrics.timestamp }
     sessionData.lap[lapnumber].intensity = 'Resting'
-    sessionData.lap[lapnumber].startTime = endTime
+    sessionData.lap[lapnumber].startTime = startTime
+    VO2max.handleRestart(metrics.totalMovingTime)
   }
 
   function addHeartRateToMetrics (metrics) {
@@ -337,22 +342,9 @@ export function createTCXRecorder (config) {
 
   async function createNotes (workout) {
     let VO2maxoutput = 'UNDEFINED'
-    const VO2max = createVO2max(config)
-    const drag = createSeries()
-    let i = 0
-    let j = 0
-
-    while (i < workout.lap.length) {
-      j = 0
-      while (j < workout.lap[i].strokes.length) {
-        if (workout.lap[i].strokes[j].dragFactor !== undefined && workout.lap[i].strokes[j].dragFactor > 0) { drag.push(workout.lap[i].strokes[j].dragFactor) }
-        j++
-      }
-      i++
-    }
-
+    
     // VO2Max calculation
-    const VO2maxResult = VO2max.calculateVO2max(workout)
+    const VO2maxResult = VO2max.result()
     if (VO2maxResult > 10 && VO2maxResult < 60) {
       VO2maxoutput = `${VO2maxResult.toFixed(1)} mL/(kg*min)`
     }
