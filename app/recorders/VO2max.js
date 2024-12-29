@@ -10,25 +10,41 @@ import loglevel from 'loglevel'
 const log = loglevel.getLogger('RowingEngine')
 
 export function createVO2max (config) {
-  const bucketedLinearSeries = createBucketedLinearSeries(config)
+  const bucketedLinearSeries = createBucketedLinearSeries()
   const minimumValidBrackets = 5.0
-  const offset = 90
+  let offset = 90
+  let metricsArray = []
 
-  function calculateVO2max (metrics) {
+  function push (metrics) {
+    if (metrics.totalMovingTime > offset && !isNaN(metrics.heartrate) && metrics.heartrate >= config.userSettings.restingHR && metrics.heartrate < config.userSettings.maxHR && !isNaN(metrics.cyclePower) && metrics.cyclePower > 0 && metrics.cyclePower <= config.userSettings.maxPower) {
+      // We are outside the startup noise and have numeric fields
+      metricsArray.push({
+        totalMovingTime: metrics.totalMovingTime,
+        totalLinearDistance: metrics.totalLinearDistance,
+        cyclePower: metrics.cyclePower,
+        heartrate: metrics.heartrate
+      })
+    }
+  }
+
+  function handleRestart (totalMovingTime) {
+    offset = totalMovingTime
+  }
+
+  function result () {
     let projectedVO2max = 0
     let interpolatedVO2max = 0
-    const lastlap = metrics.lap.length
-    const lastStroke = metrics.lap[lastlap - 1].strokes[metrics.lap[lastlap - 1].strokes.length - 1]
+    const lastStroke = metricsArray[metricsArray.length - 1]
 
-    if (metrics.lap[0].strokes[0].heartrate !== undefined && lastStroke.heartrate !== undefined && lastStroke.heartrate >= config.userSettings.restingHR) {
-      projectedVO2max = extrapolatedVO2max(metrics)
+    if (metricsArray.length > 0 && lastStroke.heartrate >= config.userSettings.restingHR) {
+      projectedVO2max = extrapolatedVO2max(metricsArray)
     } else {
       log.debug(`--- Extrapolated VO2Max calculation skipped: last stroke heartrate (${lastStroke.heartrate} BPM) < restingHR (${config.userSettings.restingHR} BPM)`)
     }
 
-    if (metrics.lap[0].strokes[0].heartrate !== undefined && lastStroke.heartrate !== undefined && lastStroke.heartrate >= (0.8 * config.userSettings.maxHR)) {
+    if (metricsArray.length > 0 && lastStroke.heartrate >= (0.8 * config.userSettings.maxHR)) {
       // Concept2's formula is only valid when doing a pretty intense session
-      interpolatedVO2max = calculateInterpolatedVO2max(metrics)
+      interpolatedVO2max = calculateInterpolatedVO2max(metricsArray)
     } else {
       log.debug(`--- Interpolated VO2Max calculation skipped: last stroke heartrate (${lastStroke.heartrate} BPM) < Zone 4 HR (${0.8 * config.userSettings.maxHR} BPM)`)
     }
@@ -65,18 +81,8 @@ export function createVO2max (config) {
     let ProjectedVO2max
 
     let i = 0
-    let j = 0
-    while (i < metrics.lap.length) {
-      j = 0
-      while (j < metrics.lap[i].strokes.length) {
-        if (metrics.lap[i].strokes[j].totalMovingTime > offset && metrics.lap[i].strokes[j].heartrate !== undefined && metrics.lap[i].strokes[j].heartrate > 0 && metrics.lap[i].strokes[j].cyclePower !== undefined && metrics.lap[i].strokes[j].cyclePower > 0) {
-          // We are outside the startup noise and have numeric fields
-          bucketedLinearSeries.push(metrics.lap[i].strokes[j].heartrate, metrics.lap[i].strokes[j].cyclePower)
-        } else {
-          // We skip the first timeperiod as it only depicts the change from a resting HR to a working HR, we also skip inplausible values
-        }
-        j++
-      }
+    while (i < metrics.length) {
+      bucketedLinearSeries.push(metrics.heartrate, metrics.cyclePower)
       i++
     }
 
@@ -99,7 +105,7 @@ export function createVO2max (config) {
   function calculateInterpolatedVO2max (metrics) {
     // This is based on research done by concept2, https://www.concept2.com/indoor-rowers/training/calculators/vo2max-calculator,
     // which determines the VO2Max based on the 2K speed
-    const lastStroke = metrics.lap[metrics.lap.length - 1].strokes[metrics.lap[metrics.lap.length - 1].strokes.length - 1]
+    const lastStroke = metrics[metrics.length - 1]
     const distance = lastStroke.totalLinearDistance
     const time = lastStroke.totalMovingTime
     const projectedTwoKPace = interpolatePace(time, distance, 2000)
@@ -158,11 +164,14 @@ export function createVO2max (config) {
   }
 
   function reset () {
+    metricsArray = null
+    metricsArray = []
     bucketedLinearSeries.reset()
   }
 
   return {
-    calculateVO2max,
+    push,
+    result,
     averageObservedHR,
     maxObservedHR,
     reset
