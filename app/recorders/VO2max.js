@@ -14,7 +14,7 @@ export function createVO2max (config) {
   const minimumValidBrackets = 5.0
   let offset = 90
   let metricsArray = []
-  let VO2MaxResult
+  let VO2MaxResult = 0
   let VO2MaxResultIsCurrent = true
 
   function push (metrics) {
@@ -40,7 +40,7 @@ export function createVO2max (config) {
     const lastStroke = metricsArray[metricsArray.length - 1]
 
     if (VO2MaxResultIsCurrent === true) { return VO2MaxResult }
-    
+
     if (metricsArray.length > 0 && lastStroke.heartrate >= config.userSettings.restingHR) {
       projectedVO2max = extrapolatedVO2max(metricsArray)
     } else {
