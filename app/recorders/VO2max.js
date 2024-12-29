@@ -14,8 +14,11 @@ export function createVO2max (config) {
   const minimumValidBrackets = 5.0
   let offset = 90
   let metricsArray = []
+  let VO2MaxResult
+  let VO2MaxResultIsCurrent = true
 
   function push (metrics) {
+    VO2MaxResultIsCurrent = false
     if (metrics.totalMovingTime > offset && !isNaN(metrics.heartrate) && metrics.heartrate >= config.userSettings.restingHR && metrics.heartrate < config.userSettings.maxHR && !isNaN(metrics.cyclePower) && metrics.cyclePower > 0 && metrics.cyclePower <= config.userSettings.maxPower) {
       // We are outside the startup noise and have numeric fields
       metricsArray.push({
@@ -36,6 +39,8 @@ export function createVO2max (config) {
     let interpolatedVO2max = 0
     const lastStroke = metricsArray[metricsArray.length - 1]
 
+    if (VO2MaxResultIsCurrent === true) { return VO2MaxResult }
+    
     if (metricsArray.length > 0 && lastStroke.heartrate >= config.userSettings.restingHR) {
       projectedVO2max = extrapolatedVO2max(metricsArray)
     } else {
@@ -49,29 +54,30 @@ export function createVO2max (config) {
       log.debug(`--- Interpolated VO2Max calculation skipped: last stroke heartrate (${lastStroke.heartrate} BPM) < Zone 4 HR (${0.8 * config.userSettings.maxHR} BPM)`)
     }
 
-    if (projectedVO2max >= 10 && projectedVO2max <= 60 && interpolatedVO2max >= 10 && interpolatedVO2max <= 60) {
-      // Both VO2Max calculations have delivered a valid and credible result
-      log.debug(`--- VO2Max calculation delivered two credible results Extrapolated VO2Max: ${projectedVO2max.toFixed(1)} and Interpolated VO2Max: ${interpolatedVO2max.toFixed(1)}`)
-      return ((projectedVO2max + interpolatedVO2max) / 2)
-    } else {
-      // One of the calculations has delivered an invalid result
-      if (interpolatedVO2max >= 10 && interpolatedVO2max <= 60) {
-        // Interpolation has delivered a credible result
+    // Let's combine the results
+    switch (true) {
+      case (projectedVO2max >= 10 && projectedVO2max <= 60 && interpolatedVO2max >= 10 && interpolatedVO2max <= 60):
+        // Both VO2Max calculations have delivered a valid and credible result
+        log.debug(`--- VO2Max calculation delivered two credible results Extrapolated VO2Max: ${projectedVO2max.toFixed(1)} and Interpolated VO2Max: ${interpolatedVO2max.toFixed(1)}`)
+        VO2MaxResult = (projectedVO2max + interpolatedVO2max) / 2
+        break
+      case (interpolatedVO2max >= 10 && interpolatedVO2max <= 60):
+        // As the previous case wasn't true, we do not have two valid results. As interpolation has delivered a credible result, extrapolation hasn't
         log.debug(`--- VO2Max calculation delivered one credible result, the Interpolated VO2Max: ${interpolatedVO2max.toFixed(1)}. The Extrapolated VO2Max: ${projectedVO2max.toFixed(1)} was unreliable`)
-        return interpolatedVO2max
-      } else {
-        // Interpolation hasn't delivered a credible result
-        if (projectedVO2max >= 10 && projectedVO2max <= 60) {
-          // Extrapolation did deliver a credible result
-          log.debug(`--- VO2Max calculation delivered one credible result, the Extrapolated VO2Max: ${projectedVO2max.toFixed(1)}. Interpolated VO2Max: ${interpolatedVO2max.toFixed(1)} was unreliable`)
-          return projectedVO2max
-        } else {
-          // No credible results at all!
-          log.debug(`--- VO2Max calculation did not deliver any credible results Extrapolated VO2Max: ${projectedVO2max.toFixed(1)}, Interpolated VO2Max: ${interpolatedVO2max.toFixed(1)}`)
-          return 0
-        }
-      }
+        VO2MaxResult = interpolatedVO2max
+        break
+      case (projectedVO2max >= 10 && projectedVO2max <= 60):
+        // As the previous two cases are not true, Interpolation hasn't delivered a credible result, but Extrapolation delivered a credible result
+        log.debug(`--- VO2Max calculation delivered one credible result, the Extrapolated VO2Max: ${projectedVO2max.toFixed(1)}. Interpolated VO2Max: ${interpolatedVO2max.toFixed(1)} was unreliable`)
+        VO2MaxResult = projectedVO2max
+        break
+      default:
+        // No credible results at all!
+        log.debug(`--- VO2Max calculation did not deliver any credible results Extrapolated VO2Max: ${projectedVO2max.toFixed(1)}, Interpolated VO2Max: ${interpolatedVO2max.toFixed(1)}`)
+        VO2MaxResult = 0
     }
+    VO2MaxResultIsCurrent = true
+    return VO2MaxResult
   }
 
   function extrapolatedVO2max (metrics) {
