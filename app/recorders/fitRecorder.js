@@ -643,7 +643,7 @@ export function createFITRecorder (config) {
   }
 
   async function createVO2MaxRecord (writer, workout) {
-    if (!isNan(VO2max.result()) && VO2max.result() > 10 && VO2max.result() < 60) {
+    if (!isNaN(VO2max.result()) && VO2max.result() > 10 && VO2max.result() < 60) {
       writer.writeMessage(
         'max_met_data',
         {
