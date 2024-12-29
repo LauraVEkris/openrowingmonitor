@@ -342,7 +342,7 @@ export function createTCXRecorder (config) {
 
   async function createNotes (workout) {
     let VO2maxoutput
-  
+
     // VO2Max calculation
     const VO2maxResult = VO2max.result()
     if (VO2maxResult > 10 && VO2maxResult < 60) {
