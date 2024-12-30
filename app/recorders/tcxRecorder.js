@@ -452,6 +452,6 @@ export function createTCXRecorder (config) {
     setBaseFileName,
     recordRowingMetrics,
     recordHeartRate,
-    activeWorkoutToTcx
+    fileContent: activeWorkoutToTcx
   }
 }
