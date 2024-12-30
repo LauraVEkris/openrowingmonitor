@@ -277,10 +277,11 @@ export function createFITRecorder (config) {
     if (fitData === undefined) {
       log.error('error creating fit file')
       return
+    } else {
+      await createFile(fitData, `${filename}`, config.gzipFitFiles)
+      allDataHasBeenWritten = true
+      log.info(`Garmin fit data has been written as ${filename}`)
     }
-    await createFile(fitData, `${filename}`, config.gzipFitFiles)
-    allDataHasBeenWritten = true
-    log.info(`Garmin fit data has been written as ${filename}`)
   }
 
   async function fileContent () {
