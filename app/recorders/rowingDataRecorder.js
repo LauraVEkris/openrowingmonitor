@@ -133,7 +133,6 @@ export function createRowingDataRecorder (config) {
 
     if (RowingData === undefined) {
       log.error('error creating RowingData file')
-      return
     } else {
       await createFile(RowingData, `${filename}`, false)
       allDataHasBeenWritten = true
