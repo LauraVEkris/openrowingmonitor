@@ -211,17 +211,17 @@ export function createTCXRecorder (config) {
       return
     }
 
-    const tcxRecord = await activeWorkoutToTcx()
+    const tcxRecord = await workoutToTcx(sessionData)
     if (tcxRecord === undefined) {
       log.error('error creating tcx file')
       return
     }
-    await createFile(tcxRecord.tcx, `${filename}`, config.gzipTcxFiles)
+    await createFile(tcxRecord, `${filename}`, config.gzipTcxFiles)
     allDataHasBeenWritten = true
     log.info(`Garmin tcx data has been written as ${filename}`)
   }
 
-  async function activeWorkoutToTcx () {
+  async function fileContent () {
     // Be aware, this is exposed to the Strava and intervals.icu exporters
     const tcx = await workoutToTcx(sessionData)
 
@@ -232,14 +232,14 @@ export function createTCXRecorder (config) {
   }
 
   async function workoutToTcx (workout) {
-    // Be aware, this function has two entry points: createTcxFile and activeWorkoutToTcx
+    // Be aware, this function has two entry points: createTcxFile and fileContent
     // The file content is filled and hasn't changed
     if (tcxfileContentIsCurrent === true && tcxfileContent !== undefined) { return tcxfileContent }
 
     let tcxData = ''
     tcxData += '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
     tcxData += '<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:ns2="http://www.garmin.com/xmlschemas/ActivityExtension/v2">\n'
-    tcxData += await createActivity(sessionData)
+    tcxData += await createActivity(workout)
     tcxData += '</TrainingCenterDatabase>\n'
     tcxfileContent = tcxData
     tcxfileContentIsCurrent = true
@@ -452,6 +452,6 @@ export function createTCXRecorder (config) {
     setBaseFileName,
     recordRowingMetrics,
     recordHeartRate,
-    fileContent: activeWorkoutToTcx
+    fileContent
   }
 }
