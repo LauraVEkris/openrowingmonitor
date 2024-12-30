@@ -214,20 +214,24 @@ export function createTCXRecorder (config) {
     const tcxRecord = await workoutToTcx(sessionData)
     if (tcxRecord === undefined) {
       log.error('error creating tcx file')
-      return
+    } else {
+      await createFile(tcxRecord, `${filename}`, config.gzipTcxFiles)
+      allDataHasBeenWritten = true
+      log.info(`Garmin tcx data has been written as ${filename}`)
     }
-    await createFile(tcxRecord, `${filename}`, config.gzipTcxFiles)
-    allDataHasBeenWritten = true
-    log.info(`Garmin tcx data has been written as ${filename}`)
   }
 
   async function fileContent () {
     // Be aware, this is exposed to the Strava and intervals.icu exporters
     const tcx = await workoutToTcx(sessionData)
-
-    return {
-      tcx,
-      filename
+    if (tcx === undefined) {
+      log.error('error creating tcx file content')
+      return undefined
+    } else {
+      return {
+        tcx,
+        filename
+      }
     }
   }
 
