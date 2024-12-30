@@ -283,8 +283,8 @@ export function createFITRecorder (config) {
     log.info(`Garmin fit data has been written as ${filename}`)
   }
 
-  async function fileContent () {
-    // Be aware, this is exposed to the Strava and intervals.icu exporter
+  async function workoutToFit () {
+    // Be aware, this is used internally but is also exposed to the Strava and intervals.icu exporter
     const fitData = await workoutToFit(sessionData)
     if (fitData === undefined) {
       log.error('error creating fit file content')
@@ -726,6 +726,6 @@ export function createFITRecorder (config) {
     setIntervalParameters,
     recordRowingMetrics,
     recordHeartRate,
-    fileContent
+    fileContent: workoutToFit
   }
 }
