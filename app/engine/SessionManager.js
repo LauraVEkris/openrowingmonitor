@@ -400,7 +400,7 @@ export function createSessionManager (config) {
   }
 
   function onWatchdogTimeout () {
-    log.error(`Time: ${metrics.totalMovingTime}, Watchdog timout forces a hard stop due to exceeding the twice maximumStrokeTimeBeforePause (i.e. ${watchdogTimout} seconds) without drive/recovery change`)
+    log.error(`Time: ${metrics.totalMovingTime}, Forced a session stop due to unexpeted flywheel stop, exceeding the maximumStrokeTimeBeforePause (i.e. ${watchdogTimout} seconds) without new datapoints`)
     stopTraining()
     metrics = rowingStatistics.getMetrics()
     resetMetricsSessionContext(metrics)
