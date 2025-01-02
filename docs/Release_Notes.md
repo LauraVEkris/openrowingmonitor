@@ -11,7 +11,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 
 ### Bugfixes and robustness improvements in 0.9.5
 
-- **Improvement of the architecture**: we cleaned up the old architecture and went to a more message bus structure where clients are responsible for their own datatransmissions. See [the architecture description](Architecture.md) for a deep-dive of the implementation
+- **Improvement of the architecture**: we cleaned up the old architecture and went to a more message bus structure where clients are responsible for listening to the datatransmissions they are interested in. See [the architecture description](Architecture.md) for a deep-dive of the implementation. Key benefit is that this is more maintainable as it allows serving data more easily to totally different clients (webGUI, recorders and BLE/ANT+) with totally different needs, making future enhancements easier.
 - **Performance improvement of the TS estimator**, further reducing CPU load, which significantly improves accuracy of the measurements and metrics as the Linux kernel has an easier job keeping the time accurate.
 - **Removed a lot of memory leaks**, although only being problematic in large simulations (i.e. over 3000K), we want to keep our code to behave nice
 - **Improved robustness of the stroke detection algorithm**
