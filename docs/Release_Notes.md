@@ -8,6 +8,7 @@ Main contributors: [Jaap van Ekris](https://github.com/JaapvanEkris) and [Abasz]
 
 - Added **FIT-File support**: you an now automatically generate a FIT-file after a rowing session, which alows for a more detailed reporting than the tcx-format, and is commonly accepted by most platforms
 - **Introduction of the session manager**, which provides support for intervals, splits, rest intervals and spontanuous pauses in the session and also adds these to the FIT, tcx and RowingData recordings. Please note, setting predetermined intervals and splits in a user friendly way (via PM5 and webinterface) is still a ToDo that is intended for 1.0.0.
+- **Improvement of Magnetic rower support**: the new session manager makes sure that the session is nicely stopped, even when the flywheel has stopped quite abruptly before pause timeouts have time to kick in. This is the case on some magnetic rowers which have an extreme high drag, resulting in very short spin down times of their flywheel.
 
 ### Bugfixes and robustness improvements in 0.9.5
 
