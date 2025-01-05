@@ -20,7 +20,7 @@ export function createVO2max (config) {
 
   function push (metrics) {
     VO2MaxResultIsCurrent = false
-    if (metrics.totalMovingTime > offset && !isNaN(metrics.heartrate) && metrics.heartrate >= config.userSettings.restingHR && metrics.heartrate < config.userSettings.maxHR && !isNaN(metrics.cyclePower) && metrics.cyclePower > 0 && metrics.cyclePower <= config.userSettings.maxPower) {
+    if (metrics.totalMovingTime > offset && !metrics.heartrate !== undefined && !isNaN(metrics.heartrate) && metrics.heartrate >= config.userSettings.restingHR && metrics.heartrate < config.userSettings.maxHR && !isNaN(metrics.cyclePower) && metrics.cyclePower > 0 && metrics.cyclePower <= config.userSettings.maxPower) {
       // We are outside the startup noise and have numeric fields
       metricsArray.push({
         totalMovingTime: metrics.totalMovingTime,
@@ -45,14 +45,22 @@ export function createVO2max (config) {
     if (metricsArray.length > 0 && lastStroke.heartrate >= config.userSettings.restingHR) {
       projectedVO2max = extrapolatedVO2max(metricsArray)
     } else {
-      log.debug(`--- Extrapolated VO2Max calculation skipped: last stroke heartrate (${lastStroke.heartrate} BPM) < restingHR (${config.userSettings.restingHR} BPM)`)
+      if (metricsArray.length > 0) {
+        log.debug(`--- Extrapolated VO2Max calculation skipped: last stroke heartrate (${lastStroke.heartrate} BPM) < restingHR (${config.userSettings.restingHR} BPM)`)
+      } else {
+        log.debug('--- Extrapolated VO2Max calculation skipped as heartrate data was missing')
+      }
     }
 
     if (metricsArray.length > 0 && lastStroke.heartrate >= (0.8 * config.userSettings.maxHR)) {
       // Concept2's formula is only valid when doing a pretty intense session
       interpolatedVO2max = calculateInterpolatedVO2max(metricsArray)
     } else {
-      log.debug(`--- Interpolated VO2Max calculation skipped: last stroke heartrate (${lastStroke.heartrate} BPM) < Zone 4 HR (${0.8 * config.userSettings.maxHR} BPM)`)
+      if (metricsArray.length > 0) {
+        log.debug(`--- Interpolated VO2Max calculation skipped: last stroke heartrate (${lastStroke.heartrate} BPM) < Zone 4 HR (${0.8 * config.userSettings.maxHR} BPM)`)
+      } else {
+        log.debug('--- Intrapolated VO2Max calculation skipped as heartrate data was missing')
+      }
     }
 
     // Let's combine the results
