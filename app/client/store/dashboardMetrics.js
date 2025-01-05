@@ -16,7 +16,17 @@ export const DASHBOARD_METRICS = {
     displayName: 'Distance',
     size: 1,
     template: (metrics, config) => {
-      const distance = metrics?.sessiontype === 'distance' ? Math.max(metrics?.intervalTargetDistance - metrics?.intervalLinearDistance, 0) : (metrics?.sessiontype === 'rest' ? 0 : metrics?.totalLinearDistance)
+      let distance
+      switch (true) {
+        case (metrics?.sessiontype === 'rest' && metrics?.pauseCountdownTime > 0):
+          distance = 0
+          break
+        case (metrics?.sessiontype === 'distance'):
+          distance = Math.max(metrics?.intervalTargetDistance - metrics?.intervalLinearDistance, 0)
+          break
+        default:
+          distance = Math.max(metrics?.intervalLinearDistance, 0)
+      }
       const linearDistance = formatDistance(distance ?? 0)
 
       return simpleMetricFactory(linearDistance.distance, linearDistance.unit, config.guiConfigs.showIcons ? icon_route : '')
@@ -54,9 +64,23 @@ export const DASHBOARD_METRICS = {
     displayName: 'Timer',
     size: 1,
     template: (metrics, config) => {
-      const time = (metrics?.sessiontype === 'time' ? Math.max(metrics?.intervalTargetTime - metrics?.intervalMovingTime, 0) : (metrics?.sessiontype === 'rest' && metrics?.pauseCountdownTime > 0 ? metrics?.pauseCountdownTime : metrics?.totalMovingTime))
+      let time
+      let icon
+      switch (true) {
+        case (metrics?.sessiontype === 'rest' && metrics?.pauseCountdownTime > 0):
+          time = metrics?.pauseCountdownTime
+          icon = icon_alarmclock
+          break
+        case (metrics?.sessiontype === 'time'):
+          time = Math.max(metrics?.intervalTargetTime - metrics?.intervalMovingTime, 0)
+          icon = icon_clock
+          break
+        default:
+          time = Math.max(metrics?.intervalMovingTime, 0)
+          icon = icon_clock
+      }
 
-      return simpleMetricFactory(secondsToTimeString(time ?? 0), '', config.guiConfigs.showIcons ? (metrics?.sessiontype === 'rest' && metrics?.pauseCountdownTime > 0 ? icon_alarmclock : icon_clock) : '')
+      return simpleMetricFactory(secondsToTimeString(time ?? 0), '', config.guiConfigs.showIcons ? icon : '')
     }
   },
 
