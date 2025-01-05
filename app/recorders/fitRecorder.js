@@ -608,7 +608,7 @@ export function createFITRecorder (config) {
       switch (true) {
         case (workout.workoutplan[i].type === 'distance' && workout.workoutplan[i].targetDistance > 0):
           // A target distance is set
-          createWorkoutStep(writer, i, 'distance', workout.workoutplan[i].targetDistance, 'active')
+          createWorkoutStep(writer, i, 'distance', workout.workoutplan[i].targetDistance * 100, 'active')
           break
         case (workout.workoutplan[i].type === 'time' && workout.workoutplan[i].targetTime > 0):
           // A target time is set
