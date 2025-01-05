@@ -231,6 +231,7 @@ export function createSessionManager (config) {
         stopTraining()
         temporaryDatapoint = interval.interpolateEnd(lastBroadcastedMetrics, metrics)
         sessionState = 'Paused'
+        currentIntervalNumber++
         if (temporaryDatapoint.modified) {
           // The intermediate datapoint is actually different
           resetMetricsSessionContext(temporaryDatapoint)
@@ -245,7 +246,6 @@ export function createSessionManager (config) {
           metrics.metricsContext.isPauseStart = true
           interval.setStart(metrics)
         }
-        currentIntervalNumber++
         interval.setEnd(intervalSettings[currentIntervalNumber])
         pauseCountdownTimer = interval.timeToEnd(metrics)
         pauseTimer = setTimeout(onPauseTimer, 100)
