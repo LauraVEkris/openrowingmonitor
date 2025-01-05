@@ -1,3 +1,4 @@
+
 'use strict'
 /*
   Open Rowing Monitor, https://github.com/JaapvanEkris/openrowingmonitor
@@ -257,7 +258,7 @@ export function createTCXRecorder (config) {
     tcxData += `      <Id>${workout.startTime.toISOString()}</Id>\n`
     let i = 0
     while (i < workout.lap.length) {
-      if (workout.lap[lapnumber].intensity !== 'Resting') {
+      if (workout.lap[i].intensity !== 'Resting') {
         tcxData += await createActiveLap(workout.lap[i])
       } else {
         tcxData += await createRestLap(workout.lap[i])
