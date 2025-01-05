@@ -16,7 +16,7 @@ export const DASHBOARD_METRICS = {
     displayName: 'Distance',
     size: 1,
     template: (metrics, config) => {
-      const distance = metrics?.sessiontype === 'distance' ? Math.max(metrics?.intervalTargetDistance - metrics?.intervalLinearDistance, 0) : (metrics?.sessiontype === 'rest' && metrics?.pauseCountdownTime > 0 ? '--' : metrics?.totalLinearDistance)
+      const distance = metrics?.sessiontype === 'distance' ? Math.max(metrics?.intervalTargetDistance - metrics?.intervalLinearDistance, 0) : (metrics?.sessiontype === 'rest' ? 0 : metrics?.totalLinearDistance)
       const linearDistance = formatDistance(distance ?? 0)
 
       return simpleMetricFactory(linearDistance.distance, linearDistance.unit, config.guiConfigs.showIcons ? icon_route : '')
