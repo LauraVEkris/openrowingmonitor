@@ -55,14 +55,14 @@ export function createSessionManager (config) {
       case ('start'):
         if (sessionState !== 'Rowing') {
           clearTimeout(pauseTimer)
-          allowStartOrResumeTraining(metrics)
+          StartOrResumeTraining(metrics)
           sessionState = 'WaitingForStart'
         }
         break
       case ('startOrResume'):
         if (sessionState !== 'Rowing') {
           clearTimeout(pauseTimer)
-          allowStartOrResumeTraining(metrics)
+          StartOrResumeTraining(metrics)
           sessionState = 'WaitingForStart'
         }
         break
@@ -113,7 +113,7 @@ export function createSessionManager (config) {
     lastSessionState = sessionState
   }
 
-  function allowStartOrResumeTraining (metrics) {
+  function StartOrResumeTraining (metrics) {
     rowingStatistics.allowStartOrResumeTraining()
     intervalAndPauseStartTime = new Date()
     intervalAndPause.setStart(metrics)
@@ -172,7 +172,7 @@ export function createSessionManager (config) {
     // This is the core of the finite state machine that defines all state transitions
     switch (true) {
       case (lastSessionState === 'WaitingForStart' && metrics.metricsContext.isMoving === true):
-        allowStartOrResumeTraining(metrics)
+        StartOrResumeTraining(metrics)
         sessionState = 'Rowing'
         metrics.metricsContext.isIntervalStart = true
         metrics.metricsContext.isSessionStart = true
@@ -181,7 +181,7 @@ export function createSessionManager (config) {
         // We can't change into the "Rowing" state since we are waiting for a drive phase that didn't come
         break
       case (lastSessionState === 'Paused' && metrics.metricsContext.isMoving === true):
-        allowStartOrResumeTraining(metrics)
+        StartOrResumeTraining(metrics)
         sessionState = 'Rowing'
         metrics.metricsContext.isIntervalStart = true
         metrics.metricsContext.isPauseEnd = true
