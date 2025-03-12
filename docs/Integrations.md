@@ -33,11 +33,18 @@ OpenRowingMonitor supports the following exports, which can be obtained via the 
 
 ## Strava
 
-Uploading your sessions to [Strava](https://www.strava.com) is an integrated feature. Strava can handle both tcx- and fit-files, but it will only display the data from the tcx-file.
+Uploading your sessions to [Strava](https://www.strava.com) is an integrated feature. Strava can handle both tcx- and fit-files, but it will only display the data from the tcx-file. Part of the specific parameters in `config/config.js` are the Strava settings. To use this, you have to create a Strava API Application as described [here](https://developers.strava.com/docs/getting-started/#account) and use the corresponding values. When creating your Strava API application, set the "Authorization Callback Domain" to the IP address of your Raspberry Pi.
+
+Once you get your Strava credentials, you can add them in `config/config.js`:
+
+```js
+stravaClientId: "StravaClientID",
+stravaClientSecret: "client_secret_string_from_the_Strava_API",
+```
 
 ## RowsAndAll.com
 
-Uploading to [RowsAndAll](https://rowsandall.com/) can be automated through their e-mail interface, see [this description](https://rowsandall.com/rowers/developers/). Once you setup of your mail sending client has been done on the Raspberry Pi, you can do the following
+[RowsAndAll](https://rowsandall.com/) provides the most extensive on-line data analysis environment for rowing. Our RowingData export is made in collaboration with them, and provides the most extensve dataset OpenRowingMonitor can provide. Uploading can be automated through their e-mail interface, see [this description](https://rowsandall.com/rowers/developers/). Once you setup of your mail sending client has been done on the Raspberry Pi, you can do the following
 
 ```sh
 echo -e "workouttype rower (Indoor rower)\nnote ${note}" | mail -r YOUR@EMAIL.com -s "${descriptor}" --content-type=text/csv --content-filename "Workout.csv" -A ${fileName} workouts@rowsandall.com --content-type=text/plain
